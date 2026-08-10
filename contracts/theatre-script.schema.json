@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/contracts/theatre-script.schema.json",
+  "title": "Approved-branch three-act theatre script",
+  "type": "object",
+  "required": ["branchVersionId", "title", "acts", "totalDurationSeconds"],
+  "properties": {
+    "branchVersionId": { "type": "string" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "acts": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "narration", "stageDirection", "durationSeconds"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "narration": { "type": "string", "minLength": 1 },
+          "dialogue": { "type": "string" },
+          "stageDirection": { "type": "string", "minLength": 1 },
+          "durationSeconds": { "type": "integer", "minimum": 15, "maximum": 35 }
+        },
+        "additionalProperties": true
+      }
+    },
+    "totalDurationSeconds": { "type": "integer", "minimum": 60, "maximum": 90 },
+    "finalLineSuggestions": {
+      "type": "array",
+      "maxItems": 2,
+      "items": { "type": "string", "maxLength": 160 }
+    }
+  },
+  "additionalProperties": true
+}
+

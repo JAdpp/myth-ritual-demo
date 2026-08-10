@@ -1,0 +1,244 @@
+{
+  "built_at": "2026-08-09T02:25:00+08:00",
+  "canonical_records": 12353,
+  "catalog_version": "c1-single-story-wikisource-2026-08-09-demo-pool-v1",
+  "record_schema": "contracts/c1-single-story.schema.json",
+  "records": 12354,
+  "shards": [
+    {
+      "bytes": 4475791,
+      "path": "shards/zh_wikisource/taiping_guangji/part-00000.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 1000,
+      "sha256": "00cf52bc231c1dd662e96344d379245d484eadf5f7ed74dfc964a29513b95aef",
+      "source_work_id": "taiping_guangji"
+    },
+    {
+      "bytes": 3681990,
+      "path": "shards/zh_wikisource/taiping_guangji/part-00001.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 1000,
+      "sha256": "43c9b9fea0538b6e04a59c17865e18548eab9450852d8f0b4d2596f621e75dba",
+      "source_work_id": "taiping_guangji"
+    },
+    {
+      "bytes": 3753535,
+      "path": "shards/zh_wikisource/taiping_guangji/part-00002.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 1000,
+      "sha256": "99db029e589b1c1cbc0b1b6596d9fd3d9a634ab0d5cad2ede770b688c4cad310",
+      "source_work_id": "taiping_guangji"
+    },
+    {
+      "bytes": 3804836,
+      "path": "shards/zh_wikisource/taiping_guangji/part-00003.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 1000,
+      "sha256": "c72b1449dd8d5b7dee41036cd8ac510b4f93d3e72abc789a96e551e7d117c890",
+      "source_work_id": "taiping_guangji"
+    },
+    {
+      "bytes": 4018377,
+      "path": "shards/zh_wikisource/taiping_guangji/part-00004.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 1000,
+      "sha256": "5183d639f25cae54b5ec26c24697fae7acc14edfee5b45e8f7b142318d03bf09",
+      "source_work_id": "taiping_guangji"
+    },
+    {
+      "bytes": 3609051,
+      "path": "shards/zh_wikisource/taiping_guangji/part-00005.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 1000,
+      "sha256": "f405296a8e0c7bba3eeb4308a4cade58b14c611b6209666056ecc0cad056af48",
+      "source_work_id": "taiping_guangji"
+    },
+    {
+      "bytes": 3779256,
+      "path": "shards/zh_wikisource/taiping_guangji/part-00006.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 996,
+      "sha256": "64644735dcceec3dd26fcfee418993478caf6eef46ab4f1a67cb76118b19397c",
+      "source_work_id": "taiping_guangji"
+    },
+    {
+      "bytes": 3959528,
+      "path": "shards/zh_wikisource/yi_jian_zhi/part-00000.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 1000,
+      "sha256": "7c4acdef2a6690e6e265ae4d064ce8522373c4a327b8c799da83230879e49d7b",
+      "source_work_id": "yi_jian_zhi"
+    },
+    {
+      "bytes": 3942119,
+      "path": "shards/zh_wikisource/yi_jian_zhi/part-00001.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 1000,
+      "sha256": "df6dc1ebf1a417cce0b4a289ae0a38ed832b5d9bed3560564f6a5ba89db3efc8",
+      "source_work_id": "yi_jian_zhi"
+    },
+    {
+      "bytes": 2692278,
+      "path": "shards/zh_wikisource/yi_jian_zhi/part-00002.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 646,
+      "sha256": "34bd87127f8e7de7e946e0f8c7baf6a41905bb2fa2e93177edc808387abe2b26",
+      "source_work_id": "yi_jian_zhi"
+    },
+    {
+      "bytes": 4044863,
+      "path": "shards/zh_wikisource/yue_wei_cao_tang_bi_ji/part-00000.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 1000,
+      "sha256": "9bfe263fd4a6318b0314c210abbe5a9d8a751f71e312f2f0b1416157b63951ca",
+      "source_work_id": "yue_wei_cao_tang_bi_ji"
+    },
+    {
+      "bytes": 870085,
+      "path": "shards/zh_wikisource/yue_wei_cao_tang_bi_ji/part-00001.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 198,
+      "sha256": "082ac0cda773ea32e2831289eefcc3ea912b2b8f636b5a8743955d71e915e36c",
+      "source_work_id": "yue_wei_cao_tang_bi_ji"
+    },
+    {
+      "bytes": 2986920,
+      "path": "shards/zh_wikisource/zi_bu_yu/part-00000.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 745,
+      "sha256": "8bb254a8f19696b13047dc9aee7680e00c6970d5db8ccd86b0e2d648c340bd4b",
+      "source_work_id": "zi_bu_yu"
+    },
+    {
+      "bytes": 1111390,
+      "path": "shards/zh_wikisource/xu_zi_bu_yu/part-00000.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 277,
+      "sha256": "d121a93d313cdee90aad59ec036d52d72e52afdd6a0af0857e707e4919fef254",
+      "source_work_id": "xu_zi_bu_yu"
+    },
+    {
+      "bytes": 2936265,
+      "path": "shards/zh_wikisource/liao_zhai_zhi_yi/part-00000.ndjson",
+      "provider": "zh_wikisource",
+      "rows": 492,
+      "sha256": "0712a2d2dcafadfdbc9e321e069215ba6ccfe84c083d7d3a019777df3921b038",
+      "source_work_id": "liao_zhai_zhi_yi"
+    }
+  ],
+  "snapshot_date": "2026-08-09",
+  "source_epubs": [
+    {
+      "author": "李昉等奉敕纂",
+      "epub_bytes": 5137617,
+      "epub_file": "sources/wikisource_epub/taiping_guangji.epub",
+      "epub_sha256": "73e7ec4426e9826eabfd08a42f09a98028cd7e42161a22cf71a025203f389ef8",
+      "export_url": "https://ws-export.wmcloud.org/?format=epub&lang=zh&page=%E5%A4%AA%E5%B9%B3%E5%BB%A3%E8%A8%98",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "parser": "taiping_headings",
+      "period": "北宋",
+      "provider": "zh_wikisource",
+      "provider_terms_url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use/en",
+      "retrieved_at": "2026-08-09T02:09:22+08:00",
+      "root_url": "https://zh.wikisource.org/wiki/%E5%A4%AA%E5%B9%B3%E5%BB%A3%E8%A8%98",
+      "source_work_id": "taiping_guangji",
+      "title": "太平廣記",
+      "transcription_license": "CC-BY-SA-4.0"
+    },
+    {
+      "author": "洪邁",
+      "epub_bytes": 2723113,
+      "epub_file": "sources/wikisource_epub/yi_jian_zhi.epub",
+      "epub_sha256": "8301ef61ba59f87d2c38202f011d4fcebb92edc80a83a541a34377751826ad89",
+      "export_url": "https://ws-export.wmcloud.org/?format=epub&lang=zh&page=%E5%A4%B7%E5%A0%85%E5%BF%97",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "parser": "yijian_headings",
+      "period": "南宋",
+      "provider": "zh_wikisource",
+      "provider_terms_url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use/en",
+      "retrieved_at": "2026-08-09T02:11:35+08:00",
+      "root_url": "https://zh.wikisource.org/wiki/%E5%A4%B7%E5%A0%85%E5%BF%97",
+      "source_work_id": "yi_jian_zhi",
+      "title": "夷堅志",
+      "transcription_license": "CC-BY-SA-4.0"
+    },
+    {
+      "author": "紀昀",
+      "epub_bytes": 708643,
+      "epub_file": "sources/wikisource_epub/yue_wei_cao_tang_bi_ji.epub",
+      "epub_sha256": "c1cbf749a36273f53e4a624cf2dbd581c0c7326180e94e2ddf8e9029e81b94de",
+      "export_url": "https://ws-export.wmcloud.org/?format=epub&lang=zh&page=%E9%96%B1%E5%BE%AE%E8%8D%89%E5%A0%82%E7%AD%86%E8%A8%98",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "parser": "yuewei_paragraphs",
+      "period": "清",
+      "provider": "zh_wikisource",
+      "provider_terms_url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use/en",
+      "retrieved_at": "2026-08-09T02:13:27+08:00",
+      "root_url": "https://zh.wikisource.org/wiki/%E9%96%B1%E5%BE%AE%E8%8D%89%E5%A0%82%E7%AD%86%E8%A8%98",
+      "source_work_id": "yue_wei_cao_tang_bi_ji",
+      "title": "閱微草堂筆記",
+      "transcription_license": "CC-BY-SA-4.0"
+    },
+    {
+      "author": "袁枚",
+      "epub_bytes": 540476,
+      "epub_file": "sources/wikisource_epub/zi_bu_yu.epub",
+      "epub_sha256": "d083a537119834121fe34a269aeb80d3c0ac286fd9de8b550c82865d6351f7ce",
+      "export_url": "https://ws-export.wmcloud.org/?format=epub&lang=zh&page=%E5%AD%90%E4%B8%8D%E8%AA%9E",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "parser": "zibuyu_headings",
+      "period": "清",
+      "provider": "zh_wikisource",
+      "provider_terms_url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use/en",
+      "retrieved_at": "2026-08-09T02:19:55+08:00",
+      "root_url": "https://zh.wikisource.org/wiki/%E5%AD%90%E4%B8%8D%E8%AA%9E",
+      "source_work_id": "zi_bu_yu",
+      "title": "子不語",
+      "transcription_license": "CC-BY-SA-4.0"
+    },
+    {
+      "author": "袁枚",
+      "epub_bytes": 224992,
+      "epub_file": "sources/wikisource_epub/xu_zi_bu_yu.epub",
+      "epub_sha256": "4ee417e34886c1c1973cb07ca0d4d3ce3a5fd146ac1fb1b01a73d82d292c1e7a",
+      "export_url": "https://ws-export.wmcloud.org/?format=epub&lang=zh&page=%E7%BA%8C%E5%AD%90%E4%B8%8D%E8%AA%9E",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "parser": "xuzibuyu_headings",
+      "period": "清",
+      "provider": "zh_wikisource",
+      "provider_terms_url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use/en",
+      "retrieved_at": "2026-08-09T02:20:10+08:00",
+      "root_url": "https://zh.wikisource.org/wiki/%E7%BA%8C%E5%AD%90%E4%B8%8D%E8%AA%9E",
+      "source_work_id": "xu_zi_bu_yu",
+      "title": "續子不語",
+      "transcription_license": "CC-BY-SA-4.0"
+    },
+    {
+      "author": "蒲松齡",
+      "epub_bytes": 844694,
+      "epub_file": "sources/wikisource_epub/liao_zhai_zhi_yi.epub",
+      "epub_sha256": "3b44caff89c7a41318dcd78ebc2d2d2d89f86f58e040e0344d674fdc99c60db5",
+      "export_url": "https://ws-export.wmcloud.org/?format=epub&lang=zh&page=%E8%81%8A%E9%BD%8B%E5%BF%97%E7%95%B0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "parser": "liaozhai_headings",
+      "period": "清",
+      "provider": "zh_wikisource",
+      "provider_terms_url": "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use/en",
+      "retrieved_at": "2026-08-09T02:20:25+08:00",
+      "root_url": "https://zh.wikisource.org/wiki/%E8%81%8A%E9%BD%8B%E5%BF%97%E7%95%B0",
+      "source_work_id": "liao_zhai_zhi_yi",
+      "title": "聊齋志異",
+      "transcription_license": "CC-BY-SA-4.0"
+    }
+  ],
+  "sqlite": {
+    "bytes": 88563712,
+    "entries": 12354,
+    "fts_entries": 12353,
+    "path": "catalog.sqlite3",
+    "sha256": "b432d4f702b8b61f0220b7965d8c6db45a725929e15a19a7e23171b68d92a74b",
+    "tokenizer": "trigram"
+  },
+  "summary_path": "summary.json",
+  "summary_sha256": "bbf0ecc9a3be9e1de6a2575ef0aa153ca1b0b5fb19914da7cda317c73b61366e"
+}

@@ -1,0 +1,5247 @@
+{
+  "schema_version": "0.2.0",
+  "corpus_version": "c3-dev-primary-2026-08-09-30f",
+  "snapshot_date": "2026-08-09",
+  "corpus_tier": "c3-dev",
+  "editorial_status": "editorial_draft",
+  "production_eligible": false,
+  "development_runtime_eligible": true,
+  "coverage_claim": "产品运行集：30 则故事各保留 1 个产品主文本，共 30 条；用户不选择异本，后台第二见证另存于 C1-secondary。所有主文本均为待专家复核的演示编辑选择。",
+  "story_versions": [
+    {
+      "story_version_id": "pangu_yiwenleiju_sanwuliji_quote",
+      "story_family_id": "pangu_cosmogony",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "盘古开天",
+      "era": "唐编类书所存三国时期佚书引文",
+      "genre": "类书引文",
+      "story_type": "myth",
+      "motifs": [
+        "混沌如卵",
+        "天地分判",
+        "巨人增长",
+        "宇宙尺度"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《艺文类聚》卷一引徐整《三五历纪》",
+        "author": "《艺文类聚》欧阳询等编；引文题徐整",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "卷一·天部上·天；徐整《三五历纪》曰",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/藝文類聚/卷001",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=藝文類聚/卷001&oldid=2004348",
+        "page_revision_id": 2004348,
+        "page_revision_timestamp": "2020-12-04T04:22:35Z",
+        "retrieved_at": "2026-08-07T01:35:13+08:00",
+        "original_excerpt": "徐整《三五曆紀》曰：天地混沌如雞子．盤古生其中．萬八千歲．天地開闢．陽清為天．陰濁為地．盤古在其中．一日九變．神於天．聖於地．",
+        "excerpt_sha256": "2b854be3f057e16de60b8e2305925da091fa10c38ac8bc25e14be31cc888761a",
+        "excerpt_normalization": "UTF-8；去除页面模板标记，保留页面所见字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：天地持续分开，盘古随之增长；这段佚文引句在所摘范围内不含盘古死后化生万物。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "indirect_quotation_of_lost_work",
+          "note": "现存载体是唐代类书引文，不得称作《三五历纪》原本或完整版本。",
+          "confidence": "high_for_quotation_medium_for_lost_work_context"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "盘古开天",
+        "subtitle": "《艺文类聚》卷一引徐整《三五历纪》",
+        "summary": "混沌被写成鸡卵般的整体，盘古生于其中。天地分判后，清者为天、浊者为地，盘古立于其间并随天地日日增长。",
+        "characters": [
+          "盘古"
+        ],
+        "conflict": "未分的宇宙如何形成可居的天地秩序。",
+        "motifs": [
+          "混沌如卵",
+          "天地分判",
+          "巨人增长",
+          "宇宙尺度"
+        ],
+        "imagery": [
+          "鸡卵般的混沌",
+          "上升的清气",
+          "下沉的浊气",
+          "天地之间的巨人"
+        ],
+        "emotional_arc": "幽暗未分 → 撑开边界 → 尺度扩张",
+        "resonance": "可联想到从混乱中辨认边界、给新世界留出空间，但这只是开放式联想。",
+        "non_fit": "若用户不想接触创世、巨人或宏大使命隐喻，可选择其他故事。",
+        "content_warnings": [
+          "身体尺度变化",
+          "创世神话"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "混沌如鸡子",
+          "阳清为天、阴浊为地",
+          "盘古立于天地之间并随之增长"
+        ],
+        "may_transform": [
+          "把天地分判转译为现代生活中的边界建立",
+          "改变时代、职业与空间",
+          "由用户决定是否采用宏大尺度"
+        ],
+        "prohibited": [
+          "擅自补写盘古身体化生万物并说成当前故事事实",
+          "把短篇来源扩成完整定本而不标明再创作",
+          "宣称故事具有治疗或心理改善效果"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "混沌圆幕",
+          "清浊双层光带",
+          "缓慢升高的天地标尺"
+        ],
+        "visual_motifs": [
+          "墨黑",
+          "矿物青",
+          "米白",
+          "垂直生长线"
+        ],
+        "prohibited_visuals": [
+          "默认套用西方创世图像",
+          "把佚文未载的身体碎裂画成原典场景"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《艺文类聚》卷一引徐整《三五历纪》；中文维基文库；oldid 2004348",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-07",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "《三五历纪》已佚，只能把这条记录称为类书引文",
+          "尚未核对可靠影印本"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2004348",
+          "title": "《艺文类聚》卷001固定修订",
+          "work": "艺文类聚",
+          "author": "欧阳询等编",
+          "era": "唐",
+          "edition": "中文维基文库社区转录",
+          "locator": "天部上·天·徐整《三五历纪》引文",
+          "url": "https://zh.wikisource.org/w/index.php?title=藝文類聚/卷001&oldid=2004348",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "kuafu_shanhaijing_haiwaibei",
+      "story_family_id": "kuafu_sun_chase",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "夸父逐日",
+      "era": "先秦至汉初传承文本",
+      "genre": "地理博物志/神话材料",
+      "story_type": "myth",
+      "motifs": [
+        "逐日",
+        "极限渴求",
+        "途中死亡",
+        "杖化邓林"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《山海经·海外北经》",
+        "author": "佚名，历代累积文本",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "夸父与日逐走段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/山海經/海外北經",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=山海經/海外北經&oldid=442531",
+        "page_revision_id": 442531,
+        "page_revision_timestamp": "2015-07-11T03:33:42Z",
+        "retrieved_at": "2026-08-07T01:35:13+08:00",
+        "original_excerpt": "夸父與日逐走，入日。渴，欲得飲，飲於河、渭，河、渭不足，北飲大澤。未至，道渴而死。棄其杖，化為鄧林。",
+        "excerpt_sha256": "07edd26f6530dab610617cd367b328a4aaf918d9dbefdb7da50fe183d6b434ab",
+        "excerpt_normalization": "UTF-8；去除异文模板，采用页面主显示字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：夸父未到大泽便渴死，遗下的手杖化作邓林。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "same_work_internal_variant_witness",
+          "note": "与《大荒北经》是《山海经》同书异篇异文，不冒充跨时代独立改写。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "夸父逐日",
+        "subtitle": "《山海经·海外北经》",
+        "summary": "夸父追逐太阳，因焦渴饮尽河水仍不足，奔向大泽途中死去；他丢下的手杖化成邓林。",
+        "characters": [
+          "夸父"
+        ],
+        "conflict": "巨大的愿望与身体、距离和资源的极限相撞。",
+        "motifs": [
+          "逐日",
+          "极限渴求",
+          "途中死亡",
+          "杖化邓林"
+        ],
+        "imagery": [
+          "疾行的巨人",
+          "河与渭",
+          "远方大泽",
+          "由杖生出的树林"
+        ],
+        "emotional_arc": "追逐 → 焦渴 → 未竟 → 留下生长",
+        "resonance": "可联想到目标、限度与未竟之事留下的资源，但不把耗尽自己写成美德。",
+        "non_fit": "涉及死亡、耗竭与失败感；若用户处在强烈自责或耗竭情境，可换故事。",
+        "content_warnings": [
+          "死亡",
+          "脱水/耗竭",
+          "未竟目标"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "夸父逐日、饮河渭、未至大泽而死",
+          "手杖化为邓林",
+          "故事在未竟追逐后留下新的生长"
+        ],
+        "may_transform": [
+          "把太阳转译为难以接近的目标",
+          "把邓林转译为可留给他人的资源",
+          "允许角色主动停下而非复制原结局"
+        ],
+        "prohibited": [
+          "把死亡美化为坚持到底的必要代价",
+          "擅自增加应龙杀夸父的情节",
+          "宣称坚持即可获得治疗效果"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "远日与长影",
+          "河渭水线下降",
+          "手杖生林"
+        ],
+        "visual_motifs": [
+          "日轮橙",
+          "河蓝",
+          "林木绿",
+          "长水平线"
+        ],
+        "prohibited_visuals": [
+          "写实死亡痛苦",
+          "英雄化自我耗尽"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《山海经·海外北经》；中文维基文库；oldid 442531",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-07",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "variant_markup_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "异文模板已从摘录中去除，尚须记录所据底本文字",
+          "尚未完成版本学说明"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-442531",
+          "title": "《山海经·海外北经》固定修订",
+          "work": "山海经",
+          "author": "佚名",
+          "era": "先秦至汉初传承文本",
+          "edition": "中文维基文库社区转录",
+          "locator": "夸父与日逐走段",
+          "url": "https://zh.wikisource.org/w/index.php?title=山海經/海外北經&oldid=442531",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "gunyu_wuyuechunqiu_wuyu",
+      "story_family_id": "gun_yu_flood_control",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "大禹治水",
+      "era": "东汉",
+      "genre": "杂史/传说叙事",
+      "story_type": "legend",
+      "motifs": [
+        "九年治水",
+        "鲧化黄能",
+        "禹继父业",
+        "过门不入",
+        "艰苦治理"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《吴越春秋·越王无余外传》",
+        "author": "赵晔",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "帝尧洪水至禹治水段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/吳越春秋/越王無余外傳",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=吳越春秋/越王無余外傳&oldid=2178543",
+        "page_revision_id": 2178543,
+        "page_revision_timestamp": "2022-09-12T08:30:43Z",
+        "retrieved_at": "2026-08-07T01:35:13+08:00",
+        "original_excerpt": "禹傷父功不成，循江，泝河，盡濟，甄淮，乃勞身焦思以行，七年，聞樂不聽，過門不入，冠掛不顧，履遺不躡。",
+        "excerpt_sha256": "3efd47438d254a36213c01775e81243088d5b86043612f24857a420f6209ca68",
+        "excerpt_normalization": "UTF-8；保留页面所见字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：文本扩写鲧九年治水失败、被殛后化神，以及禹长年劳作、获书与完成治水的经历。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "later_narrative_elaboration",
+          "note": "相较《海内经》，本篇增加人物经历、劳作细节和神异助力，不可反向写入早期异文。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "大禹治水",
+        "subtitle": "《吴越春秋·越王无余外传》",
+        "summary": "鲧治水九年未成，被殛后化为羽渊之神。禹因父功未成而接手治水，长期奔走江河，叙事强调他不听乐、过门不入的艰苦投入。",
+        "characters": [
+          "鲧",
+          "禹",
+          "尧",
+          "舜",
+          "四岳"
+        ],
+        "conflict": "公共灾难、前任失败与个人生活之间出现难以调和的责任。",
+        "motifs": [
+          "九年治水",
+          "鲧化黄能",
+          "禹继父业",
+          "过门不入",
+          "艰苦治理"
+        ],
+        "imagery": [
+          "江河水路",
+          "羽渊",
+          "挂起的冠",
+          "家门前不停的脚步"
+        ],
+        "emotional_arc": "失败与惩罚 → 接手重担 → 长期劳作 → 秩序成形",
+        "resonance": "可联想到接手旧项目、重新选择方法和辨认责任边界，而非赞美过劳。",
+        "non_fit": "包含父职继承、处死和极端劳作；不适合希望避免家庭责任或过劳主题的用户。",
+        "content_warnings": [
+          "处死",
+          "灾难",
+          "过劳",
+          "父子责任",
+          "自我忽视"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "鲧长期治水未成且被殛",
+          "禹接续治水并长期奔走",
+          "过门不入是本篇强调的劳作细节"
+        ],
+        "may_transform": [
+          "让现代角色改变前任方法",
+          "明确休息、协作和责任分担",
+          "将神异助力转译为知识、工具或伙伴"
+        ],
+        "prohibited": [
+          "把过劳和忽视家庭写成唯一正确选择",
+          "把子代接手写成天然义务",
+          "混淆本篇与《海内经》的具体情节"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "治水图失效",
+          "沿江跋涉",
+          "家门与公共水道并置"
+        ],
+        "visual_motifs": [
+          "水路蓝",
+          "泥土褐",
+          "路线刻痕",
+          "门框"
+        ],
+        "prohibited_visuals": [
+          "把过门不入作无条件道德号召",
+          "写实处刑"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《吴越春秋·越王无余外传》；中文维基文库；oldid 2178543",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-07",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "narrative_boundary_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "过门不入等细节需与底本逐字核对",
+          "过劳和孝道转译尚未完成文化与安全复核"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2178543",
+          "title": "《吴越春秋·越王无余外传》固定修订",
+          "work": "吴越春秋",
+          "author": "赵晔",
+          "era": "东汉",
+          "edition": "中文维基文库社区转录",
+          "locator": "禹伤父功不成段",
+          "url": "https://zh.wikisource.org/w/index.php?title=吳越春秋/越王無余外傳&oldid=2178543",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "change_huainanzi_lanming",
+      "story_family_id": "change_flight_to_moon",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "嫦娥奔月",
+      "era": "西汉",
+      "genre": "子书中的神话材料",
+      "story_type": "myth",
+      "motifs": [
+        "不死药",
+        "窃药",
+        "奔月",
+        "失落",
+        "不可复得"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《淮南子·览冥训》",
+        "author": "刘安及门客编",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "羿请不死之药譬喻段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/淮南子/覽冥訓",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=淮南子/覽冥訓&oldid=3933631",
+        "page_revision_id": 3933631,
+        "page_revision_timestamp": "2026-05-09T09:20:16Z",
+        "retrieved_at": "2026-08-07T01:35:13+08:00",
+        "original_excerpt": "譬若羿請不死之藥於西王母，姮娥竊以奔月，悵然有喪，無以續之。",
+        "excerpt_sha256": "62ecf6e7ca6d6e504e54ebbba36dac49a6d38612f0e5737bceb64825203b60ac",
+        "excerpt_normalization": "UTF-8；保留页面所见字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：短句以羿失去不死药后的怅然作结；此处未说明姮娥动机、月宫生活或重逢。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_han_attestation",
+          "note": "该神话材料在论说文中作为譬喻出现，不能扩成完整浪漫故事后仍称原文。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "嫦娥奔月",
+        "subtitle": "《淮南子·览冥训》",
+        "summary": "羿向西王母求得不死药，姮娥取药奔月。羿失去药、无法再续，只能在离开与失落中怅然；姮娥的动机保持留白。",
+        "characters": [
+          "羿",
+          "姮娥",
+          "西王母"
+        ],
+        "conflict": "稀缺资源、未明动机与不可挽回的离开造成失落。",
+        "motifs": [
+          "不死药",
+          "窃药",
+          "奔月",
+          "失落",
+          "不可复得"
+        ],
+        "imagery": [
+          "西王母的不死药",
+          "离地的月路",
+          "空下的药盒",
+          "远月"
+        ],
+        "emotional_arc": "获得 → 突然失去 → 远离 → 怅然",
+        "resonance": "可联想到对离开动机的不确定、资源控制和失落，但不替任何角色定罪。",
+        "non_fit": "包含偷取、伴侣分离与性别化责备传统；对此敏感者可换故事。",
+        "content_warnings": [
+          "偷取",
+          "伴侣分离",
+          "性别化责备",
+          "孤独"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "羿向西王母请得不死药",
+          "姮娥取药奔月",
+          "故事以羿怅然且无以续之收束",
+          "姮娥的动机保持留白"
+        ],
+        "may_transform": [
+          "让现代支线探索多种可能动机并明确标为再创作",
+          "转译为离开、资源与不确定性",
+          "允许用户从任一角色视角书写"
+        ],
+        "prohibited": [
+          "擅自补入团圆、玉兔或完整月宫生活",
+          "把姮娥定性为天生贪婪",
+          "以关系分离作治疗性类比"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "药盒交付",
+          "人物与月之间的长线",
+          "羿面对空处"
+        ],
+        "visual_motifs": [
+          "月白",
+          "深靛",
+          "药丸金",
+          "断开的轨迹"
+        ],
+        "prohibited_visuals": [
+          "默认把姮娥画成诱惑或贪婪符号",
+          "混入玉兔等未见本段元素而不标注"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《淮南子·览冥训》；中文维基文库；oldid 3933631",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-07",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "contextual_reading_review",
+          "gender_framing_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠点校本与上下文",
+          "现代梗概需避免把譬喻短句误作完整传说"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-3933631",
+          "title": "《淮南子·览冥训》固定修订",
+          "work": "淮南子",
+          "author": "刘安及门客编",
+          "era": "西汉",
+          "edition": "中文维基文库社区转录",
+          "locator": "羿请不死之药譬喻段",
+          "url": "https://zh.wikisource.org/w/index.php?title=淮南子/覽冥訓&oldid=3933631",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "mulan_ballad",
+      "story_family_id": "mulan_substitution",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "花木兰从军",
+      "era": "南北朝歌辞传承文本，编定年代有争议",
+      "genre": "乐府歌辞",
+      "story_type": "legend",
+      "motifs": [
+        "代父从军",
+        "女扮男装",
+        "远征",
+        "辞官归家",
+        "身份重见"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《木兰诗》",
+        "author": "佚名",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "军帖与愿为市鞍马段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/木蘭詩",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=木蘭詩&oldid=7912121",
+        "page_revision_id": 7912121,
+        "page_revision_timestamp": "2026-08-04T14:14:57Z",
+        "retrieved_at": "2026-08-07T01:35:13+08:00",
+        "original_excerpt": "昨夜見軍帖，可汗大點兵。軍書十二卷，卷卷有爺名。阿爺無大兒，木蘭無長兄。願為市鞍馬，從此替爺征。",
+        "excerpt_sha256": "7041c9067d0a50a4ad6302969a4703eee3c40ceb31ea8867c261f6f68e3c7c43",
+        "excerpt_normalization": "UTF-8；去除异文与简繁转换模板并合并诗行换行，采用页面主显示字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：木兰长期征战后拒绝尚书郎职位，要求返乡；换回旧衣后，同行者才惊见其身份。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_ballad_attestation",
+          "note": "成诗与传承年代有争议；本记录不把后世小说人物背景和结局并入。",
+          "confidence": "high_for_text_medium_for_dating"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "花木兰从军",
+        "subtitle": "《木兰诗》",
+        "summary": "军帖上反复出现父亲的名字，而家中没有成年儿子。木兰决定置办鞍马代父出征，长期征战后选择返乡，而不是接受官职。",
+        "characters": [
+          "木兰",
+          "阿爷",
+          "阿娘",
+          "可汗",
+          "同行军士"
+        ],
+        "conflict": "家庭保护、征役制度、个人身份和回归愿望同时拉扯一个决定。",
+        "motifs": [
+          "代父从军",
+          "女扮男装",
+          "远征",
+          "辞官归家",
+          "身份重见"
+        ],
+        "imagery": [
+          "机杼",
+          "十二卷军书",
+          "四市鞍马",
+          "黄河与黑山",
+          "旧衣与镜花黄"
+        ],
+        "emotional_arc": "忧思 → 决意 → 远征 → 归家 → 被重新看见",
+        "resonance": "可联想到在角色期待中作选择、返回自己重视的生活和由自己决定如何被看见。",
+        "non_fit": "包含征兵、战争、孝道压力与身份揭示；若用户不想处理家庭义务或性别主题，可跳过。",
+        "content_warnings": [
+          "战争",
+          "征役",
+          "孝道压力",
+          "性别伪装与身份揭示",
+          "长期离家"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "军帖有父名且家中无长兄",
+          "木兰主动提出代父从军",
+          "故事结尾包含辞官、返乡与身份被同行者发现"
+        ],
+        "may_transform": [
+          "把征役转译为现代角色冲突",
+          "让用户选择是否公开身份",
+          "突出辞官归家的自主决定"
+        ],
+        "prohibited": [
+          "擅自增加法术、固定年龄或其他未采用情节",
+          "把孝道写成无条件自我牺牲命令",
+          "把性别揭示做成羞辱或笑料"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "机杼停声与军帖",
+          "黄河行军路径",
+          "归家镜前与门外伙伴"
+        ],
+        "visual_motifs": [
+          "织物纹",
+          "军书朱印",
+          "河蓝",
+          "旧衣暖褐"
+        ],
+        "prohibited_visuals": [
+          "固定影视版木兰造型",
+          "把身份揭示画成猎奇凝视",
+          "浪漫化战争"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《木兰诗》；中文维基文库；oldid 7912121",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-07",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "dating_and_variant_review",
+          "gender_framing_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "页面在抓取前三日内有修订，必须优先对照影印本",
+          "异文模板与成诗年代尚未裁决"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-7912121",
+          "title": "《木兰诗》固定修订",
+          "work": "木兰诗",
+          "author": "佚名",
+          "era": "南北朝歌辞传承文本",
+          "edition": "中文维基文库社区转录",
+          "locator": "军帖与代父段",
+          "url": "https://zh.wikisource.org/w/index.php?title=木蘭詩&oldid=7912121",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "yellow_millet_zhenzhongji",
+      "story_family_id": "yellow_millet_dream",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "黄粱一梦",
+      "era": "唐",
+      "genre": "传奇",
+      "story_type": "chuanqi",
+      "motifs": [
+        "黄粱未熟",
+        "神异瓷枕",
+        "功名一生",
+        "梦醒",
+        "欲望反观"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "沈既济《枕中记》",
+        "author": "沈既济",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "卢生欠伸而悟段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/枕中記",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=枕中記&oldid=2263419",
+        "page_revision_id": 2263419,
+        "page_revision_timestamp": "2023-02-22T09:35:37Z",
+        "retrieved_at": "2026-08-07T01:35:13+08:00",
+        "original_excerpt": "盧生欠伸而悟，見其身方偃於邸舍，呂翁坐其傍，主人蒸黍未熟，觸類如故。生蹶然而興，曰：“豈其夢寐也？”翁謂生曰：“人生之適，亦如是矣。”",
+        "excerpt_sha256": "368148b00c8a16bebda21fd41a8cde7ee93ed432938b24e213ed88a1cd482eac",
+        "excerpt_normalization": "UTF-8；保留页面所见字形与引号；去除页面模板",
+        "ending": "本项目编辑草稿（非原典引文）：卢生经历梦中的功名、贬谪、复起、家族与死亡，醒来时黄粱尚未熟；他向吕翁表示已理解荣辱得丧。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "tang_chuanqi_attestation",
+          "note": "《邯郸记》是在这一传奇核心上展开的明代戏曲再创作，不是同一文本。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "黄粱一梦",
+        "subtitle": "沈既济《枕中记》",
+        "summary": "卢生在邯郸旅舍借吕翁的瓷枕入梦，经历数十年功名、挫败、复起、家庭与衰老。醒来时主人蒸的黄粱还没熟，他开始重新看待荣辱得失。",
+        "characters": [
+          "卢生",
+          "吕翁",
+          "旅舍主人",
+          "梦中家人和官场人物"
+        ],
+        "conflict": "对功名与富贵的渴望，在一场完整却极短的梦生中被放大和反观。",
+        "motifs": [
+          "黄粱未熟",
+          "神异瓷枕",
+          "功名一生",
+          "梦醒",
+          "欲望反观"
+        ],
+        "imagery": [
+          "邯郸旅舍",
+          "青瓷枕洞",
+          "官场起落",
+          "未熟黄粱"
+        ],
+        "emotional_arc": "不遇 → 得志 → 荣辱翻转 → 衰老死亡 → 惊醒与反观",
+        "resonance": "可联想到想象一条选择的长远后果、区分外在成就与自己真正珍视之物。",
+        "non_fit": "梦中含战争、诬陷、贬谪、企图自刎与死亡；近期受这些主题困扰者应跳过。",
+        "content_warnings": [
+          "梦中死亡",
+          "企图自伤",
+          "战争",
+          "官场迫害",
+          "衰老"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "邯郸旅舍、吕翁瓷枕和主人蒸黄粱",
+          "梦中经历完整功名人生",
+          "醒来时黄粱未熟",
+          "结尾由卢生反观欲望而非外界替他宣布单一答案"
+        ],
+        "may_transform": [
+          "把功名转译为现代目标",
+          "缩放梦中时间",
+          "让用户保留而非否定某些愿望"
+        ],
+        "prohibited": [
+          "把所有抱负病理化",
+          "把梦醒写成临床疗愈",
+          "复演或鼓励梦中自伤",
+          "把再创作情节说成古籍事实"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "旅舍蒸黍",
+          "瓷枕入口与高速年轮",
+          "醒来时同一锅黄粱"
+        ],
+        "visual_motifs": [
+          "青瓷",
+          "黍米金",
+          "循环门框",
+          "折叠时间线"
+        ],
+        "prohibited_visuals": [
+          "自伤画面",
+          "把梦中成功与失败做成道德评分榜"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "唐代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "沈既济《枕中记》；中文维基文库；oldid 2263419",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-07",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "whole_story_safety_map",
+          "religious_and_philosophical_context_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "页面引号与点校层需核对",
+          "哲学和宗教阐释不应收缩为单一现代自助寓意"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2263419",
+          "title": "沈既济《枕中记》固定修订",
+          "work": "枕中记",
+          "author": "沈既济",
+          "era": "唐",
+          "edition": "中文维基文库社区转录",
+          "locator": "卢生欠伸而悟段",
+          "url": "https://zh.wikisource.org/w/index.php?title=枕中記&oldid=2263419",
+          "rights": "CC BY-SA 4.0 transcription; underlying Tang text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "white_snake_jingshitongyan_28",
+      "story_family_id": "white_snake_legend",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "白蛇传",
+      "era": "明",
+      "genre": "话本小说",
+      "story_type": "vernacular_story",
+      "motifs": [
+        "异类婚恋",
+        "身份揭露",
+        "法术对抗",
+        "雷峰塔镇压",
+        "出家"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《警世通言》第二十八卷《白娘子永镇雷峰塔》",
+        "author": "冯梦龙编",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "法海收白娘子与白娘子自述段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/警世通言/第28卷",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=警世通言/第28卷&oldid=2576445",
+        "page_revision_id": 2576445,
+        "page_revision_timestamp": "2025-07-13T02:49:45Z",
+        "retrieved_at": "2026-08-07T01:35:13+08:00",
+        "original_excerpt": "白娘子答道：“禅师，我是一条大蟒蛇，因为风雨大作，来到西湖上安身，同青青一处。不想遇着许宣，春心荡漾，按纳不住，一时冒犯天条，却不曾杀生害命，望禅师慈悲则个！”",
+        "excerpt_sha256": "5b28f4e0d23158f0f33cbce2f1be7132b3b51ce55fdc37c5d00408467189f4a1",
+        "excerpt_normalization": "UTF-8；保留页面所见简体字形与引号；去除页面布局标记并合并版面换行",
+        "ending": "本项目编辑草稿（非原典引文）：法海令白娘子和青青现形并镇入雷峰塔；许宣随后出家，文本以宗教劝诫框架收束。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "ming_vernacular_attestation",
+          "note": "本篇的许宣、白娘子、青青身份、镇塔结局和劝诫语气不能被后世团圆版本替代。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "白蛇传",
+        "subtitle": "《警世通言》第二十八卷《白娘子永镇雷峰塔》",
+        "summary": "白娘子以女子身份与许宣结为夫妻，身份与财物事件反复造成猜疑和追捕。法海最终使她与青青现形，将二者镇在雷峰塔下；许宣选择出家。",
+        "characters": [
+          "白娘子",
+          "许宣",
+          "青青",
+          "法海",
+          "李募事"
+        ],
+        "conflict": "亲密关系、异类身份、恐惧、宗教权威和惩戒秩序持续冲撞。",
+        "motifs": [
+          "异类婚恋",
+          "身份揭露",
+          "法术对抗",
+          "雷峰塔镇压",
+          "出家"
+        ],
+        "imagery": [
+          "西湖",
+          "白蛇与青鱼",
+          "钵盂",
+          "七层雷峰塔"
+        ],
+        "emotional_arc": "相遇与结合 → 猜疑与追逐 → 暂时和解 → 身份揭露 → 镇压与离世俗",
+        "resonance": "可联想到关系中的恐惧、被定义和谁拥有解释权，但不把任何宗教或角色简化成现代诊断。",
+        "non_fit": "含伴侣威胁、自杀念头、性别化妖魔化、强制镇压和宗教劝诫；相关敏感用户应选择其他故事。",
+        "content_warnings": [
+          "伴侣威胁与恐惧",
+          "自杀念头",
+          "强制镇压",
+          "性别化妖魔化",
+          "宗教惩戒",
+          "蛇类意象"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "人物名为许宣",
+          "白娘子自述不曾杀生害命，但仍被置于妖怪框架",
+          "青青在故事中被写为青鱼",
+          "结尾是镇塔与许宣出家"
+        ],
+        "may_transform": [
+          "让现代支线质疑谁有权定义异类",
+          "以非贬损方式改写沟通与边界",
+          "保留历史宗教框架同时允许多声部讨论"
+        ],
+        "prohibited": [
+          "擅自改成一家团圆并声称来源如此",
+          "把宗教传统整体 caricature 化或污名化",
+          "复演威胁、自杀或强制控制作为用户任务",
+          "把白娘子单一定性为危险女性"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "西湖相遇的双重倒影",
+          "身份与猜疑的屏风",
+          "钵盂与塔的非写实收束"
+        ],
+        "visual_motifs": [
+          "湖青",
+          "白与青双线",
+          "塔影",
+          "封闭圆形"
+        ],
+        "prohibited_visuals": [
+          "色情化白娘子",
+          "恐怖化蛇身",
+          "把法海做成宗教仇恨 caricature",
+          "自杀画面"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "明代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "冯梦龙编《警世通言》第二十八卷；中文维基文库；oldid 2576445",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_performance_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-07",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "whole_story_safety_map",
+          "religious_framing_review",
+          "gender_and_relationship_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "底本与网页点校尚未核对",
+          "需避免用后世流行白蛇形象反向覆盖明代话本"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2576445",
+          "title": "《警世通言》第二十八卷固定修订",
+          "work": "警世通言",
+          "author": "冯梦龙编",
+          "era": "明",
+          "edition": "中文维基文库社区转录",
+          "locator": "法海收白娘子与白娘子自述段",
+          "url": "https://zh.wikisource.org/w/index.php?title=警世通言/第28卷&oldid=2576445",
+          "rights": "CC BY-SA 4.0 transcription; underlying Ming text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "ganjiang_moye_wuyuechunqiu",
+      "story_family_id": "ganjiang_moye",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": true,
+      "default_offer_eligible": false,
+      "requires_explicit_adult_opt_in": true,
+      "family_content_warnings": [
+        "自伤",
+        "斩首",
+        "复仇"
+      ],
+      "default_filter": {
+        "include_in_default_offers": false,
+        "requires_all": [
+          "adult_confirmed",
+          "explicit_adult_story_opt_in"
+        ],
+        "exclude_when": [
+          "minor_or_unknown_age",
+          "preset_only_safety_route",
+          "self_harm_related_brief",
+          "violence_related_brief"
+        ]
+      },
+      "title": "干将莫邪",
+      "era": "东汉",
+      "genre": "杂史/铸剑异闻",
+      "story_type": "legend",
+      "motifs": [
+        "雌雄双剑",
+        "金铁不化",
+        "身体献祭观念",
+        "断发剪爪",
+        "王命"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《吴越春秋·阖闾内传》",
+        "author": "赵晔",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "阖闾使干将铸剑至雌雄剑成段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/吳越春秋/闔閭內傳",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=吳越春秋/闔閭內傳&oldid=2325726",
+        "page_revision_id": 2325726,
+        "page_revision_timestamp": "2023-10-25T04:49:05Z",
+        "retrieved_at": "2026-08-07T01:35:13+08:00",
+        "original_excerpt": "干將作劍，來五山之鐵精，六合之金英。候天伺地，陰陽同光，百神臨觀，天氣下降，而金鐵之精不銷淪流，於是干將不知其由。",
+        "excerpt_sha256": "b1c5759047f8753f3e3816b30d8fc9ce8c8ab6a6a079726c9ecedd9c2a148d68",
+        "excerpt_normalization": "UTF-8；保留页面所见字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：金铁不化时，夫妻讨论旧有的入炉献身说法；莫耶断发剪爪投入炉中，金铁融化，铸成名为干将与莫耶的雌雄双剑。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "sword_forging_variant",
+          "note": "本篇重点是铸剑与身体献祭观念，不等于《搜神记》的三王墓复仇叙事。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "干将莫邪",
+        "subtitle": "《吴越春秋·阖闾内传》",
+        "summary": "阖闾命干将铸成两把名剑，金铁却迟迟不融。干将与莫耶谈及铸造需要身体献祭的旧说，莫耶最终以断发剪爪投入炉中，雌雄双剑得以铸成。",
+        "characters": [
+          "干将",
+          "莫耶",
+          "阖闾",
+          "童男童女"
+        ],
+        "conflict": "王命和期限把技艺失败推向身体献祭的危险逻辑。",
+        "motifs": [
+          "雌雄双剑",
+          "金铁不化",
+          "身体献祭观念",
+          "断发剪爪",
+          "王命"
+        ],
+        "imagery": [
+          "冶炉",
+          "五山铁精",
+          "六合金英",
+          "龟文与漫理双剑"
+        ],
+        "emotional_arc": "受命 → 失败焦灼 → 献祭观念逼近 → 身体材料投入 → 双剑铸成",
+        "resonance": "仅可在成人显式选择后，用于讨论期限、权力与为作品付出多少才算过界；不能把伤害身体当作投入证明。",
+        "non_fit": "涉及身体献祭、自伤联想、统治者胁迫和儿童劳作意象；默认过滤，不适合未成年人或自伤相关情境。",
+        "content_warnings": [
+          "成人内容",
+          "自伤联想",
+          "身体献祭",
+          "统治者胁迫",
+          "儿童劳作意象",
+          "火与炉"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "王命铸造雌雄双剑",
+          "金铁最初不融",
+          "故事讨论夫妻入炉的身体献祭旧说",
+          "实际投入炉中的是断发剪爪而不是莫耶整个人"
+        ],
+        "may_transform": [
+          "只用不伤身的象征物表现成本",
+          "把王命转译为不合理期限",
+          "让现代角色拒绝献祭逻辑并寻求协作"
+        ],
+        "prohibited": [
+          "要求用户提交身体、疼痛或自伤行为",
+          "写实表现献祭或伤害",
+          "把自我伤害美化为工匠精神",
+          "擅自增加斩首复仇情节"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft_adult_only",
+        "asset_mode": "local_svg_css_symbolic_only",
+        "scene_anchors": [
+          "冷却不化的炉心",
+          "王命倒计时",
+          "发丝形线条化为双剑纹理"
+        ],
+        "visual_motifs": [
+          "炉火暗红",
+          "铁灰",
+          "龟文",
+          "双剑平行线"
+        ],
+        "prohibited_visuals": [
+          "血液",
+          "割伤",
+          "人体入炉",
+          "儿童煽火写实画面",
+          "英雄化自伤"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt_adult_gated",
+        "copyright_basis": "东汉基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "赵晔《吴越春秋·阖闾内传》；中文维基文库；oldid 2325726",
+        "allowed_uses": [
+          "local_development_runtime_with_adult_opt_in",
+          "source_linking",
+          "attributed_short_excerpt_display_after_warning"
+        ],
+        "prohibited_until_review": [
+          "default_story_offer",
+          "minor_access",
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "image_or_audio_generation"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-07",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "whole_passage_safety_map",
+          "adult_content_review",
+          "self_harm_specialist_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "必须在 API 层实现 adult_only 默认过滤",
+          "身体献祭与断发剪爪叙述需安全专家复核",
+          "不得面向未成年人"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2325726",
+          "title": "《吴越春秋·阖闾内传》固定修订",
+          "work": "吴越春秋",
+          "author": "赵晔",
+          "era": "东汉",
+          "edition": "中文维基文库社区转录",
+          "locator": "干将作剑至雌雄剑成段",
+          "url": "https://zh.wikisource.org/w/index.php?title=吳越春秋/闔閭內傳&oldid=2325726",
+          "rights": "CC BY-SA 4.0 transcription; underlying Han text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "nvwa_huainanzi_lanming",
+      "story_family_id": "nvwa_mends_sky",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "女娲补天",
+      "era": "西汉",
+      "genre": "子书中的神话材料",
+      "story_type": "myth",
+      "motifs": [
+        "四极倾废",
+        "炼五色石",
+        "断鳌足",
+        "止洪水",
+        "重建秩序"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《淮南子·览冥训》",
+        "author": "刘安及门客编",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "往古之时至苍天补、四极正段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/淮南子/覽冥訓",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=淮南子/覽冥訓&oldid=3933631",
+        "page_revision_id": 3933631,
+        "page_revision_timestamp": "2026-05-09T09:20:16Z",
+        "retrieved_at": "2026-08-08T23:57:06+08:00",
+        "original_excerpt": "於是女媧煉五色石以補蒼天，斷鼇足以立四極。殺黑龍以濟冀州，積蘆灰以止淫水。",
+        "excerpt_sha256": "28e83710ef0a53ac31e536a452388350b247d4c9beab66989d3fed3d59b9167d",
+        "excerpt_normalization": "UTF-8；去除页面模板标记，保留固定修订页面所见字形与标点；无标点页面不擅加标点",
+        "ending": "本项目编辑草稿（非原典引文）：秩序恢复后，文本继续称述女娲之功及其不彰功名；本项目不把这一段简化成单一的“拯救世界”口号。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_han_narrative_witness",
+          "note": "本段把补天置于四极废、九州裂、水火失序的连续灾变中，并列炼石、断鳌足、杀黑龙与积芦灰。",
+          "confidence": "high_for_page_text_medium_until_edition_review"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "女娲补天",
+        "subtitle": "《淮南子·览冥训》",
+        "summary": "天地秩序崩坏，火水与猛兽共同威胁众人。女娲炼五色石补天、断鳌足立四极，并处理黑龙与洪水，使天地重新可居。",
+        "characters": [
+          "女娲",
+          "受灾众民",
+          "黑龙"
+        ],
+        "conflict": "当承载众人的世界结构失效时，如何修补裂隙并恢复可持续的秩序。",
+        "motifs": [
+          "四极倾废",
+          "炼五色石",
+          "断鳌足",
+          "止洪水",
+          "重建秩序"
+        ],
+        "imagery": [
+          "裂开的苍天",
+          "五色石",
+          "四根鳌足",
+          "止水的芦灰"
+        ],
+        "emotional_arc": "天地失序 → 多线修补 → 四极复正",
+        "resonance": "可联想到修补一个已经失效的共同环境，但不预设用户必须承担救世责任。",
+        "non_fit": "若用户不想接触灾难、洪水、巨型动物肢体或宏大责任隐喻，可换选其他故事。",
+        "content_warnings": [
+          "灾难",
+          "洪水",
+          "杀黑龙",
+          "断鳌足"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "五色石补天、断鳌足立四极",
+          "同段还有杀黑龙与积芦灰止水",
+          "这是《览冥训》的连续灾变语境"
+        ],
+        "may_transform": [
+          "把补天映射为修复公共关系或制度裂缝",
+          "让用户决定修补责任是否需要分担",
+          "以抽象色块表现五色石"
+        ],
+        "prohibited": [
+          "把女娲简化成性别本质主义符号",
+          "省略同段的洪水与多重治理语境却声称是完整原典",
+          "宣称故事具有治疗效果"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "四极倾斜的幕框",
+          "五色石逐片嵌回",
+          "水线退去后留下可行走的地面"
+        ],
+        "visual_motifs": [
+          "矿物五色",
+          "裂纹",
+          "鳌足抽象支柱",
+          "芦灰水线"
+        ],
+        "prohibited_visuals": [
+          "写实肢解巨鳌",
+          "默认套用西方创世母题",
+          "把女娲塑成现代民族或性别宣传符号"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《淮南子·览冥训》；中文维基文库；oldid 3933631",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-08",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未逐字对照可靠影印本",
+          "需复核今本《淮南子》的版本与标点层",
+          "现代改编需独立文化与性别表述复核"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-3933631",
+          "title": "《淮南子·览冥训》固定修订",
+          "work": "淮南子",
+          "author": "刘安及门客编",
+          "era": "西汉",
+          "edition": "中文维基文库社区转录",
+          "locator": "往古之时至苍天补、四极正段",
+          "url": "https://zh.wikisource.org/w/index.php?title=淮南子/覽冥訓&oldid=3933631",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "jingwei_shanhaijing_beishan",
+      "story_family_id": "jingwei_fills_sea",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "精卫填海",
+      "era": "先秦至汉初传承文本",
+      "genre": "地理博物志/神话材料",
+      "story_type": "myth",
+      "motifs": [
+        "女娃溺海",
+        "化为精卫",
+        "衔木石",
+        "填海",
+        "未完成行动"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《山海经·北山经》发鸠之山条",
+        "author": "佚名，历代累积文本",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "发鸠之山精卫条",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/山海經/北山經",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=山海經/北山經&oldid=442532",
+        "page_revision_id": 442532,
+        "page_revision_timestamp": "2015-07-11T03:36:40Z",
+        "retrieved_at": "2026-08-08T23:57:06+08:00",
+        "original_excerpt": "有鳥焉，其狀如烏，文首、白喙、赤足，名曰精衛，其鳴自詨。是炎帝之少女，名曰女娃，女娃游于東海，溺而不返，故為精衛，常銜西山之木石，以堙于東海。",
+        "excerpt_sha256": "d577c0b2cbea01c663b3c3b7abd8623d67c1b685e0cf75d5883ff47ac877aaa6",
+        "excerpt_normalization": "UTF-8；去除页面模板标记，保留固定修订页面所见字形与标点；无标点页面不擅加标点",
+        "ending": "本项目编辑草稿（非原典引文）：摘录以精卫持续衔西山木石填东海收束；原条没有写成“终于填平大海”，不得补造成功结局。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_geographic_myth_witness",
+          "note": "本条把鸟的形貌、鸣声、女娃溺亡与衔木石堙海连在发鸠山地理条目中。",
+          "confidence": "high_for_page_text_medium_until_edition_review"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "精卫填海",
+        "subtitle": "《山海经·北山经》发鸠之山条",
+        "summary": "发鸠山有一种名为精卫的鸟；文本将它认作炎帝少女女娃溺海后的变化。精卫不断从西山衔木石投入东海，但没有给出完成的结局。",
+        "characters": [
+          "女娃/精卫",
+          "东海"
+        ],
+        "conflict": "有限而反复的行动面对几乎不可衡量的大海。",
+        "motifs": [
+          "女娃溺海",
+          "化为精卫",
+          "衔木石",
+          "填海",
+          "未完成行动"
+        ],
+        "imagery": [
+          "文首白喙赤足的鸟",
+          "西山木石",
+          "东海",
+          "往返航线"
+        ],
+        "emotional_arc": "失去归途 → 身份变化 → 持续往返",
+        "resonance": "可联想到给无法一次解决的问题设置可见的小步行动，也允许用户质疑这种坚持是否值得。",
+        "non_fit": "包含溺亡与无尽劳动；若与用户的丧亲、自伤或过度坚持经历冲突，应停止推荐或换选。",
+        "content_warnings": [
+          "溺亡",
+          "死亡后变形",
+          "无尽劳动"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "精卫是炎帝少女女娃溺海后的变化",
+          "衔西山木石以堙东海",
+          "原条未写填海成功"
+        ],
+        "may_transform": [
+          "把往返动作映射为小步计划",
+          "让用户明确暂停、退出或重新评估坚持",
+          "用抽象鸟影与轨迹表现"
+        ],
+        "prohibited": [
+          "把溺亡美化为必要牺牲",
+          "把不停止等同于唯一正确选择",
+          "补造原典未载的成功结局或治疗效果"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "发鸠山鸟影",
+          "一枚木石落入海面",
+          "可暂停的往返轨迹"
+        ],
+        "visual_motifs": [
+          "赤足白喙",
+          "细小木石",
+          "深蓝海面",
+          "重复轨迹"
+        ],
+        "prohibited_visuals": [
+          "写实溺亡",
+          "尸体",
+          "把精卫画成现代民族主义徽记",
+          "强迫性重复的英雄化"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《山海经·北山经》发鸠之山条；中文维基文库；oldid 442532",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-08",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "需复核“自詨”等字形与网页转录",
+          "丧失与坚持主题需安全和文化双重复核"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-442532",
+          "title": "《山海经·北山经》发鸠之山条固定修订",
+          "work": "山海经",
+          "author": "佚名，历代累积文本",
+          "era": "先秦至汉初传承文本",
+          "edition": "中文维基文库社区转录",
+          "locator": "发鸠之山精卫条",
+          "url": "https://zh.wikisource.org/w/index.php?title=山海經/北山經&oldid=442532",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "yugong_liezi_tangwen",
+      "story_family_id": "yugong_moves_mountains",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "愚公移山",
+      "era": "传世文本层次待复核",
+      "genre": "子书寓言",
+      "story_type": "fable",
+      "motifs": [
+        "太行王屋",
+        "集体劳作",
+        "代际延续",
+        "愚智辩论",
+        "神力移山"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《列子·汤问篇》愚公移山段",
+        "author": "传本题列御寇；今本成书与整理层次待复核",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "北山愚公与河曲智叟问答段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/列子/湯問篇",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=列子/湯問篇&oldid=2608932",
+        "page_revision_id": 2608932,
+        "page_revision_timestamp": "2025-10-22T14:10:39Z",
+        "retrieved_at": "2026-08-08T23:57:06+08:00",
+        "original_excerpt": "雖我之死，有子存焉；子又生孫，孫又生子；子又有子，子又有孫，子子孫孫無窮匱也，而山不加增，何苦而不平？",
+        "excerpt_sha256": "5aa56853081e9c8710761cd110d876d5934808ab70ce9213d50113dbbfab8db5",
+        "excerpt_normalization": "UTF-8；去除页面模板标记，保留固定修订页面所见字形与标点；无标点页面不擅加标点",
+        "ending": "本项目编辑草稿（非原典引文）：操蛇之神因愚公不止而告帝，帝命夸娥氏二子移走两山；不能把神力结局删掉后称为完整原典。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "transmitted_liezi_fable_witness",
+          "note": "传世《列子》保留完整的家庭商议、劳作、智叟质疑与神力移山结局；成书层次仍需文献学复核。",
+          "confidence": "high_for_page_text_low_for_unreviewed_textual_strata"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "愚公移山",
+        "subtitle": "《列子·汤问篇》愚公移山段",
+        "summary": "年近九十的愚公因两山阻路，和家人商议移山。智叟质疑其能力，愚公以代际延续回应；最终神将移走两山。",
+        "characters": [
+          "愚公",
+          "愚公妻",
+          "子孙与邻人遗男",
+          "河曲智叟",
+          "操蛇之神",
+          "夸娥氏二子"
+        ],
+        "conflict": "长期目标、有限个人能力、集体劳动与外部质疑如何被放在同一张行动图上。",
+        "motifs": [
+          "太行王屋",
+          "集体劳作",
+          "代际延续",
+          "愚智辩论",
+          "神力移山"
+        ],
+        "imagery": [
+          "太行王屋",
+          "箕畚",
+          "往返渤海",
+          "代际时间线",
+          "被移走的两山"
+        ],
+        "emotional_arc": "受阻 → 集体商议 → 漫长劳作 → 质疑交锋 → 神力移山",
+        "resonance": "可用于讨论长期任务如何拆分、谁承担劳动以及何时需要外援，也允许用户拒绝无限坚持。",
+        "non_fit": "可能触及过劳、家庭义务、代际牺牲与宏大目标；不应推荐给正在表达被责任压垮的用户。",
+        "content_warnings": [
+          "高龄劳动",
+          "代际义务",
+          "长期体力劳动",
+          "神力介入"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "家庭商议与妻子的现实质疑",
+          "智叟与愚公关于有限生命和代际延续的争论",
+          "最后由神力移山而非人力完工"
+        ],
+        "may_transform": [
+          "把移山映射为拆分长期项目",
+          "显式标注参与者、劳动量、退出权和外援",
+          "允许把目标改为绕行、协商或缩小范围"
+        ],
+        "prohibited": [
+          "鼓励无休止过劳或代际牺牲",
+          "把妻子与智叟简单污名化为阻碍者",
+          "删去神力结局后宣称人力必然成功"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "两山形成阻路画布",
+          "多人的箕畚路线",
+          "智叟问题卡",
+          "外援移动山体"
+        ],
+        "visual_motifs": [
+          "山形",
+          "路径线",
+          "多人节点",
+          "代际刻度"
+        ],
+        "prohibited_visuals": [
+          "把家庭劳动者画成无名耗材",
+          "过劳英雄化",
+          "把质疑者丑化"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《列子·汤问篇》愚公移山段；中文维基文库；oldid 2608932",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-08",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "今本《列子》文本层次待复核",
+          "尚未对照可靠影印本",
+          "长期劳动与家庭责任的现代映射需伦理复核"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2608932",
+          "title": "《列子·汤问篇》愚公移山段固定修订",
+          "work": "列子",
+          "author": "传本题列御寇；今本成书与整理层次待复核",
+          "era": "传世文本层次待文献学复核",
+          "edition": "中文维基文库社区转录",
+          "locator": "北山愚公与河曲智叟问答段",
+          "url": "https://zh.wikisource.org/w/index.php?title=列子/湯問篇&oldid=2608932",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "fox_tiger_zhanguoce_chu1",
+      "story_family_id": "fox_borrows_tiger_might",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "狐假虎威",
+      "era": "战国游说材料的传世整理本",
+      "genre": "策士说辞中的寓言",
+      "story_type": "fable",
+      "motifs": [
+        "虎捕狐",
+        "借天帝之命",
+        "百兽逃散",
+        "误认威势来源",
+        "政治说辞"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《战国策》（士礼居丛书本）楚一",
+        "author": "战国游说材料；经刘向编定，具体篇章作者不详",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "荆宣王问群臣、江一对曰段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/戰國策_(士禮居叢書本)/楚/一",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=戰國策_(士禮居叢書本)/楚/一&oldid=2458633",
+        "page_revision_id": 2458633,
+        "page_revision_timestamp": "2024-10-07T08:13:07Z",
+        "retrieved_at": "2026-08-08T23:57:06+08:00",
+        "original_excerpt": "虎求百獸而食之，得狐。狐曰：『子無敢食我也。天帝使我長百獸，今子食我，是逆天帝命也。",
+        "excerpt_sha256": "cf994db6e39422077f80b5812bcc005464a823d31ee330f551d93dadb29979f8",
+        "excerpt_normalization": "UTF-8；去除页面模板标记，保留固定修订页面所见字形与标点；无标点页面不擅加标点",
+        "ending": "本项目编辑草稿（非原典引文）：百兽因畏虎而逃，虎误以为畏狐；江一借此说明北方所畏的是楚王甲兵，而非昭奚恤本人。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "warring_states_rhetorical_fable_witness",
+          "note": "寓言嵌在江一向楚宣王解释诸侯所畏实为楚国甲兵的政治说辞中，不是脱离语境的动物童话。",
+          "confidence": "high_for_page_text_medium_until_edition_review"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "狐假虎威",
+        "subtitle": "《战国策》（士礼居丛书本）楚一",
+        "summary": "虎抓到狐狸，狐狸声称自己奉天帝之命统领百兽，并让虎跟在身后验证。百兽见虎而逃，虎却误以为它们害怕狐狸；江一用此比喻权势来源。",
+        "characters": [
+          "狐狸",
+          "老虎",
+          "百兽",
+          "江一",
+          "楚宣王",
+          "昭奚恤"
+        ],
+        "conflict": "表面影响力与真正权力来源之间的错认。",
+        "motifs": [
+          "虎捕狐",
+          "借天帝之命",
+          "百兽逃散",
+          "误认威势来源",
+          "政治说辞"
+        ],
+        "imagery": [
+          "狐在前虎在后",
+          "四散百兽",
+          "看不见的甲兵",
+          "宫廷问答"
+        ],
+        "emotional_arc": "被捕危机 → 借势设计 → 百兽逃散 → 权力真相揭示",
+        "resonance": "可用于辨认一项资源、身份或平台背后的真实权力来源，也可讨论借势的伦理边界。",
+        "non_fit": "若用户正在遭遇权力压迫、职场报复或安全威胁，应避免把情境轻率寓言化，并优先提供退出与求助选项。",
+        "content_warnings": [
+          "捕食威胁",
+          "权力操纵",
+          "政治比喻"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "百兽实际畏虎而非狐",
+          "寓言服务于江一关于昭奚恤与楚国甲兵的说辞",
+          "狐狸的策略发生在被捕食威胁下"
+        ],
+        "may_transform": [
+          "把权势来源画成可追溯的依赖图",
+          "让用户区分生存策略、欺骗与结构性权力",
+          "用动物剪影表现而不贴现实人群标签"
+        ],
+        "prohibited": [
+          "把弱者在威胁下的策略简单道德化",
+          "用狐或虎影射现实族群、性别或职业",
+          "脱离政治语境只讲成炫耀骗术"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "虎口前的谈判",
+          "狐前虎后的队列",
+          "百兽逃散后显现权力来源线"
+        ],
+        "visual_motifs": [
+          "狐与虎双影",
+          "百兽足迹",
+          "权力来源箭头",
+          "策士席"
+        ],
+        "prohibited_visuals": [
+          "拟人化为特定现实群体",
+          "血腥捕食",
+          "把操纵包装成无条件成功秘诀"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《战国策》（士礼居丛书本）楚一；中文维基文库；oldid 2458633",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-08",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照士礼居丛书扫描",
+          "页面题作江一，常见现代转述或作江乙，姓名异文需复核",
+          "政治寓言的现代映射需避免污名化"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2458633",
+          "title": "《战国策》（士礼居丛书本）楚一固定修订",
+          "work": "战国策（士礼居丛书本）",
+          "author": "传世《战国策》经刘向编定；具体页面底本待复核",
+          "era": "战国游说材料的传世整理本",
+          "edition": "中文维基文库社区转录",
+          "locator": "荆宣王问群臣、江一对曰段",
+          "url": "https://zh.wikisource.org/w/index.php?title=戰國策_(士禮居叢書本)/楚/一&oldid=2458633",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "houyi_huainanzi_benjing",
+      "story_family_id": "houyi_shoots_suns",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "后羿射日",
+      "era": "西汉",
+      "genre": "子书中的神话材料",
+      "story_type": "myth",
+      "motifs": [
+        "十日并出",
+        "焦枯",
+        "后羿",
+        "射日"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《淮南子·本经训》",
+        "author": "刘安及门客编",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "尧命羿除害段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/淮南子/本經訓",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=淮南子/本經訓&oldid=2606194",
+        "page_revision_id": 2606194,
+        "page_revision_timestamp": "2025-10-14T00:25:26Z",
+        "retrieved_at": "2026-08-09T00:52:25+08:00",
+        "original_excerpt": "堯乃使羿誅鑿齒于疇華之野，殺九嬰于凶水之上，繳大風於青丘之澤，上射十日而下殺猰貐，斷修蛇於洞庭，禽封豨于桑林，萬民皆喜，置堯以為天子。",
+        "excerpt_sha256": "a35680f2a18a3edb63cf9ef60317e1077d24db6cbeab0bae9ab0d9f0828436d8",
+        "excerpt_normalization": "UTF-8；原始 wikitext 中连续字串；未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：羿受命处理十日与多种害兽，文本把行动置于公共灾害语境。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_han_narrative_attestation",
+          "note": "该段同时叙射日与除害，不应只截成单一英雄胜利。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "后羿射日",
+        "subtitle": "《淮南子·本经训》",
+        "summary": "十日并出使禾稼草木焦枯，羿受命射日并处理多种危害民众的异兽。",
+        "characters": [
+          "后羿",
+          "帝尧",
+          "十日",
+          "民众"
+        ],
+        "conflict": "公共环境灾害与以强力恢复生存秩序之间的张力。",
+        "motifs": [
+          "十日并出",
+          "射日",
+          "旱灾",
+          "除害"
+        ],
+        "imagery": [
+          "重叠烈日",
+          "焦枯田野",
+          "拉开的弓"
+        ],
+        "emotional_arc": "灼热失序 → 受命行动 → 风险被压低",
+        "resonance": "可联想到面对过载、同时发生的多重压力时如何辨认首要问题。",
+        "non_fit": "若用户不愿接触灾害、射杀或英雄责任隐喻，应提供较温和故事。",
+        "content_warnings": [
+          "旱灾",
+          "神话性射杀",
+          "动物伤害"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "文本载羿同时射日与除害",
+          "灾害影响民众生计",
+          "不把现代常见的九日坠落细节强加给本摘录"
+        ],
+        "may_transform": [
+          "把十日映射为并发压力",
+          "把弓箭改为非暴力的选择工具",
+          "由用户调整任务数量"
+        ],
+        "prohibited": [
+          "宣称以暴力解决现实冲突",
+          "把自然灾害归咎于现实群体",
+          "声称故事具有治疗效果"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "十轮日影升起",
+          "田野色温升高",
+          "弓弦拉开后光源减少"
+        ],
+        "visual_motifs": [
+          "朱日",
+          "焦土",
+          "弧形弓弦"
+        ],
+        "prohibited_visuals": [
+          "血腥射杀",
+          "现代族群符号化",
+          "把后世图像冒充原典插图"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《淮南子·本经训》；中文维基文库；oldid 2606194",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "后羿与夷羿等人物谱系仍需文献学说明",
+          "现代射九日叙法不得反向覆盖此段"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2606194",
+          "title": "《淮南子·本经训》固定修订",
+          "work": "淮南子",
+          "author": "刘安及门客编",
+          "era": "西汉",
+          "edition": "中文维基文库社区转录",
+          "locator": "尧命羿除害段",
+          "url": "https://zh.wikisource.org/w/index.php?title=淮南子/本經訓&oldid=2606194",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "nvwa_taipingyulan_0078_fengsutong",
+      "story_family_id": "nvwa_creates_humans",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "女娲造人",
+      "era": "北宋类书所存东汉佚文",
+      "genre": "类书引文",
+      "story_type": "myth",
+      "motifs": [
+        "天地初开",
+        "抟土作人",
+        "引绳于泥",
+        "佚文"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《太平御览》卷七十八引《风俗通》",
+        "author": "李昉等奉敕编；引文题应劭《风俗通》",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "皇王部三·女娲氏·《风俗通》曰",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/太平御覽/0078",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=太平御覽/0078&oldid=2587331",
+        "page_revision_id": 2587331,
+        "page_revision_timestamp": "2025-08-05T09:39:50Z",
+        "retrieved_at": "2026-08-09T00:52:25+08:00",
+        "original_excerpt": "《風俗通》曰：俗說天地開闢，未有人民，女媧摶黃土作人，劇務，力不暇供，乃引繩于縆泥中于舉以爲人。",
+        "excerpt_sha256": "d8597eab983a398bdbdae34f64adc82d55891e2e0baac9908067925efa640b02",
+        "excerpt_normalization": "UTF-8；原始 wikitext 中连续字串；未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：女娲先抟黄土，工作繁重后改以绳曳泥成形；来源后文附会富贵贫贱，界面不得把该阶序解释自然化。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "song_encyclopedia_quotation_of_lost_fengsutong",
+          "note": "现存载体是类书引文，不得称作《风俗通》完整原本。",
+          "confidence": "high_for_quotation_medium_for_lost_work_context"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "女娲造人",
+        "subtitle": "《太平御览》卷七十八引《风俗通》",
+        "summary": "天地初开尚无人类，女娲抟黄土作人；工作繁重时又以绳曳泥成形。",
+        "characters": [
+          "女娲",
+          "初生的人群"
+        ],
+        "conflict": "创造的细致劳动与规模压力之间如何转变方法。",
+        "motifs": [
+          "黄土",
+          "手作",
+          "绳索",
+          "规模"
+        ],
+        "imagery": [
+          "湿润黄土",
+          "手掌印",
+          "泥中绳痕"
+        ],
+        "emotional_arc": "空无 → 手作创造 → 方法改变 → 人群出现",
+        "resonance": "可用于讨论亲手投入、规模化与不平等叙事的边界。",
+        "non_fit": "若用户对生育、身体起源或阶序归因敏感，应允许跳过。",
+        "content_warnings": [
+          "人类起源",
+          "来源后文的阶序归因",
+          "佚书引文边界"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "现存载体为《太平御览》引《风俗通》",
+          "先抟土、后引绳的顺序",
+          "明确来源后文阶序解释不代表项目立场"
+        ],
+        "may_transform": [
+          "把手作与规模化映射为不同工作方式",
+          "用抽象泥塑表现",
+          "让用户拒绝阶序节点"
+        ],
+        "prohibited": [
+          "把富贵贫贱说解释为自然事实",
+          "把佚文称作完整《风俗通》",
+          "用肤色或阶层刻板形象区分泥人"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "空旷土台",
+          "手掌塑形",
+          "绳索扫过泥面"
+        ],
+        "visual_motifs": [
+          "黄土",
+          "掌纹",
+          "绳迹"
+        ],
+        "prohibited_visuals": [
+          "现实阶层或肤色标签",
+          "把女娲固定为单一民族服饰",
+          "伪造古籍插图"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《太平御览》卷七十八引《风俗通》；中文维基文库；oldid 2587331",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "《风俗通》相关篇已佚",
+          "尚未对照《太平御览》可靠扫描",
+          "阶序归因需要文化与伤害复核"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2587331",
+          "title": "《太平御览》卷0078固定修订",
+          "work": "太平御览",
+          "author": "李昉等奉敕编；引应劭《风俗通》",
+          "era": "北宋类书所存东汉佚文",
+          "edition": "中文维基文库社区转录",
+          "locator": "女娲氏·《风俗通》曰",
+          "url": "https://zh.wikisource.org/w/index.php?title=太平御覽/0078&oldid=2587331",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "shennong_huainanzi_xiuwu",
+      "story_family_id": "shennong_tastes_herbs",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "神农尝百草",
+      "era": "西汉",
+      "genre": "子书中的神话材料",
+      "story_type": "myth",
+      "motifs": [
+        "播种五谷",
+        "辨土地",
+        "尝百草",
+        "七十毒"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《淮南子·脩务训》",
+        "author": "刘安及门客编",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "神农教民播种、尝百草段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/淮南子/脩務訓",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=淮南子/脩務訓&oldid=7904476",
+        "page_revision_id": 7904476,
+        "page_revision_timestamp": "2026-06-28T01:30:55Z",
+        "retrieved_at": "2026-08-09T00:52:25+08:00",
+        "original_excerpt": "於是神農乃始教民播種五穀，相土地宜，燥濕肥墝高下，嘗百草之滋味，水泉之甘苦，令民知所辟就。當此之時，一日而遇七十毒。",
+        "excerpt_sha256": "64330449ad908285bed277e7fcc6b433711761c89d0a23e5f084bf8756f56b7d",
+        "excerpt_normalization": "UTF-8；原始 wikitext 中连续字串；未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：神农的工作同时包括播种、辨地、尝草和辨水；“一日七十毒”强调知识取得的危险。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_han_tasting_and_poison_attestation",
+          "note": "该段不是现代医学建议，也没有逐味药方。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "神农尝百草",
+        "subtitle": "《淮南子·脩务训》",
+        "summary": "神农教民播种五谷、辨认土地高下燥湿，并尝百草与水泉甘苦，让人知道趋避；文本说他一日遭遇七十毒。",
+        "characters": [
+          "神农",
+          "民众"
+        ],
+        "conflict": "为公共知识承担试错风险，但风险不可被浪漫化或模仿。",
+        "motifs": [
+          "五谷",
+          "百草",
+          "水泉",
+          "试错"
+        ],
+        "imagery": [
+          "分区田地",
+          "草叶样本",
+          "水滴",
+          "警示标记"
+        ],
+        "emotional_arc": "疾苦 → 分类试验 → 遭遇风险 → 形成趋避知识",
+        "resonance": "可联想到学习新领域时如何记录证据、设置停止条件并共享风险信息。",
+        "non_fit": "涉及中毒、饮食或医疗焦虑时，应避免诱导尝试并提醒不要模仿。",
+        "content_warnings": [
+          "中毒",
+          "疾病背景",
+          "不可模仿的尝试"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "尝百草与辨地、辨水同在一段",
+          "一日七十毒是文本陈述",
+          "明确不是医学或用药建议"
+        ],
+        "may_transform": [
+          "映射为带安全门槛的试验",
+          "加入证据记录节点",
+          "把停止条件交给用户修改"
+        ],
+        "prohibited": [
+          "鼓励食用未知植物",
+          "生成剂量、偏方或诊疗建议",
+          "把受毒包装成必须承受的英雄考验"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "土地网格显现",
+          "草叶与水滴被标注",
+          "毒性警示亮起"
+        ],
+        "visual_motifs": [
+          "田畴",
+          "植物标本",
+          "水纹",
+          "红色停止线"
+        ],
+        "prohibited_visuals": [
+          "现代药品代言",
+          "可照做的采食步骤",
+          "痛苦英雄化"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《淮南子·脩务训》；中文维基文库；oldid 7904476",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "“七十毒”的语义与传承需注释复核",
+          "产品需另设医疗安全文案"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-7904476",
+          "title": "《淮南子·脩务训》固定修订",
+          "work": "淮南子",
+          "author": "刘安及门客编",
+          "era": "西汉",
+          "edition": "中文维基文库社区转录",
+          "locator": "神农尝百草段",
+          "url": "https://zh.wikisource.org/w/index.php?title=淮南子/脩務訓&oldid=7904476",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "gonggong_huainanzi_tianwen",
+      "story_family_id": "gonggong_hits_buzhou",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "共工触不周山",
+      "era": "西汉",
+      "genre": "子书宇宙论中的神话材料",
+      "story_type": "myth",
+      "motifs": [
+        "争帝",
+        "触不周山",
+        "天柱折",
+        "水归东南"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《淮南子·天文训》",
+        "author": "刘安及门客编",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "共工与颛顼争帝段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/淮南子/天文訓",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=淮南子/天文訓&oldid=7909148",
+        "page_revision_id": 7909148,
+        "page_revision_timestamp": "2026-07-21T03:24:52Z",
+        "retrieved_at": "2026-08-09T00:52:25+08:00",
+        "original_excerpt": "昔者共工與顓頊爭為帝，怒而觸不周之山，天柱折，地維絕。天傾西北，故日月星辰移焉；地不滿東南，故水潦塵埃歸焉。",
+        "excerpt_sha256": "5e6248c63d88de84be28478fd1a8706f851be89ba03307825eb58e219481953b",
+        "excerpt_normalization": "UTF-8；原始 wikitext 中连续字串；未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：触山造成宇宙结构倾斜，并被用来解释日月星辰与水流的方向。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_han_cosmological_attestation",
+          "note": "该段把冲突与宇宙论解释连在一起，不能只讲成发怒撞山。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "共工触不周山",
+        "subtitle": "《淮南子·天文训》",
+        "summary": "共工与颛顼争帝，愤怒触击不周山，天柱地维折绝；文本以此解释天体向西北和水尘向东南的运动。",
+        "characters": [
+          "共工",
+          "颛顼"
+        ],
+        "conflict": "权力冲突中的一次行动如何造成远超个人的结构性后果。",
+        "motifs": [
+          "争帝",
+          "怒触",
+          "倾斜",
+          "流向"
+        ],
+        "imagery": [
+          "倾斜天幕",
+          "断裂天柱",
+          "东南水流"
+        ],
+        "emotional_arc": "竞争 → 愤怒爆发 → 结构断裂 → 世界形成新流向",
+        "resonance": "可用于讨论情绪行动的外溢后果，以及事后如何辨认已改变的结构。",
+        "non_fit": "若用户处于激烈冲突或自伤风险中，不应把撞击行为浪漫化。",
+        "content_warnings": [
+          "愤怒失控",
+          "撞击",
+          "灾变"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "争帝与怒触不周山",
+          "天柱折、地维绝",
+          "后果包括天体与水流方向解释"
+        ],
+        "may_transform": [
+          "把结构后果画成依赖图",
+          "加入修复与责任节点",
+          "让用户改写冲突出口"
+        ],
+        "prohibited": [
+          "美化自毁或撞击",
+          "把灾变归咎现实群体",
+          "把神话宇宙论说成现代科学事实"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "两股力量对峙",
+          "不周山裂开",
+          "星轨与水流改向"
+        ],
+        "visual_motifs": [
+          "斜线",
+          "断柱",
+          "星轨",
+          "水纹"
+        ],
+        "prohibited_visuals": [
+          "自伤细节",
+          "现实政治人物替身",
+          "伪科学图解"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《淮南子·天文训》；中文维基文库；oldid 7909148",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "宇宙论语境需专家复核",
+          "冲突映射需要安全退出设计"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-7909148",
+          "title": "《淮南子·天文训》固定修订",
+          "work": "淮南子",
+          "author": "刘安及门客编",
+          "era": "西汉",
+          "edition": "中文维基文库社区转录",
+          "locator": "共工触不周山段",
+          "url": "https://zh.wikisource.org/w/index.php?title=淮南子/天文訓&oldid=7909148",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "xingtian_shanhaijing_haiwaixi",
+      "story_family_id": "xingtian_dances",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "刑天舞干戚",
+      "era": "先秦至汉初传承文本",
+      "genre": "地理博物志/神话材料",
+      "story_type": "myth",
+      "motifs": [
+        "争神",
+        "断首",
+        "乳为目",
+        "舞干戚"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《山海经·海外西经》",
+        "author": "佚名，历代累积文本",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "奇肱国之后刑天段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/山海經/海外西經",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=山海經/海外西經&oldid=427605",
+        "page_revision_id": 427605,
+        "page_revision_timestamp": "2015-01-24T10:49:38Z",
+        "retrieved_at": "2026-08-09T00:52:25+08:00",
+        "original_excerpt": "刑天與帝爭神，帝斷其首，葬之常羊之山，乃以乳為目，以臍為口，操干戚以舞。",
+        "excerpt_sha256": "5abee91dcdf421889a3d0ed29861e671e36ced885321102247c058a0a036ef49",
+        "excerpt_normalization": "UTF-8；将 raw wikitext 的 {{另|刑|形}} 与 {{另|爭神|至此爭神}} 取页面首选读法，移除模板标记；其余字形与标点不改",
+        "ending": "本项目编辑草稿（非原典引文）：刑天失首后仍以乳为目、脐为口，执干戚而舞；不添加其后胜负或复生结局。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_mythic_attestation",
+          "note": "页面同时保留“形天”“至此争神”等异文，摘录只取首选读法。",
+          "confidence": "high_for_page_reading_medium_for_variant_choice"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "刑天舞干戚",
+        "subtitle": "《山海经·海外西经》",
+        "summary": "刑天与帝争神，被断首并葬于常羊山；他以乳为目、脐为口，仍执盾斧起舞。",
+        "characters": [
+          "刑天",
+          "帝"
+        ],
+        "conflict": "身体遭受不可逆损失后，行动与意志仍如何被讲述。",
+        "motifs": [
+          "失首",
+          "身体重构",
+          "盾斧之舞",
+          "持续行动"
+        ],
+        "imagery": [
+          "常羊山",
+          "无首身躯",
+          "盾斧剪影"
+        ],
+        "emotional_arc": "争斗 → 断裂 → 身体重构 → 继续舞动",
+        "resonance": "可联想到在失去原有能力后重新安排表达方式，但不应要求任何人必须坚强。",
+        "non_fit": "对斩首、身体改变或兵器敏感的用户应明显提示并允许跳过。",
+        "content_warnings": [
+          "斩首",
+          "身体变形",
+          "兵器",
+          "神话性暴力"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "断首与常羊山",
+          "乳为目、脐为口",
+          "操干戚以舞"
+        ],
+        "may_transform": [
+          "用剪影而非身体细节表现",
+          "把持续行动映射为新表达方式",
+          "允许用户删去兵器节点"
+        ],
+        "prohibited": [
+          "血腥渲染",
+          "将残障等同超人意志",
+          "用故事压迫用户必须坚持"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "常羊山暗幕",
+          "首部轮廓熄灭",
+          "盾斧节奏剪影"
+        ],
+        "visual_motifs": [
+          "山形",
+          "无首剪影",
+          "干戚",
+          "鼓点波纹"
+        ],
+        "prohibited_visuals": [
+          "断首特写",
+          "血液",
+          "身体猎奇",
+          "残障励志刻板印象"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《山海经·海外西经》；中文维基文库；oldid 427605",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "“刑/形”“争神/至此争神”异文需版本学复核",
+          "身体差异表现需无障碍与反污名审查"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-427605",
+          "title": "《山海经·海外西经》固定修订",
+          "work": "山海经",
+          "author": "佚名",
+          "era": "先秦至汉初传承文本",
+          "edition": "中文维基文库社区转录",
+          "locator": "刑天与帝争神段",
+          "url": "https://zh.wikisource.org/w/index.php?title=山海經/海外西經&oldid=427605",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "wugang_youyangzazu_juan1",
+      "story_family_id": "wu_gang_cuts_osmanthus",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "吴刚伐桂",
+      "era": "唐",
+      "genre": "博物志怪/异闻",
+      "story_type": "myth",
+      "motifs": [
+        "月中桂",
+        "创随斫合",
+        "学仙有过",
+        "无尽伐树"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《酉阳杂俎》卷一·天咫",
+        "author": "段成式",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "天咫·旧言月中有桂段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/酉陽雜俎/卷一",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=酉陽雜俎/卷一&oldid=2086696",
+        "page_revision_id": 2086696,
+        "page_revision_timestamp": "2021-11-10T02:01:03Z",
+        "retrieved_at": "2026-08-09T00:52:25+08:00",
+        "original_excerpt": "舊言月中有桂，有蟾蜍，故異書言月桂高五百丈，下有一人常斫之，樹創隨合。人姓吳名剛，西河人，學仙有過，謫令伐樹。",
+        "excerpt_sha256": "980d5689bc66881f3ce1d92471e1592bb432b24e408e5210087b936ed06cdde9",
+        "excerpt_normalization": "UTF-8；原始 wikitext 中连续字串；未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：树创随斫随合，吴刚因学仙有过被谪令伐树；摘录不推测罪过内容，也不添加脱困结局。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "tang_narrative_attestation",
+          "note": "“桂”保留原文，不在数据层断定具体植物物种。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "吴刚伐桂",
+        "subtitle": "《酉阳杂俎》卷一·天咫",
+        "summary": "月中桂树高五百丈，树伤随砍随合。吴刚学仙有过，被谪令不停伐树。",
+        "characters": [
+          "吴刚",
+          "月中桂树"
+        ],
+        "conflict": "劳动不断被复原，惩罚没有可见完成条件。",
+        "motifs": [
+          "月桂",
+          "斫而复合",
+          "贬谪",
+          "无尽任务"
+        ],
+        "imagery": [
+          "月轮",
+          "巨桂",
+          "反复愈合的斧痕"
+        ],
+        "emotional_arc": "抬望月桂 → 开始伐树 → 伤口复合 → 循环延续",
+        "resonance": "可联想到没有完成定义的重复工作，并帮助用户补写停止条件或拒绝节点。",
+        "non_fit": "若用户正经历强迫劳动或惩罚创伤，应避免轻率美化循环。",
+        "content_warnings": [
+          "无尽惩罚",
+          "贬谪",
+          "重复劳动"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "月中桂与树创随合",
+          "吴刚学仙有过而被谪",
+          "原文没有说明具体过错"
+        ],
+        "may_transform": [
+          "把循环画成可编辑流程",
+          "让用户补写完成条件",
+          "将斧声改成低刺激节奏"
+        ],
+        "prohibited": [
+          "擅自发明吴刚罪名",
+          "把过劳说成修行必经",
+          "将“桂”无证据锁定为单一植物学物种"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "月轮内巨桂",
+          "一斧落下",
+          "斧痕复合并回到起点"
+        ],
+        "visual_motifs": [
+          "月白",
+          "桂影",
+          "环形进度",
+          "斧痕"
+        ],
+        "prohibited_visuals": [
+          "现实强迫劳动美化",
+          "血腥伤口",
+          "具体罪名插图"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《酉阳杂俎》卷一；中文维基文库；oldid 2086696",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "月中桂的物种解释不确定",
+          "吴刚过错内容在本段未载"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2086696",
+          "title": "《酉阳杂俎》卷一固定修订",
+          "work": "酉阳杂俎",
+          "author": "段成式",
+          "era": "唐",
+          "edition": "中文维基文库社区转录",
+          "locator": "天咫·旧言月中有桂段",
+          "url": "https://zh.wikisource.org/w/index.php?title=酉陽雜俎/卷一&oldid=2086696",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "cowherd_jingchu_suishiji_qixi",
+      "story_family_id": "cowherd_weaver_girl",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "牛郎织女",
+      "era": "南朝梁著述的清四库本见证",
+      "genre": "岁时记/传说见证",
+      "story_type": "legend",
+      "motifs": [
+        "七夕",
+        "牵牛星",
+        "织女星",
+        "一年一会",
+        "乞巧"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《荆楚岁时记》（四库全书本）",
+        "author": "宗懔撰；传世本与注语层次待复核",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "七月七日为牵牛织女聚会之夜条",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/荆楚嵗時記_(四庫全書本)",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=荆楚嵗時記_(四庫全書本)&oldid=574658",
+        "page_revision_id": 574658,
+        "page_revision_timestamp": "2016-10-05T05:22:36Z",
+        "retrieved_at": "2026-08-09T01:03:51+08:00",
+        "original_excerpt": "七月七日為牽牛織女聚㑹之夜",
+        "excerpt_sha256": "425e095480c0d917ee075aa326dce507b56a7c39238b9a4cdb1e8de980c4eb08",
+        "excerpt_normalization": "UTF-8；固定 oldid 原始 wikitext 中连续子串；保留原字形；本摘录内部无模板展开或增补标点",
+        "ending": "本项目编辑草稿（非原典引文）：此版本层只确认七夕会合及相关按语，不补写后世完整牛郎织女家庭、天河阻隔或鹊桥团圆情节。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "six_dynasties_seventh_night_meeting_attestation",
+          "note": "这是岁时记中的七夕传说见证，不是现代通行故事的完整底本。",
+          "confidence": "high_for_fixed_text_medium_for_textual_layers"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "牛郎织女",
+        "subtitle": "《荆楚岁时记》（四库全书本）",
+        "summary": "七月七日是牵牛与织女相会之夜。夜空星辰、庭中乞巧与短暂会合，共同形成关于距离、等待和重逢的故事。",
+        "characters": [
+          "牵牛",
+          "织女",
+          "七夕祈愿者"
+        ],
+        "conflict": "相隔的牵牛与织女只有在特定时间相会，短暂重逢之后仍要面对等待。",
+        "motifs": [
+          "七夕",
+          "星河",
+          "一年一会",
+          "乞巧"
+        ],
+        "imagery": [
+          "银河两岸",
+          "七孔针",
+          "庭中瓜果",
+          "夜空星光"
+        ],
+        "emotional_arc": "遥望 → 约期 → 短暂会合 → 再度等待",
+        "resonance": "适合讨论距离、周期性相聚和如何给等待赋予仪式，但不把长期分离浪漫化。",
+        "non_fit": "若用户正在经历强制分离、失联或亲密关系控制，应避免以宿命相会替代现实支持。",
+        "content_warnings": [
+          "长期分离",
+          "婚姻债务传说按语",
+          "性别化乞巧习俗"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "故事围绕七月七日相会",
+          "牵牛与织女以星辰身份出现",
+          "相会与乞巧共同构成七夕夜的仪式场景"
+        ],
+        "may_transform": [
+          "将星河距离映射为可编辑时间线",
+          "讨论等待是否值得与如何维持连接",
+          "用双星和织线作非写实视觉"
+        ],
+        "prohibited": [
+          "擅自补写凡人家庭身世并说成当前故事事实",
+          "把被迫分离包装成爱情证明",
+          "把乞巧简化成女性天职"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "双星隔河",
+          "庭中乞巧",
+          "短暂交会后幕布合拢"
+        ],
+        "visual_motifs": [
+          "两点星光",
+          "织线",
+          "河形光带",
+          "七夕月色"
+        ],
+        "prohibited_visuals": [
+          "好莱坞式固定人物肖像",
+          "把织女色情化",
+          "把强制分离美化为唯一真爱"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "宗懔《荆楚岁时记》（四库全书本）；中文维基文库；oldid 574658",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "textual_layer_review",
+          "gender_custom_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照四库影印页",
+          "正文与按语的传承层次仍需书目复核",
+          "现代牛郎织女通行叙事不得反向覆盖本条"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-574658",
+          "title": "《荆楚岁时记》四库本固定修订",
+          "work": "荆楚岁时记（四库全书本）",
+          "author": "宗懔撰",
+          "era": "南朝梁著述的清四库本见证",
+          "edition": "中文维基文库社区转录",
+          "locator": "七月七日条",
+          "url": "https://zh.wikisource.org/w/index.php?title=荆楚嵗時記_(四庫全書本)&oldid=574658",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "mengjiangnu_lienvzhuan_04",
+      "story_family_id": "mengjiangnu_great_wall",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": true,
+      "default_offer_eligible": false,
+      "requires_explicit_adult_opt_in": true,
+      "title": "孟姜女哭长城",
+      "era": "西汉著述的传世文本",
+      "genre": "人物传/传说扩展",
+      "story_type": "legend",
+      "motifs": [
+        "杞梁战死",
+        "哭城崩",
+        "无所归",
+        "赴淄水",
+        "贞顺框架"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《列女传》卷四《齐杞梁妻》",
+        "author": "刘向编；传世文本",
+        "edition": "中文维基文库固定修订，带扫描页链接，非学术定本",
+        "evidence_anchor": "哭夫十日而城崩段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/列女傳/卷4",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=列女傳/卷4&oldid=2195360",
+        "page_revision_id": 2195360,
+        "page_revision_timestamp": "2022-11-20T14:54:00Z",
+        "retrieved_at": "2026-08-09T01:03:51+08:00",
+        "original_excerpt": "杞梁之妻無子，內外皆無五屬之親。既無所歸，乃就其夫之尸於城下而哭之，內諴動人，道路過者莫不為之揮涕，十日，而城為之崩。",
+        "excerpt_sha256": "eacb6e43846a2d0ceded3fd2b49013e00d95d39e3a10434be8010a6126e9c580",
+        "excerpt_normalization": "UTF-8；固定 oldid 原始 wikitext 中连续子串；保留页面字形与标点；未校改“尸”“內諴”等字样",
+        "ending": "本项目编辑草稿（非原典引文）：杞梁妻在城下哀哭，城崩；文本随后以无父、无夫、无子和贞顺伦理解释她赴淄水而死。此城并未被指为秦长城。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_imperial_crying_wall_collapse_expansion",
+          "note": "哭城崩母题已出现，但孟姜女姓名、秦代筑城与千里寻夫仍不在本篇。",
+          "confidence": "high_for_fixed_text_medium_for_folklore_genealogy"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "孟姜女哭长城",
+        "subtitle": "《列女传》卷四《齐杞梁妻》",
+        "summary": "杞梁战死后，妻子失去亲人，也失去可依附的生活位置。她在城下哀哭十日，城墙随之崩塌，最终投淄水而死。",
+        "characters": [
+          "杞梁妻",
+          "杞梁",
+          "齐庄公",
+          "路人"
+        ],
+        "conflict": "极端哀痛、社会依附秩序与贞顺伦理把一个失去亲人的人推向无处可归。",
+        "motifs": [
+          "哭城崩",
+          "无所归",
+          "集体共情",
+          "赴水"
+        ],
+        "imagery": [
+          "城下长哭",
+          "路人挥泪",
+          "崩裂城墙",
+          "淄水"
+        ],
+        "emotional_arc": "战死噩耗 → 孤立无归 → 哭声动人 → 城崩 → 自尽",
+        "resonance": "可讨论悲伤如何被制度放大，以及从“无所归”转向寻找现实支持的改写可能。",
+        "non_fit": "包含自尽、丧亲、尸体与强烈贞节规训；必须成人明确选择，危机用户不进入。",
+        "content_warnings": [
+          "丧亲",
+          "尸体",
+          "城墙崩塌",
+          "投水自尽",
+          "贞节与父权规训"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "故事主角为杞梁妻",
+          "她在城下哀哭十日后城墙崩塌",
+          "故事以赴淄水收束并保持成人内容门控"
+        ],
+        "may_transform": [
+          "让用户拒绝无所归的单一路径",
+          "加入现实支持节点并标明当代改写",
+          "把城墙映射为制度压力而非个人意志万能"
+        ],
+        "prohibited": [
+          "把自尽美化为爱情完成",
+          "擅自增加秦长城或千里寻夫情节并说成当前故事事实",
+          "要求用户模拟自伤或尸体场面"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "城下哭声",
+          "路人停步",
+          "城墙裂缝后转入安全改写"
+        ],
+        "visual_motifs": [
+          "裂纹",
+          "水波",
+          "空白家谱",
+          "支持绳结"
+        ],
+        "prohibited_visuals": [
+          "投水过程",
+          "尸体特写",
+          "把自杀做成壮美高潮",
+          "伪秦长城历史复原"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt_adult_gated",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "刘向编《列女传》卷四；中文维基文库；oldid 2195360",
+        "allowed_uses": [
+          "local_development_runtime_with_adult_opt_in",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "suicide_safety_review",
+          "gender_and_fidelity_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未逐字核对链接扫描页",
+          "自尽内容需危机安全专家复核",
+          "与秦代孟姜女传说的后续演化尚未在本批次详标"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2195360",
+          "title": "《列女传》卷四固定修订",
+          "work": "列女传",
+          "author": "刘向编",
+          "era": "西汉著述的传世文本",
+          "edition": "中文维基文库社区转录",
+          "locator": "齐杞梁妻",
+          "url": "https://zh.wikisource.org/w/index.php?title=列女傳/卷4&oldid=2195360",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "butterfly_qingshi_leilue_10",
+      "story_family_id": "butterfly_lovers",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": true,
+      "default_offer_eligible": false,
+      "requires_explicit_adult_opt_in": true,
+      "title": "梁山伯与祝英台",
+      "era": "明",
+      "genre": "情史汇编/传说",
+      "story_type": "legend",
+      "motifs": [
+        "同窗",
+        "身份揭晓",
+        "婚约阻隔",
+        "墓裂投死",
+        "化蝶俗传"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《情史类略》卷十《祝英台》",
+        "author": "冯梦龙编",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "以下同死·祝英台",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/情史類略/10",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=情史類略/10&oldid=823518",
+        "page_revision_id": 823518,
+        "page_revision_timestamp": "2017-02-09T06:15:20Z",
+        "retrieved_at": "2026-08-09T01:03:51+08:00",
+        "original_excerpt": "梁山伯、祝英臺，皆東晉人。梁家會稽，祝家上虞。嘗同學，祝先歸。梁後過上虞，尋訪之，始知為女。",
+        "excerpt_sha256": "85c0c22a587cfed614ff2dda83b603005537acfadd080da3001d7e71caaf849f",
+        "excerpt_normalization": "UTF-8；固定 oldid 原始 wikitext 中连续子串；保留页面字形和标点；未作简繁转换",
+        "ending": "本项目编辑草稿（非原典引文）：梁病死并要求葬于清道山下；祝出嫁途中到墓前哀恸，地裂后投而死。篇末把二蝶说明确标为俗传与好事者附会。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "ming_narrative_expansion_with_butterfly_folklore_note",
+          "note": "此版本包含婚约阻隔和墓裂投死，并区分正文与化蝶俗传。",
+          "confidence": "high_for_fixed_text_medium_until_edition_review"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "梁山伯与祝英台",
+        "subtitle": "《情史类略》卷十《祝英台》",
+        "summary": "梁、祝同学，梁后来才知道祝是女子，却发现她已许配马氏。梁病死后，祝出嫁途经其墓，哀恸之下投进裂开的墓地；故事末尾还流传着二人化蝶的说法。",
+        "characters": [
+          "梁山伯",
+          "祝英台",
+          "马氏",
+          "谢安"
+        ],
+        "conflict": "身份迟知、婚约秩序和无法兑现的关系把二人推向死亡叙事。",
+        "motifs": [
+          "同窗",
+          "迟来的身份揭晓",
+          "婚约阻隔",
+          "墓裂",
+          "化蝶俗传"
+        ],
+        "imagery": [
+          "上虞访友",
+          "未成婚书",
+          "风涛停舟",
+          "墓地裂开",
+          "双色蝴蝶传说"
+        ],
+        "emotional_arc": "同窗 → 身份揭晓 → 婚约受阻 → 病逝 → 哀恸与投墓",
+        "resonance": "可讨论迟说出口的身份、外部规则和如何为关系寻找不以死亡收束的当代支线。",
+        "non_fit": "含死亡、投墓自尽、婚姻强制和性别身份压力；必须成人明确选择，危机用户不进入。",
+        "content_warnings": [
+          "病死",
+          "投墓自尽",
+          "包办婚约",
+          "性别身份隐匿",
+          "殉情浪漫化风险"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "梁后来才知道祝是女子",
+          "祝已许马氏形成婚约阻隔",
+          "化蝶作为故事末尾流传的说法呈现"
+        ],
+        "may_transform": [
+          "增加拒绝强制婚约的安全支线并标明当代改写",
+          "把身份表达设为用户掌控节点",
+          "以不伤害的离别替代投墓"
+        ],
+        "prohibited": [
+          "把投死美化为真爱证明",
+          "把化蝶说成唯一结局",
+          "让用户模拟自杀或被迫婚姻"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "同窗书案",
+          "访祝后迟知身份",
+          "墓前风涛与安全分支"
+        ],
+        "visual_motifs": [
+          "双书卷",
+          "未发出的婚书",
+          "墓前风",
+          "仅作后记的蝶影"
+        ],
+        "prohibited_visuals": [
+          "投墓过程",
+          "自杀浪漫化",
+          "强制婚礼美化",
+          "把蝶影伪装成最早文本"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt_adult_gated",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "冯梦龙编《情史类略》卷十；中文维基文库；oldid 823518",
+        "allowed_uses": [
+          "local_development_runtime_with_adult_opt_in",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "suicide_safety_review",
+          "gender_and_marriage_review",
+          "folklore_layer_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照纸本或扫描底本",
+          "所据《宁波志》具体版本待查",
+          "化蝶俗传的传播链未在本批次展开"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-823518",
+          "title": "《情史类略》卷十固定修订",
+          "work": "情史类略",
+          "author": "冯梦龙编",
+          "era": "明",
+          "edition": "中文维基文库社区转录",
+          "locator": "以下同死·祝英台",
+          "url": "https://zh.wikisource.org/w/index.php?title=情史類略/10&oldid=823518",
+          "rights": "CC BY-SA 4.0 transcription; underlying Ming text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "snail_maiden_soushenhouji_05",
+      "story_family_id": "snail_maiden",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "田螺姑娘",
+      "era": "六朝志怪传世文本",
+      "genre": "志怪",
+      "story_type": "zhiguai",
+      "motifs": [
+        "谢端得螺",
+        "素女炊爨",
+        "暗中窥视",
+        "显形离去",
+        "不竭螺壳"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《搜神后记》卷五《白水素女》",
+        "author": "旧题陶潜；归属与成书层次待版本学复核",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "谢端得大螺段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/搜神後記/05",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=搜神後記/05&oldid=815501",
+        "page_revision_id": 815501,
+        "page_revision_timestamp": "2017-01-10T05:25:49Z",
+        "retrieved_at": "2026-08-09T01:03:51+08:00",
+        "original_excerpt": "後於邑下得一大螺，如三升壺，以為異物，取以歸，貯甕中。畜之十數日。",
+        "excerpt_sha256": "56af6d81098d4de6119ce1da1ebda1cf5853cc40f530334c3260176fafd77c56",
+        "excerpt_normalization": "UTF-8；固定 oldid 原始 wikitext 中连续子串；保留页面字形与标点；无模板展开",
+        "ending": "本项目编辑草稿（非原典引文）：谢端窥见白水素女从甕中出来后，素女说明奉天帝之命暂助其生活，因形迹已露而离去，留下可使米谷不乏的螺壳。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "six_dynasties_white_water_maiden_long_witness",
+          "note": "这是现代田螺姑娘通称所对应的白水素女长叙见证；素女不是以婚姻团圆收束。",
+          "confidence": "high_for_fixed_text_medium_until_authorship_review"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "田螺姑娘",
+        "subtitle": "《搜神后记》卷五《白水素女》",
+        "summary": "孤身生活的谢端捡到一只大螺，家中从此有人暗中备饭。他偷偷返回后看见白水素女；她说明自己的帮助有期限，因被窥见而离开，只留下能储粮不乏的螺壳。",
+        "characters": [
+          "谢端",
+          "白水素女",
+          "邻人"
+        ],
+        "conflict": "被照料者的好奇与照料者的隐私边界冲突，善意关系因未经同意的窥视而改变。",
+        "motifs": [
+          "螺中素女",
+          "暗中炊爨",
+          "窥视",
+          "离去",
+          "不乏螺壳"
+        ],
+        "imagery": [
+          "大螺与甕",
+          "清晨灶火",
+          "篱外窥见",
+          "风雨离去"
+        ],
+        "emotional_arc": "孤独劳作 → 意外照料 → 好奇猜疑 → 窥视显形 → 留礼离别",
+        "resonance": "可讨论接受帮助、表达感谢和不越过照料者边界；也能改写“隐形家务”如何被看见。",
+        "non_fit": "若用户经历跟踪、监控或家庭劳动剥削，应先处理安全与边界，不把窥视解释为浪漫好奇。",
+        "content_warnings": [
+          "隐私窥视",
+          "性别化家务",
+          "孤儿处境",
+          "超自然离别"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "素女奉命暂助谢端而非被占有",
+          "谢端窥视导致素女离开",
+          "结尾留下螺壳而非婚姻团圆"
+        ],
+        "may_transform": [
+          "让用户先询问并协商帮助边界",
+          "把隐形劳动改为可见的协作节点",
+          "让素女拥有明确退出和回访选择"
+        ],
+        "prohibited": [
+          "把偷拍窥视美化为恋爱契机",
+          "把照料劳动规定为女性天职",
+          "把素女写成谢端的奖品"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "江边得螺",
+          "灶火自动亮起",
+          "篱外窥见与素女告别"
+        ],
+        "visual_motifs": [
+          "螺旋",
+          "甕",
+          "灶火",
+          "雨幕"
+        ],
+        "prohibited_visuals": [
+          "偷窥视角色情化",
+          "家务女仆化",
+          "把素女困在螺中"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "旧题陶潜《搜神后记》卷五；中文维基文库；oldid 815501",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "authorship_and_bibliographic_review",
+          "privacy_and_gender_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照古籍扫描",
+          "旧题陶潜的归属问题未决",
+          "现代田螺姑娘名称只作检索入口"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-815501",
+          "title": "《搜神后记》卷五固定修订",
+          "work": "搜神后记",
+          "author": "旧题陶潜",
+          "era": "六朝志怪传世文本",
+          "edition": "中文维基文库社区转录",
+          "locator": "白水素女",
+          "url": "https://zh.wikisource.org/w/index.php?title=搜神後記/05&oldid=815501",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "peach_blossom_taohuayuanji",
+      "story_family_id": "peach_blossom_spring",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "桃花源",
+      "era": "东晋作品的四部丛刊系转录",
+      "genre": "记/文学故事",
+      "story_type": "legend",
+      "motifs": [
+        "渔人迷路",
+        "避秦绝境",
+        "桃林",
+        "做标记",
+        "不可复寻"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《桃花源记》并诗",
+        "author": "陶渊明撰；页面含多本异文标记",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "出境后处处志之而复寻不得段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/桃花源記",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=桃花源記&oldid=2620894",
+        "page_revision_id": 2620894,
+        "page_revision_timestamp": "2025-11-21T04:04:19Z",
+        "retrieved_at": "2026-08-09T01:03:51+08:00",
+        "original_excerpt": "處處誌之。及郡下，詣太守，説如此。太守即遣人隨其往，尋向所誌，遂迷，不復得路。",
+        "excerpt_sha256": "46031490c5c7874cc73b4da619fcab7871da8dd71cacccddac582c5ad21c2881",
+        "excerpt_normalization": "UTF-8；固定 oldid 原始 wikitext 中连续子串；保留页面字形与标点；摘录避开异文模板和脚注",
+        "ending": "本项目编辑草稿（非原典引文）：渔人离开后沿途做标记并报告太守，但重寻时迷路；刘子骥也未能前往，之后无人问津。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "annotated_transcription_of_tao_qian_tale",
+          "note": "页面以主文加异文模板呈现；本摘录选择不跨模板的连续结尾句。",
+          "confidence": "high_for_fixed_text_medium_until_scan_collation"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "桃花源",
+        "subtitle": "《桃花源记》并诗",
+        "summary": "武陵渔人偶然进入避乱者生活的桃花源。离开时他沿途做下标记并报告太守，却再也找不到入口。",
+        "characters": [
+          "武陵渔人",
+          "桃源居民",
+          "太守",
+          "刘子骥"
+        ],
+        "conflict": "偶然抵达的安宁世界一旦被标记、报告和重新占有，就变得不可复寻。",
+        "motifs": [
+          "避乱",
+          "偶然发现",
+          "隐居社区",
+          "标记路线",
+          "不可复寻"
+        ],
+        "imagery": [
+          "夹岸桃花",
+          "狭口与豁然开朗",
+          "鸡犬相闻",
+          "迷失路标"
+        ],
+        "emotional_arc": "迷路 → 惊喜 → 被接纳 → 离开标记 → 重寻失败",
+        "resonance": "可讨论安全空间、退出外界压力和分享隐秘时的边界，也能质疑谁有权把他人的避难所公开。",
+        "non_fit": "含战争避难背景；若用户正处现实迫害或避难情境，应优先提供实际安全资源。",
+        "content_warnings": [
+          "战争与流离背景",
+          "隐居与隔绝",
+          "外来者暴露隐秘空间",
+          "失落结局"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "桃源居民先世为避秦乱而来",
+          "渔人离开后做标记并报告太守",
+          "重寻失败而非永久占有桃源"
+        ],
+        "may_transform": [
+          "把是否公开入口变成伦理选择",
+          "让居民参与决定边界",
+          "用可撤回地图表现隐私"
+        ],
+        "prohibited": [
+          "把桃源说成可供征服开发的空地",
+          "抹掉避乱背景",
+          "把桃源解释为唯一正确的人生归宿"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "桃林入口",
+          "村落对话",
+          "路标逐一消失"
+        ],
+        "visual_motifs": [
+          "桃花",
+          "狭洞",
+          "阡陌",
+          "褪色路标"
+        ],
+        "prohibited_visuals": [
+          "房地产式桃源",
+          "无人的东方主义仙境",
+          "战争奇观"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "陶渊明《桃花源记》；中文维基文库；oldid 2620894",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_annotations_or_media"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "variant_markup_review",
+          "bibliographic_review",
+          "displacement_safety_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未逐条核对页面所列异文",
+          "四部丛刊底本与页面主文关系待复核",
+          "仙境化后世阐释未纳入本记录"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2620894",
+          "title": "《桃花源记》固定修订",
+          "work": "桃花源记",
+          "author": "陶渊明",
+          "era": "东晋",
+          "edition": "中文维基文库带异文社区转录",
+          "locator": "重寻不得段",
+          "url": "https://zh.wikisource.org/w/index.php?title=桃花源記&oldid=2620894",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "liuyi_original_tale",
+      "story_family_id": "liu_yi_delivers_letter",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "柳毅传书",
+      "era": "唐",
+      "genre": "唐传奇",
+      "story_type": "zhiguai",
+      "motifs": [
+        "落第书生",
+        "龙女牧羊",
+        "传书求援",
+        "洞庭龙宫",
+        "婚姻暴力"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《柳毅传》",
+        "author": "李朝威撰",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "洞庭龙女自述并托书段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/柳毅傳",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=柳毅傳&oldid=2118835",
+        "page_revision_id": 2118835,
+        "page_revision_timestamp": "2022-03-30T21:47:08Z",
+        "retrieved_at": "2026-08-09T01:03:51+08:00",
+        "original_excerpt": "妾，洞庭龍君小女也。父母配嫁涇川次子，而夫壻樂逸，為婢僕所惑，日以厭薄。",
+        "excerpt_sha256": "7b0da508aea752255c9453bb11aba385e2fe4aa9ba0cba49ed2cc75362d4acbd",
+        "excerpt_normalization": "UTF-8；固定 oldid 原始 wikitext 中连续子串；保留页面字形和标点；无模板展开",
+        "ending": "本项目编辑草稿（非原典引文）：柳毅替受虐龙女传书，钱塘君救回她并惩处泾川一方；经历拒婚与重逢后，柳毅与龙女成婚。暴力救援与婚姻结局须分层讨论。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "tang_independent_tale_witness",
+          "note": "唐传奇单篇见证，保留传书、救援、拒婚和后续成婚的复杂结构。",
+          "confidence": "high_for_fixed_text_medium_until_edition_review"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "柳毅传书",
+        "subtitle": "《柳毅传》",
+        "summary": "落第归途中的柳毅遇见被丈夫与舅姑虐待、放逐牧羊的洞庭龙女。她请求他把信送回洞庭；柳毅答应传书，故事随后进入救援、拒婚与重逢。",
+        "characters": [
+          "柳毅",
+          "洞庭龙女",
+          "洞庭君",
+          "钱塘君",
+          "泾川次子"
+        ],
+        "conflict": "受虐者无法直接向原生家庭求援，只能委托陌生人传递信息；救援又带来暴力复仇与新的婚姻安排。",
+        "motifs": [
+          "托书",
+          "传信",
+          "龙宫",
+          "救援",
+          "拒婚"
+        ],
+        "imagery": [
+          "泾阳牧羊",
+          "尺书",
+          "社橘叩门",
+          "洞庭水府"
+        ],
+        "emotional_arc": "受困 → 求援 → 传信 → 获救 → 拒绝交易式婚姻 → 重逢",
+        "resonance": "可讨论如何可信地替他人传递求援、帮助是否附带回报，以及受助者的决定权。",
+        "non_fit": "含亲密关系虐待、家庭排斥和暴力复仇；相关经历用户应先选择安全程度。",
+        "content_warnings": [
+          "婚姻虐待",
+          "家庭排斥",
+          "暴力救援与复仇",
+          "权力不对等"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "龙女主动提出托书求援",
+          "柳毅传书不应被写成索取婚姻回报",
+          "后续救援含暴力且柳毅一度拒婚"
+        ],
+        "may_transform": [
+          "把传书映射为安全求助网络",
+          "让龙女掌控求援信息和后续决定",
+          "提供非暴力救援分支"
+        ],
+        "prohibited": [
+          "责怪受虐者未自行离开",
+          "把帮助交换成恋爱义务",
+          "把暴力复仇包装成唯一正义"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "泾阳牧羊与托书",
+          "叩社橘入洞庭",
+          "传信后由龙女选择救援分支"
+        ],
+        "visual_motifs": [
+          "羊群",
+          "书信",
+          "橘树",
+          "水府门"
+        ],
+        "prohibited_visuals": [
+          "虐待场景特写",
+          "龙女色情化",
+          "血腥复仇奇观"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "李朝威《柳毅传》；中文维基文库；oldid 2118835",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "domestic_abuse_safety_review",
+          "gender_and_marriage_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照纸本底本",
+          "整篇暴力与救援安全图尚未完成",
+          "柳毅拒婚和后续成婚的伦理阐释需复核"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2118835",
+          "title": "《柳毅传》固定修订",
+          "work": "柳毅传",
+          "author": "李朝威",
+          "era": "唐",
+          "edition": "中文维基文库社区转录",
+          "locator": "龙女托书段",
+          "url": "https://zh.wikisource.org/w/index.php?title=柳毅傳&oldid=2118835",
+          "rights": "CC BY-SA 4.0 transcription; underlying Tang text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "saiweng_huainanzi_renjian",
+      "story_family_id": "old_man_lost_horse",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "塞翁失马",
+      "era": "西汉",
+      "genre": "子书寓言",
+      "story_type": "fable",
+      "motifs": [
+        "失马",
+        "得马",
+        "坠马折髀",
+        "祸福转化"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《淮南子·人间训》",
+        "author": "刘安及门客编",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "近塞上之人有善术者段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/淮南子/人間訓",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=淮南子/人間訓&oldid=1809124",
+        "page_revision_id": 1809124,
+        "page_revision_timestamp": "2020-05-14T05:47:29Z",
+        "retrieved_at": "2026-08-09T00:40:12+08:00",
+        "original_excerpt": "近塞上之人有善術者，馬無故亡而入胡，人皆弔之。其父曰：「此何遽不為福乎！」",
+        "excerpt_sha256": "7356820ed14ac254181dc1623739c92308ed678fb5f696eafd211ef2ef642471",
+        "excerpt_normalization": "UTF-8；摘录是固定修订 raw wikitext 的连续子串，未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：失马、得胡马、儿子折髀与免于征战依次转换，文本以祸福相生、变化难测收束。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "early_han_attestation",
+          "note": "这是塞翁失马的传世核心文本；不把它简化成单向的乐观格言。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "塞翁失马",
+        "subtitle": "《淮南子·人间训》",
+        "summary": "边塞人家的马走失后又带回胡马，儿子骑马折伤，却因腿伤免于战死；故事反复改变对同一事件的判断。",
+        "characters": [
+          "塞上善术者",
+          "其子",
+          "邻人",
+          "胡人"
+        ],
+        "conflict": "人在结果尚未展开时，如何面对损失、收益与判断的不确定。",
+        "motifs": [
+          "失马",
+          "得马",
+          "折髀",
+          "征战",
+          "祸福转化"
+        ],
+        "imagery": [
+          "越塞而去的马",
+          "带回的胡马",
+          "折伤的腿",
+          "边塞弓弦"
+        ],
+        "emotional_arc": "损失 → 意外所得 → 再次受挫 → 暂时保全",
+        "resonance": "可用于讨论事件的意义如何随时间改变，但不要求用户把现实伤害解释成好事。",
+        "non_fit": "若用户正在处理明确的创伤、医疗或安全问题，应先承认损害并提供实际支持，不用祸福转化淡化处境。",
+        "content_warnings": [
+          "坠马受伤",
+          "战争死亡",
+          "命运不确定"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "祸福至少发生两次反转",
+          "父亲的判断是开放提问而非预知结局",
+          "结尾涉及边塞战争与伤亡"
+        ],
+        "may_transform": [
+          "把马替换为现代机会或资源",
+          "把时间轴画成可修改的判断节点",
+          "允许用户保留未定结局"
+        ],
+        "prohibited": [
+          "用塞翁失马否认真实损失",
+          "宣称一切坏事必会变好",
+          "把避免征战解释成伤残本身值得庆祝"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "空马厩",
+          "胡马归来",
+          "边塞征战与留守剪影"
+        ],
+        "visual_motifs": [
+          "边塞风线",
+          "马蹄印",
+          "祸福双向箭头",
+          "时间折线"
+        ],
+        "prohibited_visuals": [
+          "血腥伤残",
+          "把苦难画成必然奖赏"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《淮南子·人间训》；中文维基文库；oldid 1809124",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "今本层次与标点需版本学复核",
+          "现代映射必须避免用祸福说淡化损害"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-1809124",
+          "title": "《淮南子·人间训》固定修订",
+          "work": "淮南子",
+          "author": "刘安及门客编",
+          "era": "西汉",
+          "edition": "中文维基文库社区转录",
+          "locator": "近塞上之人有善术者段",
+          "url": "https://zh.wikisource.org/w/index.php?title=淮南子/人間訓&oldid=1809124",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "shouzhu_hanfeizi_wudu",
+      "story_family_id": "farmer_waits_for_rabbit",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "守株待兔",
+      "era": "战国作品的传世整理本",
+      "genre": "子书政治寓言",
+      "story_type": "fable",
+      "motifs": [
+        "耕田",
+        "兔触株",
+        "弃耒守株",
+        "因循旧法"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《韩非子·五蠹》",
+        "author": "韩非；传世文本",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "宋人有耕田者段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/韓非子/五蠹",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=韓非子/五蠹&oldid=2642850",
+        "page_revision_id": 2642850,
+        "page_revision_timestamp": "2026-01-19T01:06:47Z",
+        "retrieved_at": "2026-08-09T00:40:12+08:00",
+        "original_excerpt": "宋人有耕田者，田中有株，兔走觸株，折頸而死，因釋其耒而守株，冀復得兔，兔不可復得，而身爲宋國笑。",
+        "excerpt_sha256": "0131b06da90e24baa2327a214c0be3e0215d5f350be3ed92c7a89d74e6ad5cf8",
+        "excerpt_normalization": "UTF-8；摘录是固定修订 raw wikitext 的连续子串，未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：农人放下农具等待偶然重演，最终没有再得兔；原段随即把它用于批评以旧政治当世。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "warring_states_rhetorical_fable_witness",
+          "note": "寓言嵌在《五蠹》的政治论辩中，不应脱离语境只讲成个人勤奋训诫。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "守株待兔",
+        "subtitle": "《韩非子·五蠹》",
+        "summary": "宋国农人偶然捡到撞树而死的兔子，便放下农具守在树桩旁等待重复；《五蠹》借此批评用旧制度处理已经变化的时代。",
+        "characters": [
+          "宋国农人",
+          "兔",
+          "宋国人"
+        ],
+        "conflict": "一次偶然成功能否被当成稳定方法，以及旧方法何时需要更新。",
+        "motifs": [
+          "偶然收益",
+          "弃耒",
+          "等待重复",
+          "时势变化"
+        ],
+        "imagery": [
+          "田野树桩",
+          "倒下的兔",
+          "被放下的农具",
+          "空等的日影"
+        ],
+        "emotional_arc": "偶然所得 → 期待复制 → 停止行动 → 落空",
+        "resonance": "可用于辨认哪些经验可复用、哪些只是偶然，并讨论何时恢复行动。",
+        "non_fit": "若用户正因资源不足或制度约束而被迫等待，不应把处境简单归咎为懒惰。",
+        "content_warnings": [
+          "动物死亡",
+          "羞笑",
+          "政治训诫"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "兔触株是偶然事件",
+          "农人主动放下农具等待",
+          "原段服务于因时变法的政治论辩"
+        ],
+        "may_transform": [
+          "把树桩映射为过时流程",
+          "把偶然与规律画成两类证据",
+          "让用户补充外部约束节点"
+        ],
+        "prohibited": [
+          "把结构性等待归咎为个人懒惰",
+          "删去政治语境却声称忠实原意",
+          "鼓励伤害动物或复制危险偶然"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "田中树桩",
+          "农具落地",
+          "日影移动而兔不再来"
+        ],
+        "visual_motifs": [
+          "田垄线",
+          "循环箭头断裂",
+          "偶然骰点",
+          "旧法标签"
+        ],
+        "prohibited_visuals": [
+          "血腥动物伤口",
+          "嘲弄式人物 caricature"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《韩非子·五蠹》；中文维基文库；oldid 2642850",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "页面标点与底本文字层次待复核",
+          "现代使用需保留政治语境并避免责备受限者"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2642850",
+          "title": "《韩非子·五蠹》固定修订",
+          "work": "韩非子",
+          "author": "韩非",
+          "era": "战国作品的传世整理本",
+          "edition": "中文维基文库社区转录",
+          "locator": "宋人有耕田者段",
+          "url": "https://zh.wikisource.org/w/index.php?title=韓非子/五蠹&oldid=2642850",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "kezhou_lushichunqiu_chajin",
+      "story_family_id": "marking_boat_for_sword",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "刻舟求剑",
+      "era": "战国末期作品的传世整理本",
+      "genre": "子书政治寓言",
+      "story_type": "fable",
+      "motifs": [
+        "涉江",
+        "剑坠水",
+        "刻舟记位",
+        "时势迁移"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《吕氏春秋》卷十五《察今》",
+        "author": "吕不韦门客集体编纂；传世文本",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "楚人有涉江者段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/呂氏春秋/卷十五",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=呂氏春秋/卷十五&oldid=2327722",
+        "page_revision_id": 2327722,
+        "page_revision_timestamp": "2023-10-29T10:07:50Z",
+        "retrieved_at": "2026-08-09T00:40:12+08:00",
+        "original_excerpt": "楚人有涉江者，其劍自舟中墜於水，遽契其舟，曰：“是吾劍之所從墜。”舟止，從其所契者入水求之。",
+        "excerpt_sha256": "21e19bc032e3da249b60f8aac49f1e73a1ac1f1d9fbcea7f26abd7cdba3da695",
+        "excerpt_normalization": "UTF-8；摘录是固定修订 raw wikitext 的连续子串，保留页面弯引号",
+        "ending": "本项目编辑草稿（非原典引文）：船已移动而剑未移动，从刻痕处下水当然找不到；原文继而类比时变而法不变。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "warring_states_rhetorical_fable_witness",
+          "note": "故事用于《察今》关于因时变法的论证，不只是空间常识笑话。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "刻舟求剑",
+        "subtitle": "《吕氏春秋》卷十五《察今》",
+        "summary": "楚人过江时剑落水，便在移动的船上刻下记号，停船后从刻痕处下水寻找；原篇借此说明环境已变而方法不变的困境。",
+        "characters": [
+          "楚人",
+          "同舟者"
+        ],
+        "conflict": "参考点本身在移动时，旧记号还能否指向原来的对象。",
+        "motifs": [
+          "移动参照系",
+          "刻痕",
+          "落水之剑",
+          "时变法变"
+        ],
+        "imagery": [
+          "江面行舟",
+          "船舷刻痕",
+          "沉入水底的剑",
+          "错位坐标"
+        ],
+        "emotional_arc": "意外失落 → 快速标记 → 按标记寻找 → 发现错位",
+        "resonance": "可用于讨论计划、规则和现实条件之间的错位，并让用户修改参照节点。",
+        "non_fit": "若用户面对的是不可更改的制度约束，不应把困境只解释成个人方法僵化。",
+        "content_warnings": [
+          "财物落水",
+          "嘲讽意味",
+          "政治训诫"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "船移动而剑的位置不随船移动",
+          "刻痕只是船上的参考点",
+          "原篇把故事用于时变法变的论证"
+        ],
+        "may_transform": [
+          "用坐标图展示参照系",
+          "让用户移动环境节点并检查规则",
+          "把剑换成丢失的目标或信息"
+        ],
+        "prohibited": [
+          "把主人公刻画成先天愚笨群体",
+          "删去时势语境却声称完整原意",
+          "把所有稳定规则都否定"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "剑落江中",
+          "船舷刻痕",
+          "坐标线随船错位"
+        ],
+        "visual_motifs": [
+          "水波",
+          "舟线",
+          "刻痕",
+          "双参照轴"
+        ],
+        "prohibited_visuals": [
+          "族群 caricature",
+          "危险跳水示范"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《吕氏春秋》卷十五《察今》；中文维基文库；oldid 2327722",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "页面标点层待复核",
+          "现代映射需区分个人策略与制度限制"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2327722",
+          "title": "《吕氏春秋》卷十五固定修订",
+          "work": "吕氏春秋",
+          "author": "吕不韦门客集体编纂",
+          "era": "战国末期作品的传世整理本",
+          "edition": "中文维基文库社区转录",
+          "locator": "察今·楚人有涉江者段",
+          "url": "https://zh.wikisource.org/w/index.php?title=呂氏春秋/卷十五&oldid=2327722",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "yegong_xinxu_zashi_5",
+      "story_family_id": "lord_ye_loves_dragons",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "叶公好龙",
+      "era": "西汉",
+      "genre": "杂事/游说寓言",
+      "story_type": "fable",
+      "motifs": [
+        "室内画龙",
+        "真龙下降",
+        "惊走失措",
+        "好似非真"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《新序·杂事》第五",
+        "author": "刘向编",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "子张见鲁哀公段中的叶公譬喻",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/新序/雜事/卷五",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=新序/雜事/卷五&oldid=2178815",
+        "page_revision_id": 2178815,
+        "page_revision_timestamp": "2022-09-13T08:49:54Z",
+        "retrieved_at": "2026-08-09T00:40:12+08:00",
+        "original_excerpt": "葉公子高好龍，鉤以寫龍，鑿以寫龍，屋室雕文以寫龍，於是夫龍聞而下之，窺頭於牖，拖尾于堂",
+        "excerpt_sha256": "cc5ae19944c6d914cd20763f2b385772d42b5a2088715cea1ef956e1e84fb5b7",
+        "excerpt_normalization": "UTF-8；摘录是固定修订 raw wikitext 的连续子串，未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：叶公见真龙便失措逃走；子张以此质问鲁哀公是否只喜爱“像士而非士”的表象。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "western_han_rhetorical_fable_witness",
+          "note": "寓言是子张离开鲁哀公前的譬喻，必须保留好士与礼士的政治语境。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "叶公好龙",
+        "subtitle": "《新序·杂事》第五",
+        "summary": "叶公在衣钩、酒器与居室中处处描龙，真龙闻讯降临时却惊惧逃走；子张以此批评鲁哀公声称好士却不礼遇来访者。",
+        "characters": [
+          "叶公子高",
+          "真龙",
+          "子张",
+          "鲁哀公"
+        ],
+        "conflict": "对某种形象的喜爱，是否经得起真实对象带来的复杂性与责任。",
+        "motifs": [
+          "表象偏好",
+          "真实到来",
+          "惊惧逃走",
+          "好士与礼士"
+        ],
+        "imagery": [
+          "满屋龙纹",
+          "窗外龙首",
+          "堂中龙尾",
+          "七日不礼的门庭"
+        ],
+        "emotional_arc": "反复装饰 → 真龙降临 → 惊惧逃走 → 反观言行",
+        "resonance": "可用于比较自我宣称、日常布置与真正行动之间的差距。",
+        "non_fit": "若用户的回避来自现实危险或创伤，不应把谨慎简单判为虚伪。",
+        "content_warnings": [
+          "巨大生物惊吓",
+          "失魂惊走",
+          "政治讽谏"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "叶公喜爱的是龙的图像与装饰",
+          "真龙出现后他惊走",
+          "寓言服务于好士却不礼士的批评"
+        ],
+        "may_transform": [
+          "把龙纹映射为身份宣称",
+          "让用户补充真实对象带来的成本",
+          "把宣称与行动画成两列"
+        ],
+        "prohibited": [
+          "将正常风险评估污名为虚伪",
+          "把叶公当作真实历史人物做心理诊断",
+          "删除子张与鲁哀公的语境"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "屋室龙纹",
+          "龙首窥牖",
+          "子张离开门庭"
+        ],
+        "visual_motifs": [
+          "窗棂",
+          "龙纹线描",
+          "宣称与行动双栏",
+          "空置宾席"
+        ],
+        "prohibited_visuals": [
+          "把龙画成西方喷火龙默认形象",
+          "恐惧表情夸张羞辱"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《新序·杂事》第五；中文维基文库；oldid 2178815",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "鉤、鑿等器物释义待注释复核",
+          "现代映射需区分虚假宣称与合理避险"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2178815",
+          "title": "《新序·杂事》第五固定修订",
+          "work": "新序",
+          "author": "刘向编",
+          "era": "西汉",
+          "edition": "中文维基文库社区转录",
+          "locator": "子张见鲁哀公·叶公子高好龙段",
+          "url": "https://zh.wikisource.org/w/index.php?title=新序/雜事/卷五&oldid=2178815",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "boya_lushichunqiu_benwei",
+      "story_family_id": "boya_breaks_strings",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "伯牙绝弦",
+      "era": "战国末期作品的传世整理本",
+      "genre": "人物轶事/知音传说",
+      "story_type": "legend",
+      "motifs": [
+        "鼓琴",
+        "高山流水",
+        "知音",
+        "破琴绝弦"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《吕氏春秋》卷十四《本味》",
+        "author": "吕不韦门客集体编纂；传世文本",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "伯牙鼓琴、钟子期听之段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/呂氏春秋/卷十四",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=呂氏春秋/卷十四&oldid=2327725",
+        "page_revision_id": 2327725,
+        "page_revision_timestamp": "2023-10-29T10:07:59Z",
+        "retrieved_at": "2026-08-09T00:40:12+08:00",
+        "original_excerpt": "鍾子期死，伯牙破琴絕弦，終身不復鼓琴，以為世無足復為鼓琴者。",
+        "excerpt_sha256": "10a34c6aa6a716cfc98d5bfe0755ad0886829ef8992fce996083504309ef3416",
+        "excerpt_normalization": "UTF-8；摘录是固定修订 raw wikitext 的连续子串，未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：钟子期去世后，伯牙破琴绝弦，不再鼓琴；原篇继而以贤者需被礼接展开论证。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "warring_states_boya_ziqi_attestation",
+          "note": "高山流水与绝弦都嵌在贤者相得的论述中，不能只剩浪漫化的唯一知音。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "伯牙绝弦",
+        "subtitle": "《吕氏春秋》卷十四《本味》",
+        "summary": "伯牙弹琴时寄意高山流水，钟子期能听出其志；子期死后，伯牙破琴绝弦，原篇借此讨论贤者相得与被理解的条件。",
+        "characters": [
+          "伯牙",
+          "钟子期"
+        ],
+        "conflict": "深度理解来自怎样的共同经验，以及失去理解者后如何继续与纪念。",
+        "motifs": [
+          "高山",
+          "流水",
+          "知音",
+          "失去",
+          "绝弦"
+        ],
+        "imagery": [
+          "琴弦",
+          "巍巍太山",
+          "汤汤流水",
+          "停下的乐声"
+        ],
+        "emotional_arc": "表达 → 被听见 → 相得 → 丧失与停奏",
+        "resonance": "可用于谈被理解、共同创作与失去，但允许用户拒绝“唯一知音”或永久停下的框架。",
+        "non_fit": "涉及死亡与哀伤；正在经历丧亲或强烈孤独者应可跳过，并避免把孤立浪漫化。",
+        "content_warnings": [
+          "死亡",
+          "哀伤",
+          "破琴绝弦",
+          "孤独"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "钟子期能听出高山流水之志",
+          "子期去世在绝弦之前",
+          "原段关联贤者相得与礼接"
+        ],
+        "may_transform": [
+          "把琴声映射为难以表达的经验",
+          "允许角色以新方式纪念并继续",
+          "把理解画成证据与回应节点"
+        ],
+        "prohibited": [
+          "宣称每个人只能有唯一知音",
+          "美化永久自我封闭",
+          "用故事替代哀伤支持或心理治疗"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "琴声化为山形",
+          "流水声纹",
+          "弦止后的静场"
+        ],
+        "visual_motifs": [
+          "琴弦曲线",
+          "山水墨线",
+          "回声圆环",
+          "留白"
+        ],
+        "prohibited_visuals": [
+          "写实自伤联想",
+          "把孤独绝对浪漫化"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "《吕氏春秋》卷十四《本味》；中文维基文库；oldid 2327725",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "尚未对照可靠影印本",
+          "伯牙与钟子期材料的文本层累待复核",
+          "现代改编需避免唯一知音和孤独浪漫化"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2327725",
+          "title": "《吕氏春秋》卷十四固定修订",
+          "work": "吕氏春秋",
+          "author": "吕不韦门客集体编纂",
+          "era": "战国末期作品的传世整理本",
+          "edition": "中文维基文库社区转录",
+          "locator": "本味·伯牙鼓琴段",
+          "url": "https://zh.wikisource.org/w/index.php?title=呂氏春秋/卷十四&oldid=2327725",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    },
+    {
+      "story_version_id": "nanke_taishouzhuan",
+      "story_family_id": "nanke_dream",
+      "corpus_tier": "c3-dev",
+      "editorial_status": "editorial_draft",
+      "eligible_for_demo": true,
+      "production_eligible": false,
+      "development_runtime_eligible": true,
+      "adult_only": false,
+      "default_offer_eligible": true,
+      "requires_explicit_adult_opt_in": false,
+      "title": "南柯一梦",
+      "era": "唐",
+      "genre": "传奇",
+      "story_type": "chuanqi",
+      "motifs": [
+        "醉卧古槐",
+        "槐安国",
+        "南柯太守",
+        "梦醒人生"
+      ],
+      "source_canon": {
+        "immutable": true,
+        "work": "《南柯太守传》",
+        "author": "李公佐",
+        "edition": "中文维基文库固定修订，非学术定本",
+        "evidence_anchor": "醉卧堂东庑、二紫衣使者来召段",
+        "source_repository": "中文维基文库",
+        "source_url": "https://zh.wikisource.org/wiki/南柯太守傳",
+        "source_permalink": "https://zh.wikisource.org/w/index.php?title=南柯太守傳&oldid=2264164",
+        "page_revision_id": 2264164,
+        "page_revision_timestamp": "2023-02-24T14:37:33Z",
+        "retrieved_at": "2026-08-09T00:40:12+08:00",
+        "original_excerpt": "生解巾就枕，昏然忽忽，彷彿若夢。見二紫衣使者，跪拜生曰：「槐安國王遣小臣致命奉邀。」",
+        "excerpt_sha256": "cdda608b7da43ca528dd6614436aff382cf04e87f5f76e12a072d4550bafba11",
+        "excerpt_normalization": "UTF-8；摘录是固定修订 raw wikitext 的连续子串，未改字形与标点",
+        "ending": "本项目编辑草稿（非原典引文）：淳于棼在槐安国经历婚姻、仕途、战争与失意，醒后发现大槐安国对应槐下蚁穴。",
+        "ending_origin": "project_editorial_draft_not_source_text",
+        "relation_to_family": {
+          "type": "tang_chuanqi_attestation",
+          "note": "这是南柯故事的唐传奇文本；不能只用成语概括其完整仕宦、战争和觉醒结构。",
+          "confidence": "high"
+        }
+      },
+      "story_card": {
+        "editorial_origin": "本项目编辑草稿，非原典译文、原典原意或学术定本",
+        "title": "南柯一梦",
+        "subtitle": "《南柯太守传》",
+        "summary": "淳于棼醉卧古槐下，被紫衣使者迎入槐安国，经历婚姻、任官、战争与荣辱；醒来后，他在槐穴中辨认出梦境世界与现实空间的尺度对应。",
+        "characters": [
+          "淳于棼",
+          "瑶芳公主",
+          "槐安国王",
+          "周弁",
+          "田子华",
+          "紫衣使者"
+        ],
+        "conflict": "漫长而真实的功业、关系与失落，在醒来后如何被重新理解。",
+        "motifs": [
+          "古槐",
+          "蚁国",
+          "梦中仕宦",
+          "荣辱",
+          "尺度转换"
+        ],
+        "imagery": [
+          "古槐浓荫",
+          "紫衣使者",
+          "槐穴车马",
+          "蚁国城郭"
+        ],
+        "emotional_arc": "失意醉卧 → 异界显达 → 荣辱转折 → 醒后重估",
+        "resonance": "可用于回看一段投入很深的经历，并区分“意义被重估”与“经历从未发生过”的不同感受。",
+        "non_fit": "涉及酗酒、战争、伴侣死亡与人生虚幻感；若用户处于解离或强烈虚无状态，应提供跳过与落地选项。",
+        "content_warnings": [
+          "酗酒",
+          "战争",
+          "伴侣死亡",
+          "梦醒虚无感"
+        ]
+      },
+      "adaptation_boundary": {
+        "must_preserve": [
+          "淳于棼因醉入梦而非主动穿越",
+          "梦中包含婚姻、任官与战争，不只是富贵幻觉",
+          "醒后槐穴与蚁国形成尺度对应"
+        ],
+        "may_transform": [
+          "把仕宦映射为一段长期项目",
+          "用双层画布展示梦内与梦外",
+          "允许用户保留梦中关系的意义"
+        ],
+        "prohibited": [
+          "把全部经历贬为毫无价值",
+          "鼓励以饮酒逃避现实",
+          "把蚁国画成对现实族群的贬损隐喻"
+        ]
+      },
+      "theatre_asset_pack": {
+        "status": "editorial_draft",
+        "asset_mode": "local_svg_css_placeholder",
+        "scene_anchors": [
+          "槐下醉卧",
+          "紫衣车入槐穴",
+          "梦境城郭缩回蚁穴"
+        ],
+        "visual_motifs": [
+          "槐叶影",
+          "双重尺度",
+          "城郭与蚁穴叠合",
+          "醒梦光差"
+        ],
+        "prohibited_visuals": [
+          "将饮酒浪漫化",
+          "昆虫恐怖特写",
+          "以梦否认人物情感"
+        ],
+        "image_assets": [],
+        "audio_assets": [],
+        "needs_visual_cultural_review": true
+      },
+      "rights_and_access": {
+        "status": "development_short_excerpt_open_review",
+        "access_mode": "short_excerpt",
+        "copyright_basis": "古代基础文本推定公版；所用网页转录按 CC BY-SA 4.0 提供",
+        "transcription_license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "attribution": "李公佐《南柯太守传》；中文维基文库；oldid 2264164",
+        "allowed_uses": [
+          "local_development_runtime",
+          "source_linking",
+          "attributed_short_excerpt_display"
+        ],
+        "prohibited_until_review": [
+          "production_release",
+          "full_text_ingestion",
+          "full_text_vectorization",
+          "reuse_of_modern_translation_image_or_audio"
+        ],
+        "share_alike_assessment": "open",
+        "cultural_access_status": "open"
+      },
+      "review_record": {
+        "status": "c3_dev_pending_dual_review",
+        "editorial_status": "editorial_draft",
+        "reviewers": [],
+        "retrieval_checked_at": "2026-08-09",
+        "required_reviews": [
+          "compare_excerpt_with_scan",
+          "bibliographic_review",
+          "rights_review",
+          "two_person_cultural_review"
+        ],
+        "known_gaps": [
+          "页面称本作品收录于《太平广记》，具体底本待复核",
+          "尚未对照可靠影印本",
+          "涉及酗酒、战争与虚无感的现代转译需安全审查"
+        ]
+      },
+      "provenance": [
+        {
+          "id": "ws-oldid-2264164",
+          "title": "《南柯太守传》固定修订",
+          "work": "南柯太守传",
+          "author": "李公佐",
+          "era": "唐",
+          "edition": "中文维基文库社区转录；页面注记收录于《太平广记》",
+          "locator": "醉卧堂东庑、二紫衣使者来召段",
+          "url": "https://zh.wikisource.org/w/index.php?title=南柯太守傳&oldid=2264164",
+          "rights": "CC BY-SA 4.0 transcription; underlying ancient text public-domain-believed"
+        }
+      ],
+      "product_primary": true,
+      "record_role": "product_primary_story",
+      "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+    }
+  ],
+  "record_policy": "one_product_primary_story_per_family",
+  "primary_selection_status": "demo_editorial_selection_pending_expert_review"
+}

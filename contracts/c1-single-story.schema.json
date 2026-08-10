@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/contracts/c1-single-story.schema.json",
+  "title": "C1 source-segmented local Demo story record",
+  "type": "object",
+  "required": [
+    "entry_id",
+    "unit_type",
+    "corpus_tier",
+    "source_key",
+    "source_work_id",
+    "source_work_title",
+    "volume",
+    "source_locator",
+    "entry_ordinal",
+    "title",
+    "title_origin",
+    "provider",
+    "source_url",
+    "source_snapshot_sha256",
+    "segmentation_method",
+    "segmentation_review_status",
+    "text_mode",
+    "text",
+    "extracted_text_sha256",
+    "normalized_text_sha256",
+    "char_count",
+    "transcription_license",
+    "license_url",
+    "full_text_search_allowed",
+    "catalog_status",
+    "runtime_eligible",
+    "production_eligible",
+    "dedupe_status",
+    "canonical_entry_id"
+  ],
+  "properties": {
+    "entry_id": {
+      "type": "string",
+      "pattern": "^c1ws_[0-9a-f]{24}$"
+    },
+    "unit_type": {
+      "const": "single_story"
+    },
+    "corpus_tier": {
+      "const": "c1_source_story"
+    },
+    "source_key": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "source_work_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_work_title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "volume": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_locator": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entry_ordinal": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title_origin": {
+      "enum": ["source_heading", "editorial_locator"]
+    },
+    "provider": {
+      "const": "zh_wikisource"
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "source_snapshot_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "segmentation_method": {
+      "enum": [
+        "source_heading",
+        "source_subheading",
+        "source_paragraph_entry"
+      ]
+    },
+    "segmentation_review_status": {
+      "const": "automated_structure_validated_human_review_pending"
+    },
+    "text_mode": {
+      "const": "full_text"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 20
+    },
+    "extracted_text_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "normalized_text_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "char_count": {
+      "type": "integer",
+      "minimum": 20
+    },
+    "transcription_license": {
+      "const": "CC-BY-SA-4.0"
+    },
+    "license_url": {
+      "const": "https://creativecommons.org/licenses/by-sa/4.0/"
+    },
+    "full_text_search_allowed": {
+      "const": true
+    },
+    "embedding_allowed": {
+      "const": false
+    },
+    "catalog_status": {
+      "const": "source_segmented_unreviewed"
+    },
+    "runtime_eligible": {
+      "type": "boolean"
+    },
+    "production_eligible": {
+      "const": false
+    },
+    "dedupe_status": {
+      "enum": ["canonical", "exact_duplicate"]
+    },
+    "canonical_entry_id": {
+      "type": "string",
+      "pattern": "^c1ws_[0-9a-f]{24}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"dedupe_status": {"const": "canonical"}},
+        "required": ["dedupe_status"]
+      },
+      "then": {
+        "properties": {"runtime_eligible": {"const": true}}
+      },
+      "else": {
+        "properties": {"runtime_eligible": {"const": false}}
+      }
+    }
+  ],
+  "additionalProperties": true
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/contracts/c1-catalog-summary.schema.json",
+  "title": "C1 single-story Demo recommendation aggregate",
+  "type": "object",
+  "required": [
+    "catalog_version",
+    "snapshot_date",
+    "corpus_tier",
+    "raw_segments",
+    "rejected_segments",
+    "accepted_segments",
+    "exact_duplicate_segments",
+    "unique_single_stories",
+    "full_text_stories",
+    "source_works",
+    "status_counts",
+    "dedupe_scope",
+    "work_counts",
+    "catalog_build_hash",
+    "runtime_eligible",
+    "recommendation_pool_stories",
+    "curated_experience_stories",
+    "recommendation_pool_mode",
+    "production_eligible",
+    "license"
+  ],
+  "properties": {
+    "corpus_tier": {
+      "const": "c1-source-single-story"
+    },
+    "raw_segments": {
+      "type": "integer",
+      "minimum": 10000
+    },
+    "rejected_segments": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "accepted_segments": {
+      "type": "integer",
+      "minimum": 10000
+    },
+    "exact_duplicate_segments": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "unique_single_stories": {
+      "type": "integer",
+      "minimum": 10000
+    },
+    "full_text_stories": {
+      "type": "integer",
+      "minimum": 10000
+    },
+    "source_works": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "work_counts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["source_work_id", "title", "count"],
+        "properties": {
+          "source_work_id": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1},
+          "count": {"type": "integer", "minimum": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "catalog_build_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "runtime_eligible": {
+      "type": "integer",
+      "minimum": 10000
+    },
+    "recommendation_pool_stories": {
+      "type": "integer",
+      "minimum": 10000
+    },
+    "curated_experience_stories": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "recommendation_pool_mode": {
+      "const": "all_canonical_records"
+    },
+    "production_eligible": {
+      "const": 0
+    },
+    "license": {
+      "const": "CC-BY-SA-4.0"
+    }
+  },
+  "additionalProperties": true
+}

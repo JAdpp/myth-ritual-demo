@@ -1,0 +1,37 @@
+{
+  "annotation_db_read_only": "data/corpus/a1_retrieval_annotations/annotations.sqlite3",
+  "batch_size_max": 3,
+  "canonical_overwrite_count": 0,
+  "current_run_provider_calls": 24,
+  "current_run_workers": 3,
+  "full_input_saved_records": 36,
+  "full_input_storage": "semantic_review_jobs.input_json",
+  "ledger_records": 36,
+  "maximum_source_characters": 5138,
+  "model": "deepseek-v4-flash",
+  "oversized_complete_single_records": 2,
+  "prompt_sha256": "ad79ededcb5a9f5fbaa70017cdbb6cd653bdd092943b02df5bb554a742cdbd87",
+  "prompt_version": "mengdie-a1-semantic-review-v2-nonthinking-safety-codebook",
+  "review_schema": "contracts/a1-semantic-review.schema.json",
+  "review_schema_sha256": "4772ed5cedd587f4c4238436e1ae94af6695080162ea094091b54c4127d6dc79",
+  "review_version": "mengdie-a1-semantic-review-v1",
+  "selected_records": 36,
+  "selected_status_counts": {
+    "pass": 9,
+    "quarantined": 5,
+    "revise": 22
+  },
+  "sidecar_db": "data/corpus/a1_semantic_reviews/reviews.sqlite3",
+  "source_character_limit_for_multi_record_batches": 4000,
+  "source_db": "data/corpus/c1_single_story/catalog.sqlite3",
+  "source_input_policy": "complete_never_truncated",
+  "status_counts": {
+    "pass": 9,
+    "quarantined": 5,
+    "revise": 22
+  },
+  "temperature": 0,
+  "thinking": "disabled",
+  "truncated_source_records": 0,
+  "updated_at": "2026-08-09T21:01:41+00:00"
+}

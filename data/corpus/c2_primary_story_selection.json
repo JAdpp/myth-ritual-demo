@@ -1,0 +1,294 @@
+{
+  "schema_version": "1.0",
+  "corpus_version": "c2-primary-story-selection-2026-08-09",
+  "source_corpus_version": "c3-dev-primary-2026-08-09-30f",
+  "snapshot_date": "2026-08-09",
+  "corpus_tier": "c2-editorial-selection",
+  "selection_status": "demo_editorial_selection_pending_expert_review",
+  "selection_label": "产品主文本（演示编辑选择，待专家复核）",
+  "authoritative_claim": false,
+  "product_policy": {
+    "user_facing_story_count_rule": "one_primary_story_per_family",
+    "secondary_witness_visibility": "internal_evidence_only_not_user_selectable",
+    "priority_order": [
+      "direct_source_text_over_encyclopedia_quotation_or_same_work_reprint",
+      "earlier_and_textually_complete_witness",
+      "supports_the_publicly_recognizable_story_core",
+      "prefer_non_adult_primary_when_other_criteria_are_comparable",
+      "fixed_revision_and_excerpt_are_auditable"
+    ],
+    "claim_boundary": "主文本是产品编辑选择，不等于学界公认的最权威定本；第二见证只用于来源校验、边界审计与防止模型混写。"
+  },
+  "story_selections": [
+    {
+      "story_family_id": "pangu_cosmogony",
+      "title": "盘古开天",
+      "primary_version_id": "pangu_yiwenleiju_sanwuliji_quote",
+      "secondary_witness_id": "pangu_shuyiji_body_cosmos",
+      "decision_reason": "所引佚文年代较早，且直接承载混沌、天地分判和盘古居中增长这一大众熟悉的开天核心。",
+      "exception": "indirect_quotation_of_lost_work",
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "kuafu_sun_chase",
+      "title": "夸父逐日",
+      "primary_version_id": "kuafu_shanhaijing_haiwaibei",
+      "secondary_witness_id": "kuafu_shanhaijing_dahuangbei",
+      "decision_reason": "同书异篇中本条叙事更完整，保留逐日、焦渴、道死和弃杖化林的通行核心。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "gun_yu_flood_control",
+      "title": "大禹治水",
+      "primary_version_id": "gunyu_wuyuechunqiu_wuyu",
+      "secondary_witness_id": "gunyu_shanhaijing_hainei",
+      "decision_reason": "虽晚于《山海经》短见证，但本篇更完整承载禹接续治水、长期奔走和过门不入等大众熟悉叙事。",
+      "exception": "later_witness_selected_for_complete_recognizable_narrative",
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "change_flight_to_moon",
+      "title": "嫦娥奔月",
+      "primary_version_id": "change_huainanzi_lanming",
+      "secondary_witness_id": "change_lingxian",
+      "decision_reason": "西汉见证较早，直接保存羿求不死药、姮娥取药奔月的故事核心，不混入后出的月中化蟾细节。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "mulan_substitution",
+      "title": "花木兰从军",
+      "primary_version_id": "mulan_ballad",
+      "secondary_witness_id": "mulan_qinv_ch13",
+      "decision_reason": "《木兰诗》是较早且完整的歌辞见证，直接承载代父从军、征战和辞官返乡的通行核心。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "yellow_millet_dream",
+      "title": "黄粱一梦",
+      "primary_version_id": "yellow_millet_zhenzhongji",
+      "secondary_witness_id": "yellow_millet_handanji_act04",
+      "decision_reason": "唐传奇《枕中记》早于明代戏曲改编，并完整承载入梦、荣辱一生和黄粱未熟的叙事结构。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "white_snake_legend",
+      "title": "白蛇传",
+      "primary_version_id": "white_snake_jingshitongyan_28",
+      "secondary_witness_id": "white_snake_leifengta_qizhuan_ch01",
+      "decision_reason": "明代话本早于清代重编，叙事完整，并奠定许宣、白娘子、青青、法海和雷峰塔的通行人物结构。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "ganjiang_moye",
+      "title": "干将莫邪",
+      "primary_version_id": "ganjiang_moye_wuyuechunqiu",
+      "secondary_witness_id": "ganjiang_moye_soushenji_11",
+      "decision_reason": "东汉《吴越春秋》较早，直接聚焦干将、莫耶与雌雄双剑的铸造核心，避免默认进入后出的极端复仇叙事。",
+      "exception": "no_non_adult_witness_available",
+      "primary_adult_only": true
+    },
+    {
+      "story_family_id": "nvwa_mends_sky",
+      "title": "女娲补天",
+      "primary_version_id": "nvwa_huainanzi_lanming",
+      "secondary_witness_id": "nvwa_liezi_tangwen",
+      "decision_reason": "西汉见证较早且灾变—补天—止水结构更完整，可直接支撑大众熟悉的补天叙事。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "jingwei_fills_sea",
+      "title": "精卫填海",
+      "primary_version_id": "jingwei_shanhaijing_beishan",
+      "secondary_witness_id": "jingwei_shuyiji_expansion",
+      "decision_reason": "《山海经》见证较早，直接包含女娃溺海、化为精卫与衔木石填海的完整核心。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "yugong_moves_mountains",
+      "title": "愚公移山",
+      "primary_version_id": "yugong_liezi_tangwen",
+      "secondary_witness_id": "yugong_taipingyulan_0040_quote",
+      "decision_reason": "传世《列子》保留家庭商议、持续劳作、智叟质疑与神力移山的完整叙事，优于类书节引。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "fox_borrows_tiger_might",
+      "title": "狐假虎威",
+      "primary_version_id": "fox_tiger_zhanguoce_chu1",
+      "secondary_witness_id": "fox_tiger_taipingyulan_0909_chunqiu_houyu",
+      "decision_reason": "《战国策》是直接文本，完整保留动物寓言及其权势来源的政治说辞语境，优于类书引文。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "houyi_shoots_suns",
+      "title": "后羿射日",
+      "primary_version_id": "houyi_huainanzi_benjing",
+      "secondary_witness_id": "houyi_chuci_tianwen_commentary",
+      "decision_reason": "《淮南子》是较早的直接叙事见证，明确保存十日并出、羿受命射日与除害的核心。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "nvwa_creates_humans",
+      "title": "女娲造人",
+      "primary_version_id": "nvwa_taipingyulan_0078_fengsutong",
+      "secondary_witness_id": "nvwa_quanhouhanwen_fengsutong",
+      "decision_reason": "两条均为佚文传承见证；《太平御览》引文载体更早且摘录更完整，保留抟土与引绳两种造人动作。",
+      "exception": "indirect_quotation_of_lost_work",
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "shennong_tastes_herbs",
+      "title": "神农尝百草",
+      "primary_version_id": "shennong_huainanzi_xiuwu",
+      "secondary_witness_id": "shennong_soushenji_01",
+      "decision_reason": "西汉见证较早，直接写明播种五谷、辨土地、尝百草及遭毒，完整承载通行故事核心。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "gonggong_hits_buzhou",
+      "title": "共工触不周山",
+      "primary_version_id": "gonggong_huainanzi_tianwen",
+      "secondary_witness_id": "gonggong_liezi_tangwen",
+      "decision_reason": "西汉《淮南子》见证较早，完整连接争帝、触山、天柱地维折断与天地倾斜的宇宙论叙事。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "xingtian_dances",
+      "title": "刑天舞干戚",
+      "primary_version_id": "xingtian_shanhaijing_haiwaixi",
+      "secondary_witness_id": "xingtian_taipingyulan_0887",
+      "decision_reason": "《山海经》是较早直接见证，保留争神、断首、以乳为目以脐为口和操干戚舞的核心，优于类书引文。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "wu_gang_cuts_osmanthus",
+      "title": "吴刚伐桂",
+      "primary_version_id": "wugang_youyangzazu_juan1",
+      "secondary_witness_id": "wugang_youyangzazu_siku_juan1",
+      "decision_reason": "《酉阳杂俎》通行转录直接承载月桂随创随合、吴刚受谪伐树的唐代叙事，优于同书四库转录见证。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "cowherd_weaver_girl",
+      "title": "牛郎织女",
+      "primary_version_id": "cowherd_jingchu_suishiji_qixi",
+      "secondary_witness_id": "cowherd_shuolue_qixi",
+      "decision_reason": "南朝岁时记见证更早，直接确认七月七日牵牛织女相会这一稳定通行核心，避免把明代汇考中的并列异说缝合。",
+      "exception": "early_motif_witness_not_a_full_modern_family_narrative",
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "mengjiangnu_great_wall",
+      "title": "孟姜女哭长城",
+      "primary_version_id": "mengjiangnu_lienvzhuan_04",
+      "secondary_witness_id": "mengjiangnu_taipingyulan_0561",
+      "decision_reason": "《列女传》直接且年代较早，并包含哀哭十日、城墙崩塌这一大众熟悉的核心母题；产品仍须说明人物尚称杞梁妻且并非秦长城。",
+      "exception": "adult_primary_selected_for_recognizable_wall_collapse_motif",
+      "primary_adult_only": true
+    },
+    {
+      "story_family_id": "butterfly_lovers",
+      "title": "梁山伯与祝英台",
+      "primary_version_id": "butterfly_qingshi_leilue_10",
+      "secondary_witness_id": "butterfly_simingzhi_13",
+      "decision_reason": "明代叙事虽晚，但比地方志短记完整，承载同学、识别身份、婚约阻隔、病逝和墓地结局；化蝶仍只标为后世俗传。",
+      "exception": "adult_later_witness_selected_for_complete_recognizable_narrative",
+      "primary_adult_only": true
+    },
+    {
+      "story_family_id": "snail_maiden",
+      "title": "田螺姑娘",
+      "primary_version_id": "snail_maiden_soushenhouji_05",
+      "secondary_witness_id": "snail_maiden_zengbu_soushenji_06",
+      "decision_reason": "六朝《搜神后记》见证更早且篇幅更完整，保存拾螺、暗中备饭、窥见素女与留壳离去的核心。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "peach_blossom_spring",
+      "title": "桃花源",
+      "primary_version_id": "peach_blossom_taohuayuanji",
+      "secondary_witness_id": "peach_blossom_siku_taoyuanming_05",
+      "decision_reason": "《桃花源记》单篇页面直接呈现陶潜故事主文且带异文说明，适合作为产品主文本；四库本仅作同书传本核验。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "liu_yi_delivers_letter",
+      "title": "柳毅传书",
+      "primary_version_id": "liuyi_original_tale",
+      "secondary_witness_id": "liuyi_taipingguangji_419",
+      "decision_reason": "唐传奇单篇是直接且完整的故事文本，优于北宋类书所录的传承见证。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "old_man_lost_horse",
+      "title": "塞翁失马",
+      "primary_version_id": "saiweng_huainanzi_renjian",
+      "secondary_witness_id": "saiweng_tianzhongji_55_quote",
+      "decision_reason": "《淮南子·人间训》是较早的直接核心文本，完整承载祸福判断反复转换，优于明代类书引录。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "farmer_waits_for_rabbit",
+      "title": "守株待兔",
+      "primary_version_id": "shouzhu_hanfeizi_wudu",
+      "secondary_witness_id": "shouzhu_hanfeizi_siku_19",
+      "decision_reason": "《韩非子·五蠹》直接保存寓言及政治论辩语境；四库本是同一作品的异版见证。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "marking_boat_for_sword",
+      "title": "刻舟求剑",
+      "primary_version_id": "kezhou_lushichunqiu_chajin",
+      "secondary_witness_id": "kezhou_taipingyulan_0769_quote",
+      "decision_reason": "《吕氏春秋·察今》是直接且完整的战国末期寓言文本，保留因时变法语境，优于类书节引。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "lord_ye_loves_dragons",
+      "title": "叶公好龙",
+      "primary_version_id": "yegong_xinxu_zashi_5",
+      "secondary_witness_id": "yegong_taipingyulan_0750_quote",
+      "decision_reason": "《新序》直接且更完整，保留真龙来访与子张讽谏的政治语境，优于类书缩写。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "boya_breaks_strings",
+      "title": "伯牙绝弦",
+      "primary_version_id": "boya_lushichunqiu_benwei",
+      "secondary_witness_id": "boya_shiwaizhuan_siku_09",
+      "decision_reason": "《吕氏春秋》见证较早、文本结构较完整，直接保存高山流水、钟子期去世与伯牙绝弦的核心。",
+      "exception": null,
+      "primary_adult_only": false
+    },
+    {
+      "story_family_id": "nanke_dream",
+      "title": "南柯一梦",
+      "primary_version_id": "nanke_taishouzhuan",
+      "secondary_witness_id": "nankeji_act42_xingwu",
+      "decision_reason": "唐代《南柯太守传》是直接且完整的传奇文本，早于汤显祖戏曲改编并承载成语故事的完整结构。",
+      "exception": null,
+      "primary_adult_only": false
+    }
+  ]
+}

@@ -1,0 +1,432 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/contracts/a1-retrieval-annotation.schema.json",
+  "title": "Mengdie C1 A1 retrieval annotation",
+  "type": "object",
+  "required": ["annotation_record"],
+  "properties": {
+    "annotation_record": {
+      "type": "object",
+      "required": [
+        "annotation_version",
+        "annotation_level",
+        "unit",
+        "source_profile",
+        "retrieval_profile",
+        "life_context",
+        "narrative_arc",
+        "auto_safety_screen",
+        "reflection_profile",
+        "evidence",
+        "annotation_meta"
+      ],
+      "properties": {
+        "annotation_version": { "const": "mengdie-annotation-v1.1" },
+        "annotation_level": { "const": "A1" },
+        "unit": { "$ref": "#/$defs/unit" },
+        "source_profile": { "$ref": "#/$defs/sourceProfile" },
+        "retrieval_profile": { "$ref": "#/$defs/retrievalProfile" },
+        "life_context": { "$ref": "#/$defs/lifeContext" },
+        "narrative_arc": { "$ref": "#/$defs/narrativeArc" },
+        "auto_safety_screen": { "$ref": "#/$defs/autoSafetyScreen" },
+        "reflection_profile": { "type": "null" },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 24,
+          "items": { "$ref": "#/$defs/evidence" }
+        },
+        "annotation_meta": { "$ref": "#/$defs/annotationMeta" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "evidenceId": {
+      "type": "string",
+      "pattern": "^ev[0-9]{2,3}$"
+    },
+    "evidenceIds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/evidenceId" }
+    },
+    "unit": {
+      "type": "object",
+      "required": ["corpus_level", "unit_type", "unit_id", "source_text_sha256"],
+      "properties": {
+        "corpus_level": { "const": "C1" },
+        "unit_type": { "const": "source_segment" },
+        "unit_id": {
+          "type": "string",
+          "pattern": "^c1ws_[0-9a-f]{24}$"
+        },
+        "source_text_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "sourceProfile": {
+      "type": "object",
+      "required": [
+        "title",
+        "work_id",
+        "work",
+        "period",
+        "juan_or_section",
+        "locator",
+        "source_url_or_snapshot",
+        "source_version",
+        "source_text",
+        "source_text_sha256",
+        "rights_status"
+      ],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "work_id": { "type": "string", "minLength": 1 },
+        "work": { "type": "string", "minLength": 1 },
+        "period": { "type": "string", "minLength": 1 },
+        "juan_or_section": { "type": "string", "minLength": 1 },
+        "locator": { "type": "string", "minLength": 1 },
+        "source_url_or_snapshot": { "type": "string", "minLength": 1 },
+        "source_version": { "type": "string", "minLength": 1 },
+        "source_text": { "type": "string", "minLength": 20 },
+        "source_text_sha256": { "$ref": "#/$defs/sha256" },
+        "rights_status": {
+          "const": "CC-BY-SA-4.0_source_segmented_unreviewed"
+        }
+      },
+      "additionalProperties": false
+    },
+    "retrievalProfile": {
+      "type": "object",
+      "required": [
+        "modern_retrieval_summary",
+        "summary_kind",
+        "summary_language",
+        "narrative_sufficiency",
+        "narrative_sufficiency_reason",
+        "key_entities",
+        "plot_beats",
+        "motif_terms",
+        "summary_evidence_ids"
+      ],
+      "properties": {
+        "modern_retrieval_summary": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 250
+        },
+        "summary_kind": {
+          "const": "model_generated_retrieval_paraphrase"
+        },
+        "summary_language": { "const": "zh-Hans" },
+        "narrative_sufficiency": {
+          "enum": ["sufficient", "insufficient", "unknown"]
+        },
+        "narrative_sufficiency_reason": {
+          "type": ["string", "null"],
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "key_entities": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "required": ["name", "role", "evidence_ids"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1, "maxLength": 40 },
+              "role": { "type": "string", "minLength": 1, "maxLength": 40 },
+              "evidence_ids": { "$ref": "#/$defs/evidenceIds" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "plot_beats": {
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "required": ["type", "text", "evidence_ids"],
+            "properties": {
+              "type": {
+                "enum": ["trigger", "action_or_turn", "outcome"]
+              },
+              "text": { "type": "string", "minLength": 2, "maxLength": 120 },
+              "evidence_ids": { "$ref": "#/$defs/evidenceIds" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "motif_terms": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 20 }
+        },
+        "summary_evidence_ids": { "$ref": "#/$defs/evidenceIds" }
+      },
+      "additionalProperties": false
+    },
+    "lifeContext": {
+      "type": "array",
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "relationship_boundary",
+          "family_duty",
+          "belonging_isolation",
+          "separation_loss",
+          "work_study_pressure",
+          "long_term_responsibility",
+          "choice_uncertainty",
+          "injustice_conflict",
+          "identity_transition",
+          "persistence_change"
+        ]
+      }
+    },
+    "narrativeArc": {
+      "type": "object",
+      "required": ["trigger", "conflict_types", "agency_modes", "ending_mode"],
+      "properties": {
+        "trigger": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "conflict_types": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "self",
+              "relational",
+              "institutional_collective",
+              "nature_fate",
+              "knowledge_uncertainty"
+            ]
+          }
+        },
+        "agency_modes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "endure",
+              "avoid",
+              "seek_help",
+              "negotiate",
+              "confront",
+              "transform_method",
+              "withdraw",
+              "sacrifice",
+              "collective_action",
+              "unknown"
+            ]
+          }
+        },
+        "ending_mode": {
+          "enum": [
+            "restoration",
+            "transformation",
+            "separation",
+            "sacrifice",
+            "unresolved",
+            "cautionary",
+            "open",
+            "unknown"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "autoSafetyScreen": {
+      "type": "object",
+      "required": [
+        "status",
+        "flags",
+        "interpretation_risks",
+        "uncertainties",
+        "model_preannotation"
+      ],
+      "properties": {
+        "status": { "enum": ["auto_screened", "unknown"] },
+        "flags": {
+          "type": "array",
+          "maxItems": 15,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/contentWarning" }
+        },
+        "interpretation_risks": {
+          "type": "array",
+          "maxItems": 9,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/interpretationRisk" }
+        },
+        "uncertainties": {
+          "type": "array",
+          "maxItems": 6,
+          "items": { "type": "string", "minLength": 1, "maxLength": 160 }
+        },
+        "model_preannotation": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "contentWarning": {
+      "enum": [
+        "death",
+        "violence",
+        "physical_injury",
+        "self_harm_or_suicide",
+        "sexual_content",
+        "sexual_violence",
+        "coercion_or_abuse",
+        "child_harm",
+        "animal_harm",
+        "discrimination",
+        "captivity",
+        "supernatural_horror",
+        "grief_or_bereavement",
+        "illness",
+        "none_identified"
+      ]
+    },
+    "interpretationRisk": {
+      "enum": [
+        "glorify_self_sacrifice",
+        "normalize_violence",
+        "victim_blaming",
+        "fatalism",
+        "gender_stereotype",
+        "filial_coercion",
+        "revenge_as_justice",
+        "authority_obedience",
+        "none_identified"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["id", "locator", "excerpt", "start_char", "end_char", "supports"],
+      "properties": {
+        "id": { "$ref": "#/$defs/evidenceId" },
+        "locator": { "type": "string", "minLength": 1 },
+        "excerpt": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "start_char": { "type": "integer", "minimum": 0 },
+        "end_char": { "type": "integer", "minimum": 2 },
+        "supports": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(retrieval_profile\\.modern_retrieval_summary|life_context\\.[a-z_]+|narrative_arc\\.(trigger|conflict_types\\.[a-z_]+|agency_modes\\.[a-z_]+|ending_mode\\.[a-z_]+)|auto_safety_screen\\.(flags|interpretation_risks)\\.[a-z_]+)$"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "annotationMeta": {
+      "type": "object",
+      "required": [
+        "product_annotation_status",
+        "research_review_status",
+        "research_ready",
+        "generated_at",
+        "generator",
+        "schema_version",
+        "validation",
+        "human_review",
+        "overall_confidence",
+        "model_preannotation"
+      ],
+      "properties": {
+        "product_annotation_status": {
+          "enum": [
+            "generated",
+            "automatically_validated",
+            "sampled_reviewed",
+            "human_reviewed",
+            "validation_failed",
+            "quarantined",
+            "stale"
+          ]
+        },
+        "research_review_status": {
+          "enum": [
+            "not_reviewed",
+            "under_review",
+            "revisions_required",
+            "research_ready"
+          ]
+        },
+        "research_ready": { "type": "boolean" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "generator": {
+          "type": "object",
+          "required": [
+            "type",
+            "provider",
+            "model",
+            "model_version",
+            "prompt_version",
+            "temperature"
+          ],
+          "properties": {
+            "type": { "const": "llm" },
+            "provider": { "const": "deepseek" },
+            "model": { "type": "string", "minLength": 1 },
+            "model_version": { "type": "string", "minLength": 1 },
+            "prompt_version": { "const": "mengdie-a1-v1.1-nonthinking-r6-quality-gates" },
+            "temperature": { "const": 0 }
+          },
+          "additionalProperties": false
+        },
+        "schema_version": { "const": "mengdie-a1-schema-v1.1" },
+        "validation": {
+          "type": "object",
+          "required": [
+            "schema_valid",
+            "source_hash_match",
+            "evidence_links_valid",
+            "evidence_exact_substrings",
+            "validated_at"
+          ],
+          "properties": {
+            "schema_valid": { "const": true },
+            "source_hash_match": { "const": true },
+            "evidence_links_valid": { "const": true },
+            "evidence_exact_substrings": { "const": true },
+            "validated_at": { "type": "string", "format": "date-time" }
+          },
+          "additionalProperties": false
+        },
+        "human_review": {
+          "type": "object",
+          "required": ["reviewed", "reviewer_id", "reviewed_at", "decision", "notes"],
+          "properties": {
+            "reviewed": { "const": false },
+            "reviewer_id": { "type": "null" },
+            "reviewed_at": { "type": "null" },
+            "decision": { "type": "null" },
+            "notes": { "type": "array", "maxItems": 0 }
+          },
+          "additionalProperties": false
+        },
+        "overall_confidence": {
+          "enum": ["low", "medium", "high"]
+        },
+        "model_preannotation": { "const": true }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

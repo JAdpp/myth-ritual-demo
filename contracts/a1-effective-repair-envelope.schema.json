@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mengdieji.local/contracts/a1-effective-repair-envelope.schema.json",
+  "title": "梦蝶记 A1 语义修订有效层信封",
+  "type": "object",
+  "required": [
+    "effective_record_version",
+    "entry_id",
+    "source_text_sha256",
+    "canonical_root_sha256",
+    "base_candidate_sha256",
+    "parent_effective_sha256",
+    "repair_iteration",
+    "immediate_base_origin",
+    "lineage",
+    "review_sha256",
+    "review_verdict",
+    "normalized_annotation_sha256",
+    "effective_annotation_sha256",
+    "base_annotation",
+    "review",
+    "normalized_a1_annotation",
+    "effective_annotation",
+    "repair_provenance",
+    "canonical_schema_status",
+    "human_reviewed",
+    "research_ready"
+  ],
+  "properties": {
+    "effective_record_version": {
+      "const": "mengdie-a1-effective-repair-v2"
+    },
+    "entry_id": {
+      "type": "string",
+      "pattern": "^c1ws_[0-9a-f]{24}$"
+    },
+    "source_text_sha256": { "$ref": "#/$defs/sha256" },
+    "canonical_root_sha256": { "$ref": "#/$defs/sha256" },
+    "base_candidate_sha256": { "$ref": "#/$defs/sha256" },
+    "parent_effective_sha256": {
+      "anyOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+    },
+    "repair_iteration": { "type": "integer", "minimum": 1, "maximum": 20 },
+    "immediate_base_origin": { "enum": ["canonical_a1", "effective_repair"] },
+    "lineage": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": { "$ref": "#/$defs/lineage_entry" }
+    },
+    "review_sha256": { "$ref": "#/$defs/sha256" },
+    "review_verdict": { "enum": ["revise", "uncertain"] },
+    "normalized_annotation_sha256": { "$ref": "#/$defs/sha256" },
+    "effective_annotation_sha256": { "$ref": "#/$defs/sha256" },
+    "base_annotation": { "type": "object" },
+    "review": {
+      "type": "object",
+      "required": ["entryId", "verdict", "checklist", "issues"],
+      "properties": {
+        "entryId": { "type": "string" },
+        "verdict": { "enum": ["revise", "uncertain"] },
+        "checklist": { "$ref": "#/$defs/review_checklist" },
+        "issues": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["code", "field", "sourceExcerpt", "correctionHint"],
+            "properties": {
+              "code": { "type": "string", "minLength": 1 },
+              "field": { "type": "string", "minLength": 1 },
+              "sourceExcerpt": { "type": "string", "minLength": 2, "maxLength": 80 },
+              "correctionHint": { "type": "string", "minLength": 2 }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "normalized_a1_annotation": { "type": "object" },
+    "effective_annotation": { "type": "object" },
+    "repair_provenance": {
+      "type": "object",
+      "required": [
+        "type",
+        "provider",
+        "requested_model",
+        "provider_reported_model",
+        "prompt_version",
+        "prompt_sha256",
+        "canonical_schema_sha256",
+        "effective_schema_sha256",
+        "envelope_schema_sha256",
+        "base_candidate_sha256",
+        "canonical_root_sha256",
+        "parent_effective_sha256",
+        "repair_iteration",
+        "immediate_base_origin",
+        "review_sha256",
+        "review_verdict",
+        "review_prompt_version",
+        "review_prompt_sha256",
+        "review_schema_sha256",
+        "provider_response_id",
+        "generated_at",
+        "normalizer",
+        "normalizer_local_repair_enabled",
+        "automatic_semantic_repair",
+        "human_reviewed"
+      ],
+      "properties": {
+        "type": { "const": "llm_semantic_repair" },
+        "provider": { "const": "deepseek" },
+        "requested_model": { "type": "string", "minLength": 1 },
+        "provider_reported_model": { "type": "string", "minLength": 1 },
+        "prompt_version": { "const": "mengdie-a1-semantic-repair-v2-nonthinking-iterative" },
+        "prompt_sha256": { "$ref": "#/$defs/sha256" },
+        "canonical_schema_sha256": { "$ref": "#/$defs/sha256" },
+        "effective_schema_sha256": { "$ref": "#/$defs/sha256" },
+        "envelope_schema_sha256": { "$ref": "#/$defs/sha256" },
+        "base_candidate_sha256": { "$ref": "#/$defs/sha256" },
+        "canonical_root_sha256": { "$ref": "#/$defs/sha256" },
+        "parent_effective_sha256": {
+          "anyOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+        },
+        "repair_iteration": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "immediate_base_origin": { "enum": ["canonical_a1", "effective_repair"] },
+        "review_sha256": { "$ref": "#/$defs/sha256" },
+        "review_verdict": { "enum": ["revise", "uncertain"] },
+        "review_prompt_version": { "type": "string", "minLength": 1 },
+        "review_prompt_sha256": { "$ref": "#/$defs/sha256" },
+        "review_schema_sha256": { "$ref": "#/$defs/sha256" },
+        "provider_response_id": { "type": ["string", "null"] },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "normalizer": { "const": "data.annotate_c1_retrieval.normalise_annotation" },
+        "normalizer_local_repair_enabled": { "const": true },
+        "automatic_semantic_repair": { "const": true },
+        "human_reviewed": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "canonical_schema_status": {
+      "type": "object",
+      "required": [
+        "normalized_record_valid",
+        "effective_record_valid",
+        "effective_record_schema",
+        "reason"
+      ],
+      "properties": {
+        "normalized_record_valid": { "const": true },
+        "effective_record_valid": { "const": false },
+        "effective_record_schema": { "const": "sidecar-derived-effective-schema" },
+        "reason": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "human_reviewed": { "const": false },
+    "research_ready": { "const": false }
+  },
+  "$defs": {
+    "lineage_entry": {
+      "type": "object",
+      "required": [
+        "repair_iteration",
+        "canonical_root_sha256",
+        "immediate_base_sha256",
+        "parent_effective_sha256",
+        "review_sha256",
+        "review_prompt_version",
+        "review_prompt_sha256",
+        "review_schema_sha256",
+        "normalized_annotation_sha256",
+        "effective_annotation_sha256",
+        "raw_model_annotation_sha256",
+        "raw_response_sha256",
+        "repair_prompt_version",
+        "repair_prompt_sha256",
+        "requested_model",
+        "provider_reported_model",
+        "provider_response_id",
+        "prompt_tokens",
+        "completion_tokens",
+        "total_tokens",
+        "generated_at"
+      ],
+      "properties": {
+        "repair_iteration": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "canonical_root_sha256": { "$ref": "#/$defs/sha256" },
+        "immediate_base_sha256": { "$ref": "#/$defs/sha256" },
+        "parent_effective_sha256": {
+          "anyOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+        },
+        "review_sha256": { "$ref": "#/$defs/sha256" },
+        "review_prompt_version": { "type": "string", "minLength": 1 },
+        "review_prompt_sha256": { "$ref": "#/$defs/sha256" },
+        "review_schema_sha256": { "$ref": "#/$defs/sha256" },
+        "normalized_annotation_sha256": { "$ref": "#/$defs/sha256" },
+        "effective_annotation_sha256": { "$ref": "#/$defs/sha256" },
+        "raw_model_annotation_sha256": { "$ref": "#/$defs/sha256" },
+        "raw_response_sha256": { "$ref": "#/$defs/sha256" },
+        "repair_prompt_version": { "const": "mengdie-a1-semantic-repair-v2-nonthinking-iterative" },
+        "repair_prompt_sha256": { "$ref": "#/$defs/sha256" },
+        "requested_model": { "type": "string", "minLength": 1 },
+        "provider_reported_model": { "type": "string", "minLength": 1 },
+        "provider_response_id": { "type": ["string", "null"] },
+        "prompt_tokens": { "type": ["integer", "null"], "minimum": 0 },
+        "completion_tokens": { "type": ["integer", "null"], "minimum": 0 },
+        "total_tokens": { "type": ["integer", "null"], "minimum": 0 },
+        "generated_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "review_checklist": {
+      "type": "object",
+      "required": [
+        "modernRetrievalSummary",
+        "narrativeSufficiency",
+        "keyEntities",
+        "plotBeats",
+        "motifTerms",
+        "lifeContext",
+        "narrativeArc.trigger",
+        "narrativeArc.conflictTypes",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks",
+        "autoSafetyScreen.uncertainties",
+        "evidence.supports"
+      ],
+      "properties": {
+        "modernRetrievalSummary": { "type": "boolean" },
+        "narrativeSufficiency": { "type": "boolean" },
+        "keyEntities": { "type": "boolean" },
+        "plotBeats": { "type": "boolean" },
+        "motifTerms": { "type": "boolean" },
+        "lifeContext": { "type": "boolean" },
+        "narrativeArc.trigger": { "type": "boolean" },
+        "narrativeArc.conflictTypes": { "type": "boolean" },
+        "narrativeArc.agencyModes": { "type": "boolean" },
+        "narrativeArc.endingMode": { "type": "boolean" },
+        "autoSafetyScreen.status": { "type": "boolean" },
+        "autoSafetyScreen.flags": { "type": "boolean" },
+        "autoSafetyScreen.interpretationRisks": { "type": "boolean" },
+        "autoSafetyScreen.uncertainties": { "type": "boolean" },
+        "evidence.supports": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "additionalProperties": false
+}

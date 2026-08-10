@@ -1,0 +1,62 @@
+{
+  "accepted_segments": 12354,
+  "built_at": "2026-08-09T02:25:00+08:00",
+  "catalog_build_hash": "e7c0186068f00aaa310353b86807fa81e8c0d1cc93e13eb40818b52984748c22",
+  "catalog_version": "c1-single-story-wikisource-2026-08-09-demo-pool-v1",
+  "claim_boundary": "All canonical records are eligible for lightweight recommendation in the local technical Demo. They are source-segmented classical narratives, not 12k expert-annotated myths; only 30 stories have editor-authored enrichment.",
+  "corpus_tier": "c1-source-single-story",
+  "curated_experience_stories": 30,
+  "dedupe_scope": "NFKC plus punctuation/separator removal and terminal source-note normalization; near-duplicate review pending",
+  "exact_duplicate_segments": 1,
+  "excerpt_stories": 0,
+  "full_text_stories": 12353,
+  "license": "CC-BY-SA-4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "metadata_only_stories": 0,
+  "near_duplicate_review_status": "pending",
+  "production_eligible": 0,
+  "raw_segments": 12374,
+  "recommendation_pool_mode": "all_canonical_records",
+  "recommendation_pool_stories": 12353,
+  "rejected_segments": 20,
+  "runtime_eligible": 12353,
+  "snapshot_date": "2026-08-09",
+  "source_works": 6,
+  "status_counts": {
+    "source_segmented_unreviewed": 12353
+  },
+  "unique_single_stories": 12353,
+  "unit_definition": "A source-defined heading/subheading anecdote, or a source paragraph explicitly treated as one entry by the work-specific adapter.",
+  "work_counts": [
+    {
+      "count": 6995,
+      "source_work_id": "taiping_guangji",
+      "title": "太平廣記"
+    },
+    {
+      "count": 2646,
+      "source_work_id": "yi_jian_zhi",
+      "title": "夷堅志"
+    },
+    {
+      "count": 1198,
+      "source_work_id": "yue_wei_cao_tang_bi_ji",
+      "title": "閱微草堂筆記"
+    },
+    {
+      "count": 745,
+      "source_work_id": "zi_bu_yu",
+      "title": "子不語"
+    },
+    {
+      "count": 277,
+      "source_work_id": "xu_zi_bu_yu",
+      "title": "續子不語"
+    },
+    {
+      "count": 492,
+      "source_work_id": "liao_zhai_zhi_yi",
+      "title": "聊齋志異"
+    }
+  ]
+}
