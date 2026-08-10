@@ -1,3 +1,4 @@
+import type { SiteLanguage } from "../lib/language";
 import type { ExperienceStage } from "../types";
 
 const STAGES: ReadonlyArray<{ key: ExperienceStage; label: string; description: string }> = [
@@ -32,8 +33,17 @@ export function StoryLoom({ stage }: { stage: ExperienceStage }) {
   );
 }
 
-export function SiteHeader({ stage }: { stage: ExperienceStage }) {
+export function SiteHeader({
+  stage,
+  language,
+  onLanguageChange,
+}: {
+  stage: ExperienceStage;
+  language?: SiteLanguage;
+  onLanguageChange?: (next: SiteLanguage) => void;
+}) {
   const isLanding = stage === "welcome";
+  const isGuide = language === "en";
 
   return (
     <header className={`site-header${isLanding ? " site-header-landing" : ""}`} data-variant={isLanding ? "landing" : "experience"}>
@@ -41,7 +51,7 @@ export function SiteHeader({ stage }: { stage: ExperienceStage }) {
         <img className="brand-mark" src="/assets/mengdie-logo-mark-side-v5-transparent.png" alt="" />
         <span><strong className="brand-wordmark">梦蝶记</strong><small>中国古典神话传说与个人经历共谱</small></span>
       </a>
-      {isLanding ? (
+      {isLanding && !isGuide ? (
         <nav className="landing-nav" aria-label="首页导航">
           <a href="#case-showcase">案例</a>
           <a href="#how-it-works">功能</a>
@@ -50,6 +60,14 @@ export function SiteHeader({ stage }: { stage: ExperienceStage }) {
           <a className="landing-nav-cta" href="#hero-actions">开始 <span aria-hidden="true">↗</span></a>
         </nav>
       ) : null}
+      {onLanguageChange && (
+        // EN opens the reader's guide, not an English build of the experience:
+        // the flow itself stays in Chinese by design.
+        <div className="language-switch" role="group" aria-label="语言 / Language">
+          <button type="button" aria-pressed={!isGuide} onClick={() => onLanguageChange("zh")}>中文</button>
+          <button type="button" aria-pressed={isGuide} onClick={() => onLanguageChange("en")}>EN</button>
+        </div>
+      )}
     </header>
   );
 }

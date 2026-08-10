@@ -1,0 +1,342 @@
+/* The English reader's guide.
+   Latin text on the same paper as the experience: the serif display face is
+   kept for headings, but body copy switches to the sans stack and a tighter
+   measure, because the CJK leading and 34em measure elsewhere are tuned for
+   Chinese and read loose and sprawling in English. */
+
+.guide-page {
+  --guide-measure: 40rem;
+
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3.5rem) var(--gutter) clamp(3rem, 8vw, 6rem);
+  font-family: var(--sans);
+  line-height: 1.7;
+}
+
+.guide-page p {
+  max-width: var(--guide-measure);
+  color: var(--ink-soft);
+}
+
+.guide-hero {
+  padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+.guide-kicker {
+  margin: 0 0 1rem;
+  color: var(--ink-faint);
+  font-size: var(--step--1);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.guide-hero h1 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  align-items: baseline;
+  margin: 0 0 1.2rem;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--step-5);
+  line-height: var(--lh-display);
+}
+
+.guide-hero h1 span {
+  color: var(--mineral-ink);
+  font-family: var(--sans);
+  font-size: var(--step-2);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.guide-lede {
+  font-size: var(--step-2);
+  line-height: 1.6;
+}
+
+.guide-note {
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper-sunk);
+  font-size: var(--step--1);
+  line-height: 1.65;
+}
+
+.guide-hero-actions {
+  margin-top: 1.6rem;
+}
+
+.guide-primary {
+  padding: 0.75rem 1.4rem;
+  color: var(--paper-raised);
+  border: 0;
+  border-radius: 999px;
+  background: var(--mineral-ink);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--sans);
+  font-size: var(--step-0);
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.guide-primary:hover { background: var(--ink); transform: translateY(-1px); }
+.guide-primary:focus-visible { outline: 2px solid var(--lamp-ink); outline-offset: 3px; }
+
+.guide-section {
+  padding-top: clamp(2rem, 5vw, 3.4rem);
+}
+
+.guide-section h2 {
+  margin: 0 0 1rem;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--step-3);
+  line-height: var(--lh-heading);
+}
+
+.guide-quote {
+  margin: 1.4rem 0;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--paper-raised);
+}
+
+.guide-quote p {
+  margin: 0 0 0.7rem;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--step-2);
+  line-height: 1.55;
+}
+
+.guide-quote cite {
+  color: var(--ink-faint);
+  font-size: var(--step--1);
+  font-style: normal;
+}
+
+/* ---- stage walkthrough ---- */
+
+.guide-stages {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.6rem);
+  padding: 0;
+  margin: 1.6rem 0 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.guide-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  gap: clamp(1.2rem, 3vw, 2.2rem);
+  align-items: start;
+  padding-top: clamp(1.2rem, 3vw, 2rem);
+  border-top: 1px solid var(--line);
+}
+
+.guide-stage:first-child { border-top: 0; padding-top: 0; }
+
+.guide-stage-art {
+  position: sticky;
+  top: 1.5rem;
+}
+
+.guide-figure {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+}
+
+.guide-figure-paper { fill: var(--paper-raised); }
+.guide-panel { fill: var(--paper-sunk); stroke: var(--line); }
+.guide-panel-alt { fill: var(--paper-soft); stroke: var(--line); }
+.guide-bubble { fill: rgb(74 109 102 / 26%); }
+.guide-bubble-user { fill: rgb(150 50 34 / 22%); }
+.guide-chip { fill: rgb(74 109 102 / 40%); }
+.guide-node { fill: var(--paper-raised); stroke: var(--line); }
+.guide-node-dot { fill: var(--mineral); }
+.guide-rule { fill: none; stroke: var(--ink-faint); stroke-width: 2; stroke-linecap: round; opacity: 0.55; }
+.guide-curtain { fill: rgb(150 50 34 / 30%); }
+.guide-moon { fill: rgb(217 131 36 / 30%); }
+.guide-hill { fill: rgb(74 109 102 / 22%); }
+.guide-person { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.guide-progress-track { fill: var(--line); }
+.guide-progress-fill { fill: var(--mineral); }
+.guide-seal { fill: rgb(150 50 34 / 34%); }
+.guide-ledger-tag { fill: rgb(74 109 102 / 30%); }
+
+.guide-stage-ordinal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: baseline;
+  margin: 0 0 0.5rem;
+  color: var(--ink-faint);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.guide-stage-ordinal span { color: var(--mineral); font-variant-numeric: tabular-nums; }
+.guide-stage-ordinal b {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--step-1);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.guide-stage-copy h3 {
+  margin: 0 0 0.8rem;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--step-2);
+  line-height: var(--lh-heading);
+}
+
+.guide-stage-copy p + p { margin-top: 0.8rem; }
+
+/* ---- corpus ---- */
+
+.guide-works {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  margin: 1.4rem 0;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  overflow: hidden;
+  list-style: none;
+}
+
+.guide-works li {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 12rem) minmax(0, 1fr) auto;
+  gap: 0.4rem 1rem;
+  align-items: baseline;
+  padding: 0.8rem 1.1rem;
+  border-top: 1px solid var(--line);
+  background: var(--paper-raised);
+}
+
+.guide-works li:first-child { border-top: 0; }
+.guide-works li:nth-child(even) { background: var(--paper-sunk); }
+
+.guide-work-title { color: var(--ink); font-family: var(--serif); font-size: var(--step-1); }
+.guide-work-roman { color: var(--mineral-ink); }
+.guide-work-note { color: var(--ink-faint); font-size: var(--step--1); }
+.guide-work-count { color: var(--ink-soft); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* ---- boundaries ---- */
+
+.guide-boundaries {
+  display: grid;
+  gap: 1rem;
+  margin: 1.4rem 0 0;
+}
+
+.guide-boundaries > div {
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--paper-raised);
+}
+
+.guide-boundaries dt {
+  margin-bottom: 0.4rem;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+
+.guide-boundaries dd { margin: 0; color: var(--ink-soft); max-width: var(--guide-measure); }
+
+/* ---- stack ---- */
+
+.guide-stack {
+  display: grid;
+  gap: 0.9rem;
+  padding: 0;
+  margin: 1.4rem 0;
+  list-style: none;
+}
+
+.guide-stack li {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: 0.35rem 1.2rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.guide-stack li:last-child { border-bottom: 0; padding-bottom: 0; }
+.guide-stack li > span {
+  color: var(--mineral-ink);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.guide-stack li p { margin: 0; }
+
+.guide-closing {
+  margin-top: clamp(2rem, 5vw, 3.4rem);
+  padding: clamp(1.5rem, 4vw, 2.4rem);
+  border: 1px solid var(--rule);
+  border-radius: 18px;
+  background: var(--paper-raised);
+}
+
+.guide-closing h2 { padding-top: 0; }
+.guide-closing .guide-primary { margin-top: 1.2rem; }
+
+/* ---- language switch in the site header ---- */
+
+.language-switch {
+  display: inline-flex;
+  margin-left: auto;
+  padding: 2px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--paper-raised);
+}
+
+.language-switch button {
+  padding: 0.3rem 0.8rem;
+  color: var(--ink-soft);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: var(--step--1);
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.language-switch button[aria-pressed="true"] {
+  color: var(--paper-raised);
+  background: var(--mineral-ink);
+}
+
+.language-switch button:focus-visible { outline: 2px solid var(--lamp-ink); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .guide-stage { grid-template-columns: 1fr; }
+  .guide-stage-art { position: static; max-width: 22rem; }
+  .guide-works li { grid-template-columns: 1fr auto; }
+  .guide-work-note { grid-column: 1 / -1; }
+  .guide-stack li { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-primary { transition: none; }
+  .guide-primary:hover { transform: none; }
+}

@@ -21,9 +21,11 @@ import {
 import { ArticulationStage } from "./components/ArticulationStage";
 import { ConsentScreen } from "./components/ConsentScreen";
 import { EncounterStage } from "./components/EncounterStage";
+import { EnglishGuide } from "./components/EnglishGuide";
 import { ArtifactView, RitualizationStage } from "./components/RitualizationStage";
 import { SiteHeader, StoryLoom } from "./components/StoryLoom";
 import { getSafetyStopRoute, isDeletionReceiptFor } from "./lib/contracts";
+import { useSiteLanguage } from "./lib/language";
 import { buildBranchPreview, prepareStoryForExperience } from "./lib/story";
 import type {
   BranchNodeDraft,
@@ -53,6 +55,7 @@ function errorMessage(error: unknown): string {
 }
 
 export function App() {
+  const [language, setLanguage] = useSiteLanguage();
   const [stage, setStage] = useState<ExperienceStage>("welcome");
   const [consent, setConsent] = useState<SessionConsent | null>(null);
   const [session, setSession] = useState<ExperienceSession | null>(null);
@@ -399,7 +402,12 @@ export function App() {
   return (
     <div className={`app-shell stage-${stage}`}>
       <a className="skip-link" href="#main">跳到主要内容</a>
-      <SiteHeader stage={stage} />
+      <SiteHeader stage={stage} language={language} onLanguageChange={setLanguage} />
+      {/* The guide is layered over the experience rather than replacing it, so
+          switching to EN mid-session and back does not discard the conversation
+          the visitor is part-way through. */}
+      {language === "en" && <EnglishGuide onBackToExperience={() => setLanguage("zh")} />}
+      <div hidden={language === "en"}>
       {stage !== "welcome" && <StoryLoom stage={stage} />}
 
       {stage === "welcome" && (
@@ -458,6 +466,7 @@ export function App() {
       {stage === "artifact" && artifact && ledger && (
         <ArtifactView artifact={artifact} ledger={ledger} script={script} sceneImages={sceneImages} busy={busy} error={error} onDelete={handleDelete} />
       )}
+      </div>
     </div>
   );
 }
