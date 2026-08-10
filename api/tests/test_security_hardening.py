@@ -764,6 +764,8 @@ def test_consented_conversation_uses_bounded_adapter_response(client: TestClient
         "turnBudget": 4,
         "guidanceComplete": False,
         "summarySource": None,
+        # Only the closing turn carries a summary.
+        "summary": None,
     }
 
 
@@ -809,9 +811,16 @@ def test_consented_conversation_preserves_explicit_two_beat_adapter_response(
     assert payload["source"] == "model_adapter"
 
 
-def test_malformed_two_beat_adapter_response_falls_back_atomically(
+def test_question_shaped_options_are_replaced_without_losing_the_reply(
     client: TestClient,
 ) -> None:
+    """Bad chips cost the user the chips, not 栖蝶's answer.
+
+    Discarding the whole turn used to be the behaviour here, which threw away a
+    perfectly good two-beat reply -- including its empathy -- over a secondary
+    affordance. The question-shaped chips must still never reach the browser.
+    """
+
     class FakeConfig:
         model = "external-test-model"
         available = True
@@ -835,12 +844,51 @@ def test_malformed_two_beat_adapter_response_falls_back_atomically(
 
     assert response.status_code == 201
     payload = response.json()
+    assert payload["source"] == "model_adapter"
+    assert payload["acknowledgement"] == "这一句本来来自模型。"
+    assert payload["followUpQuestion"] == "这一问本来来自模型？"
+    assert payload["reply"] == (
+        f'{payload["acknowledgement"]}\n\n{payload["followUpQuestion"]}'
+    )
+    # The chips came from the local builder instead.
+    assert 2 <= len(payload["followUpOptions"]) <= 3
+    assert all("？" not in option and "?" not in option for option in payload["followUpOptions"])
+    assert "现在要继续吗" not in " ".join(payload["followUpOptions"])
+
+
+def test_incomplete_two_beat_adapter_response_falls_back_atomically(
+    client: TestClient,
+) -> None:
+    """A missing beat is different: there is no partial reply worth keeping."""
+
+    class FakeConfig:
+        model = "external-test-model"
+        available = True
+
+    class FakeAdapter:
+        config = FakeConfig()
+
+        def conversation_turn(self, **_: object) -> dict[str, object]:
+            return {
+                "acknowledgement": "这一句本来来自模型。",
+                "followUpQuestion": "",
+                "followUpOptions": ["接着说说交接那天", "补充团队当时的反应"],
+            }
+
+    client.app.state.service.model_adapter = FakeAdapter()
+    session_id, _ = _create_confirmed_session(client, cloud_processing_accepted=True)
+    response = client.post(
+        f"/api/sessions/{session_id}/conversation-turns",
+        json={"phase": "encounter", "message": "我刚接手了一个新任务。", "history": []},
+    )
+
+    assert response.status_code == 201
+    payload = response.json()
     assert payload["source"] == "deterministic_fallback"
     assert payload["acknowledgement"] != "这一句本来来自模型。"
     assert payload["reply"] == (
         f'{payload["acknowledgement"]}\n\n{payload["followUpQuestion"]}'
     )
-    assert all("？" not in option and "?" not in option for option in payload["followUpOptions"])
 
 
 def test_failed_conversation_model_falls_back_to_user_specific_options(

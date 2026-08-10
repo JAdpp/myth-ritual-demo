@@ -8,6 +8,7 @@ deterministic suggestions in the service layer.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 from dataclasses import dataclass
@@ -16,6 +17,8 @@ from typing import Any
 import httpx
 from dotenv import load_dotenv
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 class ModelUnavailable(RuntimeError):
@@ -471,7 +474,6 @@ class DeepSeekAdapter:
         *,
         user_message: str,
         history: list[dict[str, str]] | None = None,
-        require_follow_up_options: bool,
     ) -> dict[str, Any]:
         if not self.config.available:
             raise ModelUnavailable("Live DeepSeek generation is not explicitly enabled")
@@ -495,17 +497,26 @@ class DeepSeekAdapter:
                         "你是中国古典神话传说体验中的半结构化叙事助手，可以自称栖蝶。"
                         "用户会先分享一件自己的具体经历；你只沿用户刚讲的这件事追问。"
                         "所有回复只用简体中文，并采用清楚的两拍式回应。"
-                        "第一拍 acknowledgement 用一句自然、具体的承接回应用户最新提到的"
-                        "事件、行动、关系或变化，而不是只把原话换同义词复述；它不得包含问号，"
-                        "不得夸奖用户、诊断用户或臆测用户没有说出的情绪。"
+                        "第一拍 acknowledgement 要先共情、再承接，让用户觉得被听见，"
+                        "而不是把原话换个说法复述一遍或干巴巴地总结信息。"
+                        "先用一句体贴的话回应这件事里对用户不容易、费力或要紧的地方，"
+                        "再落到用户最新提到的具体事件、行动、关系或变化上。"
+                        "共情要有分寸：只回应用户已经说出或明显流露的处境与心情，"
+                        "用“听起来”“这一段”“像是”这类留有余地的说法，不把情绪断言成事实；"
+                        "语气温和自然，像朋友而不像客服，不要用“感谢分享”“我完全理解你”这类套话。"
+                        "不得诊断、贴标签、评判对错、给建议、灌鸡汤，"
+                        "不得夸奖用户，不得臆测用户没有说出的原因与动机。"
+                        "它不得包含问号。"
                         "第二拍 followUpQuestion 只问一个具体、开放、可跳过的问题，"
                         "自然延续最新细节，不得连续抛出多个问题，也不得像问卷一样切换主题。"
                         "同时给出2至3条可点击的下一步回答方向；每条都必须复用用户最新消息中的"
                         "具体行动、关系、地点或变化线索，不得返回固定主题菜单，不得替用户补造事实。"
+                        "每条都写成用户能直接说出口的陈述句，而不是问句，"
+                        "整条不得出现问号，长度在6到40个汉字之间。"
                         "不要诊断、治疗、说教、预测或替用户选择故事；不要声称你理解其人格。"
                         "此阶段不要推荐、暗示或硬编码任何中国古典神话传说。"
                         "不要索取姓名、联系方式、单位或其他身份信息。"
-                        "acknowledgement 和 followUpQuestion 各不超过60个汉字，"
+                        "acknowledgement 不超过70个汉字，followUpQuestion 不超过40个汉字，"
                         "每条回答方向不超过60个汉字。返回 JSON："
                         "{\"acknowledgement\":\"...\",\"followUpQuestion\":\"...？\","
                         "\"followUpOptions\":[\"...\",\"...\"]}。"
@@ -519,19 +530,31 @@ class DeepSeekAdapter:
         }
         client = self._client or httpx
         try:
-            response = client.post(
-                f"{self.config.base_url.rstrip('/')}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.config.api_key}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-                timeout=self.config.timeout_seconds,
-            )
-            response.raise_for_status()
-            body = response.json()
-            content = body["choices"][0]["message"]["content"]
-            parsed = json.loads(content) if isinstance(content, str) else content
+            # DeepSeek occasionally returns an empty or truncated completion
+            # despite response_format=json_object. That is a provider hiccup, not
+            # a reason to hand the user the flat local wording, so try once more.
+            parsed: Any = None
+            for attempt in range(2):
+                response = client.post(
+                    f"{self.config.base_url.rstrip('/')}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.config.api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json=payload,
+                    timeout=self.config.timeout_seconds,
+                )
+                response.raise_for_status()
+                body = response.json()
+                content = body["choices"][0]["message"]["content"]
+                try:
+                    parsed = json.loads(content) if isinstance(content, str) else content
+                except json.JSONDecodeError:
+                    if attempt == 0:
+                        logger.info("conversation completion returned unparsable JSON; retrying")
+                        continue
+                    raise
+                break
             if not isinstance(parsed, dict):
                 raise ValueError("conversation turn must be a JSON object")
 
@@ -554,7 +577,7 @@ class DeepSeekAdapter:
                     acknowledgement += "。"
 
             if (
-                not 1 <= len(acknowledgement) <= 80
+                not 1 <= len(acknowledgement) <= 120
                 or "？" in acknowledgement
                 or "?" in acknowledgement
             ):
@@ -567,7 +590,7 @@ class DeepSeekAdapter:
             ):
                 raise ValueError("followUpQuestion must contain exactly one short question")
             reply = f"{acknowledgement}\n\n{follow_up_question}"
-            if len(reply) > 180:
+            if len(reply) > 260:
                 raise ValueError("reply must be one short non-empty string")
             raw_options = parsed.get("followUpOptions", []) if isinstance(parsed, dict) else []
             options: list[str] = []
@@ -581,8 +604,9 @@ class DeepSeekAdapter:
                         and option not in options
                     ):
                         options.append(option)
-            if require_follow_up_options and not 2 <= len(options) <= 3:
-                raise ValueError("followUpOptions must contain two or three short strings")
+            # A short chip count is not a failure. The two beats are the reply;
+            # the caller substitutes locally-built chips when these fall short,
+            # rather than throwing away a good answer over its garnish.
             return {
                 "reply": reply,
                 "acknowledgement": acknowledgement,
@@ -590,6 +614,13 @@ class DeepSeekAdapter:
                 "followUpOptions": options[:3],
             }
         except (httpx.HTTPError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            # The constraint names below are ours, not the user's words, so this
+            # is safe to log -- and without it every rejection looks identical.
+            logger.info(
+                "conversation completion rejected type=%s detail=%s",
+                type(exc).__name__,
+                str(exc)[:200],
+            )
             raise ModelUnavailable("DeepSeek conversation generation failed safely") from exc
 
     def conversation_turn(
@@ -601,7 +632,6 @@ class DeepSeekAdapter:
         return self._conversation_completion(
             user_message=user_message,
             history=history,
-            require_follow_up_options=True,
         )
 
     def compose_theatre(
@@ -641,15 +671,24 @@ class DeepSeekAdapter:
                         "你要把一则中国古典故事，与用户写下的现代经历，"
                         "熔铸成一个连续的新故事，用于分幕演出。"
                         "只用简体中文。"
-                        "核心要求：把古典故事中的角色、意象、冲突与母题，"
-                        "自然地化用进用户的现代处境里，让它们成为同一个故事的一部分；"
+                        "核心要求一：古典故事中的角色必须作为真正的角色登场，"
+                        "在现代场景里与主角同处一个空间、有对白或动作上的往来。"
+                        "登场方式可任选其一并贯穿全剧：其一，该角色本人跨时空来到现代，"
+                        "带着原典中的身份、器物与执念，与现代环境格格不入却真实可见；"
+                        "其二，现代生活中出现一个与之形神相似的人物"
+                        "（同事、路人、亲属、店主等），其处境、选择与姿态呼应原典角色，"
+                        "但不必点破身份。"
+                        "严禁只让主角在心里想起、随口提到或被旁白点名该角色——"
+                        "那样等于没有出场。请给该角色具体的动作、位置与至少一次互动。"
+                        "核心要求二：把古典故事的意象、冲突与母题织进现代处境，"
                         "写成有场景、有动作、有细节的叙事，人物在现代生活中行动。"
                         "严禁写成对照、比较、解读或说明，"
                         "不得出现“原典”“对应”“象征着”“正如”“就像”“这说明”等分析性说法；"
                         "不得分别复述古典故事再复述用户经历。"
                         "必须忠于用户已确认的事实，不得替用户补造新的事实、关系或结局；"
                         "不得断言用户必须成长、原谅、胜利或释怀。"
-                        "不改写古典故事的原结局，只借用其人物与意象。"
+                        "不改写古典故事的原结局；该角色可以带着原典的结局来到现代，"
+                        "但不得在现代情节里推翻原典已经发生的事。"
                         "输出 5 幕。每幕 title 不超过 14 字，"
                         "narration 为 2-3 句、40 到 110 字的叙事，"
                         "stageDirection 为一句画面调度，不超过 40 字。"
@@ -796,7 +835,6 @@ class DeepSeekAdapter:
             self._conversation_completion(
                 user_message=user_message,
                 history=history,
-                require_follow_up_options=False,
             )["reply"]
         )
 

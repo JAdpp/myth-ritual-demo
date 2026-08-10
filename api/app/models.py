@@ -90,8 +90,11 @@ class ConversationTurnCreate(APIModel):
 
 class ConversationTurnResponse(APIModel):
     phase: Literal["encounter"] = "encounter"
-    reply: str = Field(min_length=1, max_length=180)
-    acknowledgement: str = Field(min_length=1, max_length=80)
+    reply: str = Field(min_length=1, max_length=260)
+    # Wider than the question because the first beat now opens with empathy
+    # before it lands on the detail; at 80 the model's warmer openings were
+    # being rejected, which dropped the turn back to the flat local wording.
+    acknowledgement: str = Field(min_length=1, max_length=120)
     # Empty on the closing turn: once guidance is complete 栖蝶 stops asking.
     follow_up_question: str = Field(default="", max_length=80)
     follow_up_options: list[str] = Field(default_factory=list, max_length=3)
@@ -101,9 +104,17 @@ class ConversationTurnResponse(APIModel):
     turn_budget: int = Field(default=0, ge=0)
     guidance_complete: bool = False
     summary_source: str | None = None
+    # The summary the closing turn just wrote onto the brief. Returned so the
+    # browser shows the model's summary rather than the brief it created
+    # earlier in the same round-trip, whose text is only the user's own
+    # sentences pasted together.
+    summary: str | None = Field(default=None, max_length=240)
 
     @model_validator(mode="after")
     def validate_two_beat_turn(self) -> "ConversationTurnResponse":
+        if self.summary is not None and not self.guidance_complete:
+            raise ValueError("a summary is only returned by the closing turn")
+
         if "？" in self.acknowledgement or "?" in self.acknowledgement:
             raise ValueError("acknowledgement must not contain a question")
 

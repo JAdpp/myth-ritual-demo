@@ -237,6 +237,18 @@ class SceneImageResult:
             "retryable": self.retryable,
         }
 
+    def cover_payload(self, *, story_version_id: str) -> dict[str, object]:
+        """The same browser-safe fields, keyed to a story card instead of an act."""
+
+        return {
+            "storyVersionId": story_version_id,
+            "status": self.status,
+            "imageUrl": self.image_url,
+            "altText": self.alt_text,
+            "message": self.message,
+            "retryable": self.retryable,
+        }
+
 
 class AliyunImageAdapter:
     """Generate one horizontal lianhuanhua scene for one theatre act."""
@@ -263,21 +275,28 @@ class AliyunImageAdapter:
         story_title: str,
         source_title: str,
     ) -> str:
-        scene = _compact(scene_title, limit=80) or "未题名的一幕"
-        narration_text = _compact(narration, limit=260) or "人物在留白中停驻，准备迈向下一步。"
-        direction = _compact(stage_direction, limit=160) or "以留白、构图与人物动作呈现。"
-        story = _compact(story_title, limit=80) or "中国古典神话传说"
-        source = _compact(source_title, limit=100) or "所选古籍"
+        # The per-field limits are deliberately tight.  The style clause and the
+        # exclusion clause are what keep the picture out of textbook-illustration
+        # territory, and they sit at the two ends of the prompt -- if the act text
+        # is allowed to grow the tail gets truncated away and the style drifts.
+        scene = _compact(scene_title, limit=40) or "未题名的一幕"
+        narration_text = _compact(narration, limit=170) or "人物在留白中停驻，准备迈向下一步。"
+        direction = _compact(stage_direction, limit=80) or "以留白、构图与人物动作呈现。"
+        story = _compact(story_title, limit=40) or "中国古典神话传说"
+        source = _compact(source_title, limit=50) or "所选古籍"
         prompt = (
-            "横向十六比九的中国连环画插图，一幅完整画面。"
-            "美术语言为传统连环画：墨线勾勒为主，线条清晰有顿挫，"
-            "叠加淡彩水墨设色；花青、赭石、朱砂与藤黄，色调温润不刺目，"
-            "人物比例写实，面部与手势交代清楚，场景有纵深与前后景。"
+            "横向十六比九的中国工笔连环画，一幅完整画面。"
+            "笔法取宋元院体工笔：铁线描、游丝描勾轮廓，线条匀细挺劲、起收有锋；"
+            "再以三矾九染层层罩染，绢本设色的温润质地，见绢丝底纹与淡墨晕染。"
+            "石青、石绿、赭石、朱砂、藤黄为主，色相沉着内敛。"
+            "衣纹、器物、草木以细笔交代纹样，人物面相清秀、手势有戏；"
+            "散点透视，前中远景层层推远，边角留白。"
             f"本幕题目：{scene}。本幕内容：{narration_text}。画面调度：{direction}。"
             f"故事取意于《{story}》，采用出处《{source}》。"
-            "人物姿态含蓄克制，景物与动作围绕本幕内容，不增添原故事之外的知名角色。"
+            "若本幕落在当代场景，人物服饰器物照实描绘，但一律沿用上述工笔笔法与设色，不改画种。"
             "画面不出现任何文字、题签、水印、界面、边框、品牌标识；"
-            "避免照片写实、三维塑料感、过度饱和、日式动漫脸、肢体畸形、血腥与惊悚特写。"
+            "避免教科书插图与儿童读物风、平涂色块、粗黑均匀描边、矢量扁平化、"
+            "照片写实、三维塑料感、过度饱和、日式动漫脸、肢体畸形、血腥与惊悚特写。"
         )
         # z-image-turbo accepts at most 800 characters.  Keeping one shared
         # bound makes switching models an environment-only operation.
@@ -522,13 +541,78 @@ class AliyunImageAdapter:
                 message="智能生成画面尚未开启，本幕继续使用纸影舞台。",
             )
 
-        prompt = self.build_prompt(
-            scene_title=scene_title,
-            narration=narration,
-            stage_direction=stage_direction,
-            story_title=story_title,
-            source_title=source_title,
+        return self._request_image(
+            prompt=self.build_prompt(
+                scene_title=scene_title,
+                narration=narration,
+                stage_direction=stage_direction,
+                story_title=story_title,
+                source_title=source_title,
+            ),
+            alt_text=alt_text,
         )
+
+    @staticmethod
+    def build_cover_prompt(
+        *,
+        story_title: str,
+        summary: str,
+        motifs: str,
+        source_title: str,
+    ) -> str:
+        """One ink line-drawing for a story card's header image.
+
+        Deliberately unlike the act scenes: no colour and no narrative, because
+        the card is a title plate rather than a moment in a performance.
+        """
+
+        title = _compact(story_title, limit=40) or "中国古典神话传说"
+        gist = _compact(summary, limit=180) or "故事中最具代表性的一个场面。"
+        imagery = _compact(motifs, limit=70)
+        source = _compact(source_title, limit=50) or "所选古籍"
+        prompt = (
+            "横幅中国画白描小品，一幅完整画面。"
+            "纯水墨白描：只以墨线勾勒，不设色、不皴擦、不渲染；"
+            "线条取铁线描与高古游丝描，匀细流畅、起收有锋，疏密有致；"
+            "宣纸本色留白为底，画面清简，构图取一角半边，大面积留白。"
+            f"题材：《{title}》，出自《{source}》。故事梗概：{gist}。"
+            + (f"核心意象：{imagery}。" if imagery else "")
+            + "只画这则故事最有代表性的一个意象或一个瞬间，不画连续情节，不拼贴多格。"
+            "画面不出现任何文字、题签、印章、水印、边框、界面、品牌标识；"
+            "避免彩色、水彩、油画、照片写实、三维渲染、日式动漫脸、"
+            "教科书插图、剪贴画与矢量扁平化。"
+        )
+        return prompt[:790]
+
+    def generate_story_cover(
+        self,
+        *,
+        story_title: str,
+        summary: str,
+        motifs: str,
+        source_title: str,
+    ) -> SceneImageResult:
+        compact_title = _compact(story_title, limit=40) or "这则故事"
+        alt_text = f"《{compact_title}》的白描题图"
+        if not self.config.available:
+            reason = "unsupported_model" if not self.config.supported else "disabled"
+            return SceneImageResult.fallback(
+                alt_text=alt_text,
+                retryable=False,
+                reason=reason,
+                message="智能生成题图尚未开启，本卡继续使用线描图形。",
+            )
+        return self._request_image(
+            prompt=self.build_cover_prompt(
+                story_title=story_title,
+                summary=summary,
+                motifs=motifs,
+                source_title=source_title,
+            ),
+            alt_text=alt_text,
+        )
+
+    def _request_image(self, *, prompt: str, alt_text: str) -> SceneImageResult:
         payload = {
             "model": self.config.model,
             "input": {

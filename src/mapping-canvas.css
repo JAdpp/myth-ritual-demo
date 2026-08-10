@@ -13,7 +13,7 @@
 .mapping-boundary {
   margin-bottom: 1.3rem;
   border: 1px solid var(--rule);
-  border-left: 5px solid var(--mapping-source-ink);
+  border-radius: 12px;
   background: var(--paper-raised);
 }
 
@@ -267,8 +267,8 @@
 .mapping-message { max-width: 92%; }
 .mapping-message--user { justify-self: end; }
 .mapping-message > span { color: var(--ink-faint); font-family: var(--sans); font-size: 0.66rem; }
-.mapping-message p { margin: 0.2rem 0 0; padding: 0.55rem; border-left: 2px solid var(--mapping-source); background: var(--paper-sunk); }
-.mapping-message--user p { border-right: 2px solid var(--mapping-branch); border-left: 0; background: var(--paper-raised); }
+.mapping-message p { margin: 0.2rem 0 0; padding: 0.55rem; background: var(--paper-sunk); }
+.mapping-message--user p { background: var(--paper-raised); }
 
 .mapping-assistant__preview { margin: 0 1rem 1rem; padding: 0.8rem; border: 1px solid var(--mapping-branch); }
 .mapping-assistant__preview h3 { font-size: 0.95rem; }
@@ -633,7 +633,6 @@
 
 .mapping-message p {
   border: 1px solid rgba(47, 74, 69, 0.13);
-  border-left: 3px solid var(--mapping-source);
   border-radius: 0.85rem 0.85rem 0.85rem 0.24rem;
   background: rgba(235, 243, 240, 0.72);
 }

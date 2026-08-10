@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import logging
 import re
 import threading
 import uuid
@@ -26,6 +27,8 @@ from .models import (
     TheatreScriptCreate,
 )
 from .safety import route_text
+
+logger = logging.getLogger(__name__)
 
 
 def utc_now() -> str:
@@ -374,8 +377,12 @@ def _deterministic_conversation_follow_up(
 ) -> tuple[str, str, list[str]]:
     primary = cues[0]
     secondary = cues[1] if len(cues) > 1 else primary
+    # These stand in when the model is unavailable, so they carry the same
+    # obligation as the model prompt: sound like someone listening, not like a
+    # form echoing the input back.  The wording stays tentative because this
+    # branch has no way of knowing how the user actually feels.
     if user_turns == 1:
-        acknowledgement = f"我先记下“{primary}”；这是这件事目前最清楚的一条线索。"
+        acknowledgement = f"“{primary}”我听见了，先原样记在这里。"
         follow_up_question = "如果从这里继续，接下来最先发生了什么？"
         options = [
             f"从“{primary}”发生的那一刻说起",
@@ -383,7 +390,7 @@ def _deterministic_conversation_follow_up(
             f"说说“{primary}”里我当时做了什么",
         ]
     elif user_turns == 2:
-        acknowledgement = f"你刚补充的“{primary}”，让事情前后的变化更清楚了。"
+        acknowledgement = f"你又补上了“{primary}”，这件事对你的分量，我大概能感觉到一些。"
         follow_up_question = "沿着这个细节往后，事情最明显的变化是什么？"
         options = [
             f"说说“{primary}”里最难忘的一个细节",
@@ -391,7 +398,7 @@ def _deterministic_conversation_follow_up(
             f"沿着“{primary}”说说事情后来怎样了",
         ]
     else:
-        acknowledgement = f"“{primary}”这一处我先保留下来，不让后面的概括把它盖过去。"
+        acknowledgement = f"“{primary}”这一处我原样留着，不让后面的概括把它盖过去。"
         follow_up_question = "还有哪一个细节，是你希望我不要概括掉的？"
         options = [
             f"说说“{primary}”里我最想保留的部分",
@@ -407,7 +414,9 @@ def _validate_conversation_beats(
 ) -> tuple[str, str]:
     acknowledgement_text = re.sub(r"\s+", " ", str(acknowledgement or "")).strip()
     question_text = re.sub(r"\s+", " ", str(follow_up_question or "")).strip()
-    if not 1 <= len(acknowledgement_text) <= 80:
+    # Wider than the question: the first beat opens with empathy before it
+    # lands on the detail. Keep in step with ConversationTurnResponse.
+    if not 1 <= len(acknowledgement_text) <= 120:
         raise ModelUnavailable("Conversation acknowledgement must be one short sentence")
     if "？" in acknowledgement_text or "?" in acknowledgement_text:
         raise ModelUnavailable("Conversation acknowledgement must not contain a question")
@@ -418,7 +427,7 @@ def _validate_conversation_beats(
         or question_text[-1] not in {"？", "?"}
     ):
         raise ModelUnavailable("Conversation follow-up must contain exactly one short question")
-    if len(acknowledgement_text) + len(question_text) + 2 > 180:
+    if len(acknowledgement_text) + len(question_text) + 2 > 260:
         raise ModelUnavailable("Conversation turn is too long")
     return acknowledgement_text, question_text
 
@@ -429,7 +438,7 @@ def _conversation_beats_from_legacy_reply(
     """Split a legacy reply-only adapter result without breaking old adapters."""
 
     reply_text = re.sub(r"\s+", " ", str(reply or "")).strip()
-    if not 1 <= len(reply_text) <= 180:
+    if not 1 <= len(reply_text) <= 260:
         raise ModelUnavailable("Conversation model returned an invalid reply")
 
     question_match = re.search(r"([^。！？?；;：:\n]+[？?])$", reply_text)
@@ -449,15 +458,23 @@ def _conversation_beats_from_legacy_reply(
 
 
 def _ground_model_follow_up_options(options: Any, cues: list[str]) -> list[str]:
-    if not isinstance(options, list) or not 2 <= len(options) <= 3:
-        raise ModelUnavailable("Conversation follow-up options must contain two or three items")
+    """Anchor the model's chips in the user's own words, dropping unusable ones.
+
+    Returns however many survive -- possibly none. An unusable chip must not
+    cost the user the model's reply, so the caller substitutes the local chips
+    when fewer than two come back rather than discarding the whole turn.
+    """
+
+    if not isinstance(options, list):
+        return []
     grounded: list[str] = []
-    for index, raw_option in enumerate(options):
+    for index, raw_option in enumerate(options[:3]):
         option = re.sub(r"\s+", " ", str(raw_option)).strip()
         if not 4 <= len(option) <= 100:
-            raise ModelUnavailable("Conversation follow-up options must be short non-empty strings")
+            continue
+        # A chip is something to say next, never another question.
         if "？" in option or "?" in option:
-            raise ModelUnavailable("Conversation follow-up options must not contain questions")
+            continue
         cue = cues[index % len(cues)]
         if cue not in option:
             option = f"沿着“{cue}”：{option}"
@@ -465,8 +482,6 @@ def _ground_model_follow_up_options(options: Any, cues: list[str]) -> list[str]:
             option = option[:99].rstrip() + "…"
         if option not in grounded:
             grounded.append(option)
-    if len(grounded) < 2:
-        raise ModelUnavailable("Conversation follow-up options must be distinct")
     return grounded
 
 
@@ -796,12 +811,13 @@ class SessionService:
                 ],
                 neutral_summary=neutral_summary,
             )
-            acknowledgement, follow_up_question, follow_up_options = (
+            acknowledgement, follow_up_question, deterministic_options = (
                 _deterministic_conversation_follow_up(
                     cues,
                     user_turns=user_turns,
                 )
             )
+            follow_up_options = deterministic_options
             acknowledgement, follow_up_question = _validate_conversation_beats(
                 acknowledgement,
                 follow_up_question,
@@ -861,7 +877,14 @@ class SessionService:
                         acknowledgement = candidate_acknowledgement
                         follow_up_question = candidate_question
                         reply = candidate_reply
-                        follow_up_options = grounded_options
+                        # Keep the model's two beats even when its chips were
+                        # unusable; the local chips are already grounded in the
+                        # same cues, so the turn still reads as one voice.
+                        follow_up_options = (
+                            grounded_options
+                            if len(grounded_options) >= 2
+                            else deterministic_options
+                        )
                     else:
                         legacy_reply = self.model_adapter.chat(
                             user_message=request.message,
@@ -878,14 +901,22 @@ class SessionService:
                     )
                     source = "deepseek" if is_live_deepseek else "model_adapter"
                     model_version = self.model_adapter.config.model if is_live_deepseek else None
-                except (ModelUnavailable, AttributeError, TypeError, ValueError):
-                    pass
+                except (ModelUnavailable, AttributeError, TypeError, ValueError) as exc:
+                    # Degrading to the local follow-up is by design, but doing it
+                    # silently hid a bad length bound for a whole release. Log
+                    # the reason only -- never the user's text.
+                    logger.info(
+                        "conversation turn fell back to local wording reason=%s error=%s",
+                        type(exc).__name__,
+                        str(exc)[:200],
+                    )
 
             # Guidance is bounded: past this many user turns the assistant stops
             # asking and hands over to the summary step, so the conversation
             # cannot wander indefinitely.
             guidance_complete = user_turns >= _MAX_GUIDANCE_TURNS
             summary_source = "deterministic_fallback"
+            summary_text: str | None = None
             if guidance_complete:
                 follow_up_question = ""
                 follow_up_options = []
@@ -901,7 +932,8 @@ class SessionService:
                 )
                 if model_summary is not None:
                     summary_source = model_summary[1]
-                    self._store_brief_summary(session, model_summary[0])
+                    summary_text = model_summary[0]
+                    self._store_brief_summary(session, summary_text)
 
             self._event(
                 session,
@@ -924,6 +956,7 @@ class SessionService:
                 "turnBudget": _MAX_GUIDANCE_TURNS,
                 "guidanceComplete": guidance_complete,
                 "summarySource": summary_source if guidance_complete else None,
+                "summary": summary_text,
             }
 
     def _summarize_conversation(
@@ -2463,6 +2496,95 @@ class SessionService:
                     "scene_image_returned",
                     theatreScriptId=script_id,
                     actId=act_id,
+                    imageStatus=payload["status"],
+                )
+        return payload
+
+    def create_story_cover(
+        self,
+        session_id: str,
+        story_version_id: str,
+    ) -> dict[str, Any]:
+        """Draw one ink line-drawing header for a story card already offered.
+
+        Only stories this session was actually shown are eligible, so the
+        endpoint cannot be used to enumerate the corpus.
+        """
+
+        with self._lock:
+            session = self._session(session_id)
+            if session.safety_route["blocked"]:
+                raise ServiceError(403, "safety_blocked", "Story cover generation is disabled")
+            if not session.story_offers:
+                raise ServiceError(
+                    409,
+                    "story_offer_missing",
+                    "Request a story offer before asking for a cover",
+                )
+            offered = {
+                candidate["storyVersionId"]: candidate
+                for offer in session.story_offers
+                for candidate in offer.get("candidates", [])
+                if isinstance(candidate, dict) and candidate.get("storyVersionId")
+            }
+            card = offered.get(story_version_id)
+            if card is None:
+                raise ServiceError(422, "story_not_offered", "The story was not offered in this session")
+            record = self.corpus.get(story_version_id)
+            if record is None:
+                raise ServiceError(404, "story_not_found", "The story is not in the corpus")
+            if (
+                (record.get("adultOnly") or record.get("requiresExplicitAdultOptIn"))
+                and not self._adult_content_enabled(session)
+            ):
+                raise ServiceError(
+                    403,
+                    "adult_content_opt_in_required",
+                    "This story requires adultConfirmed and a separate adultContentOptIn consent",
+                )
+            story_title = str(card.get("title") or record.get("title") or "这则故事")
+            cover_fields = {
+                "story_title": story_title,
+                "summary": str(card.get("summary") or ""),
+                "motifs": "、".join(
+                    str(item).strip()
+                    for item in _as_list(card.get("motifs"))[:4]
+                    if str(item).strip()
+                ),
+                "source_title": str(
+                    _mapping_value(
+                        record.get("sourceCanon", {}),
+                        "work",
+                        "source_title",
+                        "sourceTitle",
+                        "title",
+                        default="所选古籍",
+                    )
+                ),
+            }
+            cloud_allowed = session.consent.get("cloudProcessingAccepted") is True
+
+        # Never hold the session lock while waiting for an image provider.
+        if cloud_allowed:
+            result = self.image_adapter.generate_story_cover(**cover_fields)
+        else:
+            result = SceneImageResult.fallback(
+                alt_text=f"《{story_title}》的线描题图",
+                retryable=False,
+                reason="cloud_consent_required",
+                message="未同意云端处理，本卡继续使用线描图形。",
+            )
+        payload = {
+            **result.cover_payload(story_version_id=story_version_id),
+            "createdAt": utc_now(),
+        }
+        with self._lock:
+            current_session = self._sessions.get(session_id)
+            if current_session is not None:
+                self._event(
+                    current_session,
+                    "story_cover_returned",
+                    storyVersionId=story_version_id,
                     imageStatus=payload["status"],
                 )
         return payload

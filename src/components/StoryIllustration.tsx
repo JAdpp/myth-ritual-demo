@@ -97,10 +97,39 @@ function StoryTitleLeaf({ id, title }: { id: string; title: string }) {
   );
 }
 
-export function StoryIllustration({ family, title }: { family: string; title: string }) {
+export function StoryIllustration({
+  family,
+  title,
+  imageUrl,
+  imageAlt,
+  onImageError,
+}: {
+  family: string;
+  title: string;
+  /** Generated ink line-drawing. The local glyph stands in until it arrives. */
+  imageUrl?: string | null;
+  imageAlt?: string;
+  onImageError?: () => void;
+}) {
   const id = useId().replace(/:/g, "");
   const displayTitle = toSimplifiedDisplay(title).trim() || "无题";
   const glyph = sceneGlyph(family);
+
+  if (imageUrl) {
+    return (
+      <figure className={`story-illustration story-illustration-generated illustration-${family}`}>
+        <img
+          src={imageUrl}
+          alt={toSimplifiedDisplay(imageAlt ?? `${displayTitle}白描题图`)}
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={onImageError}
+        />
+        <figcaption>生成白描题图 · 非古籍原图</figcaption>
+      </figure>
+    );
+  }
 
   if (!glyph) return <StoryTitleLeaf id={id} title={displayTitle} />;
 

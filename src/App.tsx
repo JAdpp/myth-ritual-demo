@@ -265,7 +265,7 @@ export function App() {
       setSelectedStory(nextStory);
       setBranch(nextBranch);
       setStage("articulation");
-      setNotice("栖蝶已依据原文整理好映照初稿。请先浏览，再校对或继续对话修改。");
+      setNotice("栖蝶已依据原文整理好映照初稿。请先浏览，再校对，或通过与栖蝶对话修改。");
     } catch (selectionError) {
       setError(errorMessage(selectionError));
     } finally {
@@ -412,6 +412,7 @@ export function App() {
       )}
       {stage === "encounter" && (
         <EncounterStage
+          sessionId={session?.id}
           allowPrivateText={Boolean(consent?.cloudProcessingAccepted && health?.liveModelEnabled)}
           brief={brief}
           offer={offer}

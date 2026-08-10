@@ -17,6 +17,7 @@ import {
   storyRecommendationText,
   storySourceLabel,
 } from "../lib/story";
+import { createStoryCover } from "../api";
 import { StatusMessage } from "./StoryLoom";
 import { StoryIllustration } from "./StoryIllustration";
 
@@ -67,21 +68,24 @@ interface ChatMessage {
   source?: ConversationTurnResponse["source"];
 }
 
+/* Stands in only when the turn endpoint gives us nothing. It mirrors the
+   server-side wording: acknowledge that we heard the person, without claiming
+   to know how they feel about it. */
 function assistantFollowUp(turn: number) {
   if (turn === 1) {
     return {
-      acknowledgement: "你已经给出了这件事的起点。",
+      acknowledgement: "这件事的起点我听见了，先放在这里。",
       followUpQuestion: "后来最先发生了什么，让事情有了变化？",
     };
   }
   if (turn === 2) {
     return {
-      acknowledgement: "这件事的经过正在慢慢清楚起来。",
+      acknowledgement: "你愿意继续讲下去，这段经过我大致跟上了。",
       followUpQuestion: "在那个时刻，你最在意的是什么？",
     };
   }
   return {
-    acknowledgement: "这些细节已经把事情的脉络连起来了。",
+    acknowledgement: "这些细节我都记着，不会被后面的概括盖过去。",
     followUpQuestion: "还有哪一处，是你希望我不要概括掉的？",
   };
 }
@@ -178,20 +182,31 @@ function SafetyStopView({
 
 function StoryExplanation({
   card,
+  coverUrl,
   busy,
   onClose,
   onConfirm,
+  onCoverError,
 }: {
   card: StoryCard;
+  coverUrl?: string | null;
   busy: boolean;
   onClose: () => void;
   onConfirm: (card: StoryCard) => Promise<void>;
+  onCoverError: () => void;
 }) {
   const explanation = card.explanation;
   return (
     <section id="story-explanation" className="story-explanation" aria-labelledby="story-explanation-title">
       <button className="story-explanation-close" type="button" onClick={onClose} aria-label="关闭故事详解">×</button>
-      <div className="story-explanation-art"><StoryIllustration family={card.illustrationKey ?? card.storyFamilyId} title={toSimplifiedDisplay(card.title)} /></div>
+      <div className="story-explanation-art">
+        <StoryIllustration
+          family={card.illustrationKey ?? card.storyFamilyId}
+          title={toSimplifiedDisplay(card.title)}
+          imageUrl={coverUrl}
+          onImageError={onCoverError}
+        />
+      </div>
       <div className="story-explanation-copy">
         <p className="section-label">故事详解</p>
         <h2 id="story-explanation-title">{toSimplifiedDisplay(card.title)}</h2>
@@ -213,6 +228,7 @@ function StoryExplanation({
 }
 
 export function EncounterStage({
+  sessionId,
   allowPrivateText,
   brief,
   offer,
@@ -230,6 +246,7 @@ export function EncounterStage({
   onSelect,
   onExit,
 }: {
+  sessionId?: string;
   allowPrivateText: boolean;
   brief: ExperienceBrief | null;
   offer: StoryOffer | null;
@@ -257,10 +274,16 @@ export function EncounterStage({
   const [detailCard, setDetailCard] = useState<StoryCard | null>(null);
   const [guidanceComplete, setGuidanceComplete] = useState(false);
   const [turnBudget, setTurnBudget] = useState({ used: 0, total: MAX_GUIDANCE_TURNS });
+  const [modelSummary, setModelSummary] = useState<string | null>(null);
+  const [covers, setCovers] = useState<Record<string, string | null>>({});
 
   useEffect(() => {
+    // The brief created earlier in the same send only carries the user's own
+    // sentences pasted together. Once the closing turn hands back 栖蝶's
+    // summary, that is what the shared notes must keep showing.
+    if (modelSummary !== null) return;
     if (brief) setSummary(brief.neutralSummary);
-  }, [brief]);
+  }, [brief, modelSummary]);
 
   useEffect(() => {
     setSelectedId("");
@@ -277,6 +300,39 @@ export function EncounterStage({
   );
   const safetyStop = getSafetyStopRoute(brief);
   const userMessages = messages.filter((message) => message.role === "user");
+
+  // Generated card headers, keyed by story. `null` means asked-and-unavailable,
+  // which is not an error: the local line-drawing is a complete fallback.
+  useEffect(() => {
+    if (!sessionId) return;
+    const pending = preparedCards
+      .map((card) => card.storyVersionId)
+      .filter((storyVersionId) => covers[storyVersionId] === undefined);
+    if (pending.length === 0) return;
+    let cancelled = false;
+    // Claim them up front so a re-render cannot queue a second request for a
+    // card whose first one is still in flight.
+    setCovers((current) => {
+      const next = { ...current };
+      for (const storyVersionId of pending) next[storyVersionId] = null;
+      return next;
+    });
+    void Promise.all(pending.map(async (storyVersionId) => {
+      try {
+        const cover = await createStoryCover(sessionId, storyVersionId);
+        if (!cancelled && cover.status === "ready" && cover.imageUrl) {
+          setCovers((current) => ({ ...current, [storyVersionId]: cover.imageUrl }));
+        }
+      } catch {
+        // Keep the local drawing; a missing header must never block the offer.
+      }
+    }));
+    return () => { cancelled = true; };
+  }, [covers, preparedCards, sessionId]);
+
+  function dropCover(storyVersionId: string) {
+    setCovers((current) => ({ ...current, [storyVersionId]: null }));
+  }
 
   async function sendMessage() {
     const nextText = input.trim();
@@ -299,6 +355,11 @@ export function EncounterStage({
         used: response?.turnsUsed ?? nextUserMessages.length,
         total: response?.turnBudget ?? MAX_GUIDANCE_TURNS,
       });
+      const turnSummary = response?.summary?.trim();
+      if (complete && turnSummary) {
+        setModelSummary(turnSummary);
+        setSummary(turnSummary);
+      }
       // Once guidance closes the assistant stops asking, so drop the
       // follow-up prompts rather than inviting another round.
       setFollowUpOptions(complete ? [] : responseFollowUpOptions(response));
@@ -454,7 +515,12 @@ export function EncounterStage({
                     onClick={() => setSelectedId(card.storyVersionId)}
                   />
                   <span className="story-card-selected-mark" aria-hidden="true">{selected ? "已选" : ""}</span>
-                  <StoryIllustration family={card.illustrationKey ?? card.storyFamilyId} title={toSimplifiedDisplay(card.title)} />
+                  <StoryIllustration
+                    family={card.illustrationKey ?? card.storyFamilyId}
+                    title={toSimplifiedDisplay(card.title)}
+                    imageUrl={covers[card.storyVersionId]}
+                    onImageError={() => dropCover(card.storyVersionId)}
+                  />
                   <div className="illustrated-story-copy">
                     <h3>{toSimplifiedDisplay(card.title)}</h3>
                     <p className="story-card-origin"><span>原典出处</span><strong>{toSimplifiedDisplay(storySourceLabel(card))}</strong></p>
@@ -484,7 +550,16 @@ export function EncounterStage({
         </section>
       )}
 
-      {detailCard && <StoryExplanation card={detailCard} busy={busy} onClose={() => setDetailCard(null)} onConfirm={onSelect} />}
+      {detailCard && (
+        <StoryExplanation
+          card={detailCard}
+          coverUrl={covers[detailCard.storyVersionId]}
+          busy={busy}
+          onClose={() => setDetailCard(null)}
+          onConfirm={onSelect}
+          onCoverError={() => dropCover(detailCard.storyVersionId)}
+        />
+      )}
     </main>
   );
 }

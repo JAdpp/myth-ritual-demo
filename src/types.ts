@@ -140,6 +140,8 @@ export interface ConversationTurnResponse {
   /** True on the closing turn: no further question, summary is ready. */
   guidanceComplete?: boolean;
   summarySource?: "deepseek" | "model_adapter" | "deterministic_fallback" | null;
+  /** 栖蝶's summary of the whole conversation. Only the closing turn returns it. */
+  summary?: string | null;
 }
 
 export interface SourceReference {
@@ -306,6 +308,17 @@ export interface TheatreScript {
 export interface TheatreSceneImage {
   scriptId?: string;
   actId: string;
+  status: "ready" | "fallback";
+  imageUrl: string | null;
+  altText: string;
+  message: string | null;
+  retryable: boolean;
+  createdAt?: string;
+}
+
+/** The generated ink line-drawing that heads a story card. */
+export interface StoryCoverImage {
+  storyVersionId: string;
   status: "ready" | "fallback";
   imageUrl: string | null;
   altText: string;

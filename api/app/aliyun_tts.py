@@ -25,13 +25,32 @@ load_dotenv()
 
 NarrationStatus = Literal["ready", "fallback"]
 
-# CosyVoice speech-synthesis models available through DashScope.
-_SUPPORTED_MODELS = frozenset({"cosyvoice-v1", "cosyvoice-v2"})
-_SYNTHESIS_PATH = "/api/v1/services/aigc/multimodal-generation/generation"
+# CosyVoice speech-synthesis models reachable over the non-streaming REST route.
+# The v1/v2 generation are WebSocket-only and are deliberately not listed: a
+# request for them against this path fails, and silently degrading to browser
+# speech is worse than refusing a model we know will not answer.
+_SUPPORTED_MODELS = frozenset(
+    {
+        "cosyvoice-v3-flash",
+        "cosyvoice-v3-plus",
+        "cosyvoice-v3.5-flash",
+        "cosyvoice-v3.5-plus",
+    }
+)
+_SYNTHESIS_PATH = "/api/v1/services/audio/tts/SpeechSynthesizer"
 _FALLBACK_MESSAGE = "本幕旁白暂未生成，可继续观看字幕。"
 
 # Bound on what may be sent to the provider, per act.
 _MAX_NARRATION_CHARS = 320
+
+# CosyVoice accepts [0.5, 2]; anything outside is rejected by the provider.
+_MIN_SPEECH_RATE = 0.5
+_MAX_SPEECH_RATE = 2.0
+
+# Synthesised clips come back on Alibaba's result bucket over plain http.  The
+# same signed URL serves fine over https, so upgrade rather than either handing
+# the browser an insecure URL or discarding a perfectly good clip.
+_HTTPS_UPGRADE_SUFFIX = ".aliyuncs.com"
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +68,14 @@ def _valid_audio_url(value: object) -> str | None:
         return None
     candidate = value.strip()
     parsed = urlparse(candidate)
-    if parsed.scheme != "https" or not parsed.netloc:
+    if not parsed.netloc:
         return None
-    return candidate
+    if parsed.scheme == "https":
+        return candidate
+    hostname = (parsed.hostname or "").lower()
+    if parsed.scheme == "http" and hostname.endswith(_HTTPS_UPGRADE_SUFFIX):
+        return parsed._replace(scheme="https").geturl()
+    return None
 
 
 @dataclass(frozen=True)
@@ -62,6 +86,7 @@ class AliyunTtsConfig:
     api_key: str | None = field(repr=False)
     timeout_seconds: float
     live_enabled: bool
+    speech_rate: float = 0.9
 
     @classmethod
     def from_env(cls) -> "AliyunTtsConfig":
@@ -70,13 +95,24 @@ class AliyunTtsConfig:
                 "ALIYUN_TTS_API_HOST",
                 os.getenv("ALIYUN_IMAGE_API_HOST", "https://dashscope.aliyuncs.com"),
             ).rstrip("/"),
-            model=os.getenv("ALIYUN_TTS_MODEL", "cosyvoice-v2").strip(),
-            # longxiaochun is a warm, unhurried narration voice; override per deploy.
-            voice=os.getenv("ALIYUN_TTS_VOICE", "longxiaochun").strip(),
+            model=os.getenv("ALIYUN_TTS_MODEL", "cosyvoice-v3-flash").strip(),
+            # 龙跃 reads unhurried and carries a narrator's distance, which suits
+            # a theatre voice-over.  Voices are model-generation specific: a v3
+            # voice only works on a v3 model.
+            voice=os.getenv("ALIYUN_TTS_VOICE", "longyue_v3").strip(),
             api_key=os.getenv("DASHSCOPE_API_KEY"),
             timeout_seconds=float(os.getenv("ALIYUN_TTS_TIMEOUT_SECONDS", "45")),
             live_enabled=_env_enabled("ENABLE_TTS_NARRATION"),
+            speech_rate=cls._bounded_rate(os.getenv("ALIYUN_TTS_SPEECH_RATE", "0.9")),
         )
+
+    @staticmethod
+    def _bounded_rate(value: object) -> float:
+        try:
+            rate = float(str(value).strip())
+        except (TypeError, ValueError):
+            return 0.9
+        return min(_MAX_SPEECH_RATE, max(_MIN_SPEECH_RATE, rate))
 
     @property
     def configured(self) -> bool:
@@ -99,6 +135,7 @@ class AliyunTtsConfig:
             "available": self.available,
             "model": self.model,
             "voice": self.voice,
+            "speechRate": self.speech_rate,
         }
 
 
@@ -212,11 +249,9 @@ class AliyunTtsAdapter:
             "input": {
                 "text": text,
                 "voice": self.config.voice,
-            },
-            "parameters": {
-                "text_type": "PlainText",
                 "format": "mp3",
                 "sample_rate": 24000,
+                "rate": self.config.speech_rate,
             },
         }
 

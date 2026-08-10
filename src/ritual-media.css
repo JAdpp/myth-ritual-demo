@@ -88,6 +88,29 @@
   filter: none;
 }
 
+/* Page turn between acts. Triggered when the narration finishes reading, so
+   its length is tied to ACT_TURN_MS in RitualizationStage.tsx. */
+.curtain-frame.act-is-turning .stage-scene-layer {
+  animation: act-page-turn 760ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  transform-origin: left center;
+}
+
+.curtain-frame.act-is-turning .act-caption {
+  animation: act-caption-turn 760ms ease both;
+}
+
+@keyframes act-page-turn {
+  0% { opacity: 1; transform: perspective(1400px) rotateY(0deg); }
+  55% { opacity: 0.32; transform: perspective(1400px) rotateY(-14deg) translateX(-2%); }
+  100% { opacity: 1; transform: perspective(1400px) rotateY(0deg); }
+}
+
+@keyframes act-caption-turn {
+  0% { opacity: 1; transform: translateY(0); }
+  55% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 .theatre-scene-composite {
   position: relative;
   overflow: hidden;
@@ -705,6 +728,13 @@
   }
 
   .scene-image-status i {
+    animation: none;
+  }
+
+  /* The page still turns; it just stops moving. Acts continue to advance
+     because that is driven by the narration, not by this animation. */
+  .curtain-frame.act-is-turning .stage-scene-layer,
+  .curtain-frame.act-is-turning .act-caption {
     animation: none;
   }
 

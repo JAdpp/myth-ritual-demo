@@ -442,7 +442,8 @@ summary:focus-visible {
   padding: 0.85rem 1rem;
   margin: 0 auto 2rem;
   color: var(--mineral-ink);
-  border-left: 3px solid var(--mineral);
+  border: 1px solid rgba(74, 109, 102, 0.26);
+  border-radius: 12px;
   background: rgba(74, 109, 102, 0.08);
   font-size: var(--step--1);
   line-height: var(--lh-tight);
@@ -904,7 +905,8 @@ input:disabled {
   padding: 0.9rem 1rem;
   margin: 1.3rem 0 1.5rem;
   color: var(--ink-soft);
-  border-left: 3px solid var(--seal);
+  border: 1px solid rgba(150, 50, 34, 0.22);
+  border-radius: 12px;
   background: rgba(150, 50, 34, 0.06);
   font-size: var(--step--1);
   line-height: var(--lh-tight);
@@ -1082,7 +1084,8 @@ input:disabled {
   padding: 0.8rem 1rem;
   margin: 0 0 1.2rem;
   color: var(--lamp-ink);
-  border-left: 3px solid var(--lamp);
+  border: 1px solid rgba(217, 131, 36, 0.3);
+  border-radius: 12px;
   background: rgba(217, 131, 36, 0.09);
   font-size: var(--step--1);
 }
@@ -1273,7 +1276,6 @@ input:disabled {
   width: min(100%, 860px);
   padding: clamp(1.75rem, 4vw, 3.5rem);
   border: 1px solid rgba(194, 64, 44, 0.4);
-  border-left: 4px solid var(--danger);
   background: var(--panel);
   box-shadow: var(--shadow-lg);
 }
@@ -1388,7 +1390,8 @@ input:disabled {
   padding: 0.85rem 1rem;
   margin: -1rem auto 2rem;
   color: var(--lamp-ink);
-  border-left: 3px solid var(--lamp);
+  border: 1px solid rgba(217, 131, 36, 0.3);
+  border-radius: 12px;
   background: rgba(217, 131, 36, 0.09);
   font-size: var(--step--1);
 }
@@ -2310,7 +2313,8 @@ input:disabled {
 .ledger-source {
   padding: 1rem;
   margin-bottom: 1.4rem;
-  border-left: 3px solid var(--mineral);
+  border: 1px solid rgba(74, 109, 102, 0.24);
+  border-radius: 12px;
   background: rgba(74, 109, 102, 0.07);
 }
 
@@ -2326,7 +2330,7 @@ input:disabled {
 }
 
 .ledger-source-missing {
-  border-left-color: var(--seal);
+  border-color: rgba(150, 50, 34, 0.26);
   background: rgba(150, 50, 34, 0.06);
 }
 

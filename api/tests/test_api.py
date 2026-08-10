@@ -544,6 +544,12 @@ def test_deepseek_conversation_turn_returns_event_grounded_options(monkeypatch) 
     system_prompt = fake_client.request["json"]["messages"][0]["content"]
     assert "不得返回固定主题菜单" in system_prompt
     assert "两拍式回应" in system_prompt
-    assert "不得夸奖用户、诊断用户或臆测" in system_prompt
+    # The first beat now opens with empathy, so the guard rails are asserted one
+    # by one rather than as a single sentence that any rewording would break.
+    assert "先共情、再承接" in system_prompt
+    assert "不得诊断" in system_prompt
+    assert "不得夸奖用户" in system_prompt
+    assert "不得臆测用户没有说出的原因与动机" in system_prompt
+    assert "不把情绪断言成事实" in system_prompt
     assert "不要推荐、暗示或硬编码任何中国古典神话传说" in system_prompt
     assert "test-provider-token" not in str(fake_client.request["json"])

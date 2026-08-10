@@ -1291,18 +1291,19 @@
   min-height: 7.2rem;
   color: #203d36;
   border-color: #aebfba;
-  border-left-color: var(--md-source);
   background: linear-gradient(90deg, rgb(109 158 145 / 6%), transparent);
   font-size: 0.9rem;
   transition: color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
+/* The three-way rhythm across the shelf used to be coloured left edges. It now
+   lives in how far each slip is washed, which reads as paper rather than tabs. */
 .landing-page-v2 .corpus-shelf span:nth-child(3n + 2) {
-  border-left-color: var(--md-branch);
+  background: linear-gradient(90deg, rgb(158 122 109 / 7%), transparent);
 }
 
 .landing-page-v2 .corpus-shelf span:nth-child(3n) {
-  border-left-color: var(--md-seal);
+  background: linear-gradient(90deg, rgb(161 61 49 / 6%), transparent);
 }
 
 .landing-page-v2 .corpus-shelf span:hover {

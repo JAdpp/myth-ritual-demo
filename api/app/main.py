@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import os
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
@@ -28,6 +30,25 @@ from .models import (
 from .service import ServiceError, SessionService
 
 
+def _configure_app_logging() -> None:
+    """Let this package's diagnostics reach the process log.
+
+    uvicorn configures only its own loggers and leaves the root at WARNING, so
+    every ``logger.info`` in ``app.*`` was silently dropped -- including the
+    provider-fallback lines that explain why a turn or a narration degraded.
+    The root stays at WARNING so third-party INFO chatter does not come along.
+    """
+
+    level = os.getenv("APP_LOG_LEVEL", "INFO").strip().upper() or "INFO"
+    root = logging.getLogger()
+    if not root.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+        root.addHandler(handler)
+        root.setLevel(logging.WARNING)
+    logging.getLogger("app").setLevel(level)
+
+
 def create_app(
     *,
     corpus_path: Path | str | None = None,
@@ -36,6 +57,7 @@ def create_app(
     single_story_summary_path: Path | str | None = None,
     image_adapter: AliyunImageAdapter | None = None,
 ) -> FastAPI:
+    _configure_app_logging()
     corpus = CorpusRepository(
         path=corpus_path,
         records=corpus_records,
@@ -131,6 +153,7 @@ def create_app(
             "model": service.model_adapter.config.model,
             "liveModelEnabled": service.model_adapter.config.available,
             "imageGeneration": service.image_adapter.config.public_status(),
+            "ttsNarration": service.tts_adapter.config.public_status(),
         }
 
     @api.post("/api/sessions", status_code=201)
@@ -313,6 +336,21 @@ def create_app(
             key=idempotency_key,
             payload={"scriptId": script_id, "actId": act_id},
             operation=lambda: service.create_scene_image(session_id, script_id, act_id),
+            response=response,
+        )
+
+    @api.post("/api/sessions/{session_id}/stories/{story_version_id}/cover")
+    def create_story_cover(
+        session_id: str,
+        story_version_id: str,
+        response: Response,
+        idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
+    ) -> dict[str, Any]:
+        return run_idempotent(
+            scope=f"{session_id}:stories:{story_version_id}:cover",
+            key=idempotency_key,
+            payload={"storyVersionId": story_version_id},
+            operation=lambda: service.create_story_cover(session_id, story_version_id),
             response=response,
         )
 

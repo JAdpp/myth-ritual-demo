@@ -133,7 +133,7 @@ function MappingAssistant({
         <div className="mapping-assistant__identity">
           <img src="/assets/qidie-assistant-avatar-transparent.png" alt="" />
           <div>
-          <p className="section-label">继续对话修改</p>
+          <p className="section-label">通过与栖蝶对话修改</p>
           <h2 id="mapping-assistant-title">栖蝶</h2>
           </div>
         </div>

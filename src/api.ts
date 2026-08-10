@@ -15,6 +15,7 @@ import type {
   RitualGesture,
   SessionConsent,
   StoryCandidate,
+  StoryCoverImage,
   StoryOffer,
   TheatreActNarration,
   TheatreSceneImage,
@@ -279,6 +280,13 @@ export function createTheatreSceneImage(
 ) {
   return request<TheatreSceneImage>(
     `/api/sessions/${sessionId}/theatre-scripts/${theatreScriptId}/acts/${actId}/scene-image`,
+    { method: "POST" },
+  );
+}
+
+export function createStoryCover(sessionId: string, storyVersionId: string) {
+  return request<StoryCoverImage>(
+    `/api/sessions/${sessionId}/stories/${storyVersionId}/cover`,
     { method: "POST" },
   );
 }

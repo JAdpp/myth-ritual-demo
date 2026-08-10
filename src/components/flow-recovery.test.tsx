@@ -316,7 +316,7 @@ describe("landing and conversational encounter", () => {
     act(() => buttonNamed("事情发生在").click());
     await act(async () => buttonNamed("发送").click());
     expect(onCreateBrief).toHaveBeenCalledTimes(1);
-    expect(container.querySelector(".chat-acknowledgement")?.textContent).toContain("给出了这件事的起点");
+    expect(container.querySelector(".chat-acknowledgement")?.textContent).toContain("这件事的起点我听见了");
     expect(container.querySelector(".chat-follow-up-question")?.textContent).toContain("后来最先发生了什么");
     expect(container.textContent).toContain("栖蝶听到的线索");
     expect([...container.querySelectorAll("button")].some((button) => button.textContent?.includes("原本……，后来……"))).toBe(false);

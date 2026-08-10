@@ -656,7 +656,7 @@ summary:focus-visible {
   padding: 0.8rem 0.55rem;
   border-right: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
-  border-left: 4px solid var(--mineral);
+  border-left: 1px solid var(--rule);
   background: rgb(245 250 248 / 54%);
   writing-mode: vertical-rl;
 }
@@ -781,14 +781,20 @@ summary:focus-visible {
   padding: 0.75rem 1rem;
   color: var(--mineral-ink);
   border: 1px solid rgb(91 132 125 / 28%);
-  border-left: 4px solid var(--mineral);
   border-radius: 14px;
   background: rgb(224 238 234 / 72%);
   box-shadow: var(--shadow-sm);
 }
 
 .status-message p { margin: 0; }
-.status-error { color: var(--danger-ink); border-left-color: var(--danger); }
+
+/* An error is signalled by tinting the whole notice rather than by a coloured
+   bar down its left edge. */
+.status-error {
+  color: var(--danger-ink);
+  border-color: rgb(194 64 44 / 34%);
+  background: rgb(250 235 232 / 76%);
+}
 
 .encounter-chat-layout {
   position: relative;
@@ -869,7 +875,6 @@ summary:focus-visible {
   max-width: 82%;
   padding: 0.75rem 0.9rem;
   border: 1px solid rgb(93 130 122 / 23%);
-  border-left: 3px solid var(--mineral);
   border-radius: 7px 17px 17px;
   background: rgb(224 237 233 / 72%);
   box-shadow: 0 5px 15px rgb(36 78 76 / 7%);
@@ -878,7 +883,6 @@ summary:focus-visible {
 .chat-user {
   justify-self: end;
   border: 1px solid rgb(161 61 49 / 20%);
-  border-right: 3px solid var(--seal);
   border-radius: 17px 7px 17px 17px;
   background: rgb(255 251 249 / 78%);
 }
@@ -999,7 +1003,7 @@ summary:focus-visible {
 
 .offer-heading h2 { margin-bottom: 0.4rem; font-size: clamp(1.8rem, 4vw, 3rem); }
 .offer-heading p { max-width: 48rem; color: var(--ink-soft); }
-.offer-boundary { padding-left: 1rem; border-left: 3px solid var(--seal); }
+.offer-boundary { padding: 0.7rem 1rem; border: 1px solid rgb(161 61 49 / 26%); border-radius: 12px; background: rgb(250 240 237 / 62%); }
 
 .illustrated-story-grid {
   display: grid;
@@ -1041,6 +1045,9 @@ summary:focus-visible {
 
 .story-illustration { margin: 0; border-bottom: 1px solid var(--rule); background: var(--paper-soft); }
 .story-illustration svg { display: block; width: 100%; height: auto; }
+/* The generated plate is 16:9 and the local glyph is 5:3, so crop the taller
+   ratio rather than letting cards in the same row change height. */
+.story-illustration-generated img { display: block; width: 100%; aspect-ratio: 5 / 3; object-fit: cover; background: var(--paper-soft); }
 .story-illustration figcaption { padding: 0.35rem 0.7rem; color: var(--ink-faint); font-family: var(--sans); font-size: 0.66rem; }
 .story-illustration-glyph { fill: none; stroke: var(--mineral-ink); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.4; }
 .story-title-leaf__body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: stretch; min-height: 180px; padding: 1.15rem 1.25rem; color: var(--ink); background: var(--paper-soft); }
@@ -1093,7 +1100,7 @@ summary:focus-visible {
 .plot-beats li { display: grid; grid-template-columns: 2rem 1fr; gap: 0.7rem; padding: 0.55rem 0; border-bottom: 1px solid var(--line); }
 .plot-beats li span { color: var(--mineral-ink); font-family: var(--sans); }
 .plot-beats li p { margin: 0; }
-.recommendation-explained { margin: 1rem 0; padding: 1rem; border-left: 4px solid var(--seal); background: var(--paper-sunk); }
+.recommendation-explained { margin: 1rem 0; padding: 1rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--paper-sunk); }
 .recommendation-explained p { margin: 0.4rem 0; }
 .recommendation-explained small { color: var(--ink-soft); }
 .version-note { color: var(--ink-soft); font-size: 0.8rem; }

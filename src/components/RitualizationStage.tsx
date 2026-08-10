@@ -184,6 +184,9 @@ function TheatreScene({
 
 type NarrationState = "idle" | "loading" | "speaking" | "paused";
 
+/** How long the page-turn runs before the next act is mounted. */
+const ACT_TURN_MS = 760;
+
 function narrationText(act: TheatreAct) {
   return toSimplifiedDisplay(
     [act.sceneTitle ?? act.title, act.narration, act.dialogue].filter(Boolean).join("。 "),
@@ -210,12 +213,20 @@ function TheatrePlayer({
   const [sceneVisuals, setSceneVisuals] = useState<Record<string, SceneVisualState>>({});
   // Cached CosyVoice clips, one per act id. `null` means "asked, unavailable".
   const [narrationClips, setNarrationClips] = useState<Record<string, string | null>>({});
+  // True only while the page-turn animation runs, between one act's narration
+  // ending and the next act being mounted.
+  const [turningPage, setTurningPage] = useState(false);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const narrationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const turnTimerRef = useRef<number | null>(null);
   const acts = script.acts;
   const act = acts[boundedActIndex(actIndex, acts.length)];
   const duration = Math.max(1, act?.durationSeconds ?? 1);
   const progress = Math.min(100, (elapsed / duration) * 100);
+  // While the voice is still working through this act, the clock must not turn
+  // the page out from under it. The act's own durationSeconds is only a
+  // stand-in for when there is no voice at all.
+  const narrationHoldsPage = narrationState !== "idle";
   const speechSupported = typeof window !== "undefined"
     && "speechSynthesis" in window
     && "SpeechSynthesisUtterance" in window;
@@ -277,10 +288,48 @@ function TheatrePlayer({
     }));
   }
 
+  // The finish handlers fire from audio/speech callbacks that captured an old
+  // render, so the decision to turn the page reads live values from refs.
+  const playingRef = useRef(playing);
+  const actIndexRef = useRef(actIndex);
+  playingRef.current = playing;
+  actIndexRef.current = actIndex;
+
+  /** Turn to the next act, with the page-turn in between. */
+  const advanceAct = useCallback(() => {
+    if (turnTimerRef.current !== null) return;
+    if (actIndexRef.current >= acts.length - 1) {
+      setPlaying(false);
+      onReachedEnd();
+      return;
+    }
+    setTurningPage(true);
+    turnTimerRef.current = window.setTimeout(() => {
+      turnTimerRef.current = null;
+      setTurningPage(false);
+      setActIndex((index) => boundedActIndex(index + 1, acts.length));
+      setElapsed(0);
+    }, ACT_TURN_MS);
+  }, [acts.length, onReachedEnd]);
+
+  /** Called only when narration reaches its own end, never when we cancel it. */
+  const handleNarrationFinished = useCallback(() => {
+    setNarrationState("idle");
+    if (playingRef.current) advanceAct();
+  }, [advanceAct]);
+
   const stopNarration = useCallback(() => {
-    if (narrationAudioRef.current) {
-      narrationAudioRef.current.pause();
+    const audio = narrationAudioRef.current;
+    if (audio) {
+      // Detach first: a paused clip must not look like a finished one.
+      audio.onended = null;
+      audio.onerror = null;
+      audio.pause();
       narrationAudioRef.current = null;
+    }
+    if (speechUtteranceRef.current) {
+      speechUtteranceRef.current.onend = null;
+      speechUtteranceRef.current.onerror = null;
     }
     if (speechSupported) window.speechSynthesis.cancel();
     speechUtteranceRef.current = null;
@@ -298,11 +347,11 @@ function TheatrePlayer({
     const voice = window.speechSynthesis.getVoices().find((item) => item.lang.toLowerCase().startsWith("zh"));
     if (voice) utterance.voice = voice;
     utterance.lang = voice?.lang ?? "zh-CN";
-    utterance.rate = 0.92;
+    utterance.rate = 0.9;
     utterance.pitch = 0.94;
     utterance.onend = () => {
       speechUtteranceRef.current = null;
-      setNarrationState("idle");
+      handleNarrationFinished();
     };
     utterance.onerror = () => {
       speechUtteranceRef.current = null;
@@ -311,7 +360,7 @@ function TheatrePlayer({
     speechUtteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
     setNarrationState("speaking");
-  }, [speechSupported]);
+  }, [handleNarrationFinished, speechSupported]);
 
   /** Fetch (once) and play this act's CosyVoice narration. */
   const playNarration = useCallback(async (targetAct: TheatreAct) => {
@@ -342,7 +391,7 @@ function TheatrePlayer({
     const audio = new Audio(clip);
     audio.onended = () => {
       narrationAudioRef.current = null;
-      setNarrationState("idle");
+      handleNarrationFinished();
     };
     audio.onerror = () => {
       narrationAudioRef.current = null;
@@ -356,7 +405,7 @@ function TheatrePlayer({
       narrationAudioRef.current = null;
       speakLocally(targetAct);
     }
-  }, [narrationClips, script.id, sessionId, speakLocally, stopNarration]);
+  }, [handleNarrationFinished, narrationClips, script.id, sessionId, speakLocally, stopNarration]);
 
   function toggleNarration() {
     if (!act || !curtainOpen) return;
@@ -376,13 +425,23 @@ function TheatrePlayer({
     void playNarration(act);
   }
 
+  function cancelPageTurn() {
+    if (turnTimerRef.current !== null) {
+      window.clearTimeout(turnTimerRef.current);
+      turnTimerRef.current = null;
+    }
+    setTurningPage(false);
+  }
+
   function jumpTo(index: number) {
+    cancelPageTurn();
     stopNarration();
     setActIndex(boundedActIndex(index, acts.length));
     setElapsed(0);
   }
 
   function restart() {
+    cancelPageTurn();
     stopNarration();
     setActIndex(0);
     setElapsed(0);
@@ -392,6 +451,7 @@ function TheatrePlayer({
   function toggleCurtain() {
     if (curtainOpen) {
       setPlaying(false);
+      cancelPageTurn();
       stopNarration();
       setCurtainOpen(false);
       return;
@@ -435,28 +495,27 @@ function TheatrePlayer({
   }, [act, curtainOpen, playing]);
 
   useEffect(() => {
-    if (!playing || !act || !curtainOpen) return;
+    if (!playing || !act || !curtainOpen || turningPage) return;
     const timer = window.setInterval(() => {
       setElapsed((current) => Math.min(duration, current + 0.25));
     }, 250);
     return () => window.clearInterval(timer);
-  }, [act, curtainOpen, duration, playing]);
+  }, [act, curtainOpen, duration, playing, turningPage]);
 
+  // The clock is now only the understudy. When an act has narration, the page
+  // turns as the reading ends (see handleNarrationFinished); durationSeconds
+  // only decides the pace for acts whose voice never arrived.
   useEffect(() => {
-    if (!playing || elapsed < duration) return;
-    if (actIndex < acts.length - 1) {
-      stopNarration();
-      setActIndex((index) => index + 1);
-      setElapsed(0);
-      return;
-    }
-    setPlaying(false);
-    onReachedEnd();
-  }, [actIndex, acts.length, duration, elapsed, onReachedEnd, playing]);
+    if (!playing || turningPage || narrationHoldsPage) return;
+    if (elapsed < duration) return;
+    advanceAct();
+  }, [advanceAct, duration, elapsed, narrationHoldsPage, playing, turningPage]);
 
   useEffect(() => () => {
+    if (turnTimerRef.current !== null) window.clearTimeout(turnTimerRef.current);
     if (speechSupported) window.speechSynthesis.cancel();
     if (narrationAudioRef.current) {
+      narrationAudioRef.current.onended = null;
       narrationAudioRef.current.pause();
       narrationAudioRef.current = null;
     }
@@ -478,7 +537,7 @@ function TheatrePlayer({
         <p className="curtain-status" role="status">共 {acts.length} 幕 · {curtainOpen ? "幕布已拉开" : "幕布已合上"}</p>
       </div>
 
-      <div className="curtain-frame">
+      <div className={`curtain-frame ${turningPage ? "act-is-turning" : ""}`}>
         <div className={`curtain-stage ${curtainOpen ? "curtain-is-open" : "curtain-is-closed"}`}>
           <div className="stage-scene-layer" aria-hidden={!curtainOpen}>
             <TheatreScene
@@ -534,7 +593,7 @@ function TheatrePlayer({
 
       <div className="theatre-media-desk" aria-label="剧场声音与录音控制">
         <section className="media-channel" aria-labelledby="narration-channel-title">
-          <header><h3 id="narration-channel-title">旁白</h3><p>朗读本幕字幕。</p></header>
+          <header><h3 id="narration-channel-title">旁白</h3><p>朗读本幕字幕；读完自动翻到下一幕。</p></header>
           {speechSupported ? (
             <div className="media-control-row">
               <button type="button" disabled={!curtainOpen} aria-pressed={narrationState === "speaking"} onClick={toggleNarration}>{narrationButtonLabel}</button>
