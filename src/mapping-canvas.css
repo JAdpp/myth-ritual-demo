@@ -46,7 +46,7 @@
 }
 
 .mapping-boundary__content section:last-child { border-right: 0; }
-.mapping-boundary__content blockquote { margin: 0.5rem 0; padding-left: 0.8rem; border-left: 2px solid var(--mapping-source); }
+.mapping-boundary__content blockquote { margin: 0.5rem 0; padding-left: 0.8rem; border-left: 1px solid var(--rule); }
 .mapping-boundary__content p,
 .mapping-boundary__content li { color: var(--ink-soft); font-size: 0.86rem; }
 .mapping-boundary__content h3 { font-size: 0.95rem; }
@@ -238,7 +238,6 @@
   top: 1rem;
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
-  border-top: 6px solid var(--mapping-branch);
 }
 
 .mapping-assistant__header { display: flex; gap: 0.8rem; align-items: start; justify-content: space-between; padding: 1rem; border-bottom: 1px solid var(--rule); }
@@ -292,7 +291,8 @@
 .mapping-hope fieldset { display: grid; grid-template-columns: repeat(4, 1fr); padding: 0; margin: 1rem 0; border: 1px solid var(--rule); }
 .mapping-hope fieldset label { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; padding: 0.75rem; border-right: 1px solid var(--rule); }
 .mapping-hope fieldset label:last-child { border-right: 0; }
-.mapping-hope fieldset label.is-selected { color: var(--mapping-branch-ink); border-top: 4px solid var(--mapping-branch); }
+/* Selection reads as a tinted cell, not as a coloured tab across its top edge. */
+.mapping-hope fieldset label.is-selected { color: var(--mapping-branch-ink); background: var(--paper-sunk); font-weight: 600; }
 .mapping-hope fieldset strong,
 .mapping-hope fieldset small { display: block; }
 .mapping-hope fieldset small { color: var(--ink-soft); font-size: 0.68rem; }
@@ -314,7 +314,7 @@
   justify-content: space-between;
   margin-top: 1.2rem;
   padding: 0.8rem 1rem;
-  border-top: 5px solid var(--mapping-thread);
+  border-top: 1px solid var(--rule);
 }
 
 .mapping-approval-dock__status { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
@@ -639,7 +639,6 @@
 
 .mapping-message--user p {
   border: 1px solid rgba(125, 42, 28, 0.14);
-  border-right: 3px solid var(--mapping-branch);
   border-radius: 0.85rem 0.85rem 0.24rem;
   background: rgba(250, 238, 233, 0.76);
 }

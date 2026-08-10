@@ -696,7 +696,6 @@ summary:focus-visible {
   padding: clamp(1.5rem, 4vw, 3rem);
   overflow-y: auto;
   border: 1px solid rgb(140 167 159 / 48%);
-  border-top: 6px solid var(--mineral-ink);
   border-radius: 28px;
   background: var(--glass-strong);
   box-shadow: var(--shadow-lg), inset 0 1px rgb(255 255 255 / 78%);
@@ -799,7 +798,7 @@ summary:focus-visible {
 .encounter-chat-layout {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) 12px minmax(18rem, 0.65fr);
+  grid-template-columns: minmax(0, 1.35fr) 1px minmax(18rem, 0.65fr);
   overflow: hidden;
   border: 1px solid rgb(92 124 117 / 34%);
   border-radius: 28px;
@@ -809,11 +808,12 @@ summary:focus-visible {
   backdrop-filter: blur(20px) saturate(110%);
 }
 
+/* A hairline separates the chat from the notes. It used to be a 12px saturated
+   gradient band, which read as a decorative stripe rather than a divider. */
 .encounter-chat-layout::before {
   grid-column: 2;
   grid-row: 1;
-  background: linear-gradient(180deg, #1e484e, #4b8582 48%, #1e484e);
-  box-shadow: inset 0 0 10px rgb(10 39 42 / 25%);
+  background: var(--rule);
   content: "";
 }
 
@@ -974,7 +974,6 @@ summary:focus-visible {
   padding: clamp(1.5rem, 4vw, 3rem);
   overflow: hidden;
   border: 1px solid rgb(94 124 118 / 36%);
-  border-top: 6px solid var(--mineral-ink);
   border-radius: 24px;
   background: var(--glass-strong);
   box-shadow: var(--shadow-md);
@@ -1060,7 +1059,7 @@ summary:focus-visible {
 .source-details { margin-top: 0.8rem; border-top: 1px solid var(--rule); }
 .source-details summary { padding: 0.65rem 0; color: var(--mineral-ink); font-family: var(--sans); font-weight: 700; }
 .source-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; padding: 1rem 0; }
-.source-detail-grid blockquote { margin: 0.5rem 0; padding-left: 1rem; border-left: 2px solid var(--mineral); }
+.source-detail-grid blockquote { margin: 0.5rem 0; padding-left: 1rem; border-left: 1px solid var(--rule); }
 .plain-list { padding-left: 1.25rem; }
 
 .offer-actions {
@@ -1090,7 +1089,7 @@ summary:focus-visible {
   backdrop-filter: blur(18px);
 }
 
-.story-explanation-art { border-right: 12px solid var(--mineral-ink); }
+.story-explanation-art { border-right: 1px solid var(--rule); }
 .story-explanation-copy { padding: clamp(1.4rem, 3vw, 2.8rem); }
 .story-explanation-close { position: absolute; z-index: 2; top: 0.7rem; right: 0.7rem; width: 36px; height: 36px; border: 1px solid rgb(97 126 120 / 38%); border-radius: 50%; background: rgb(250 253 252 / 72%); box-shadow: var(--shadow-sm); }
 .story-explanation-copy h2 { font-size: clamp(2rem, 5vw, 3.5rem); }
@@ -1112,7 +1111,7 @@ summary:focus-visible {
   .story-explanation { grid-template-columns: 1fr; }
   .landing-hero { min-height: auto; }
   .illustrated-story-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .story-explanation-art { border-right: 0; border-bottom: 12px solid var(--mineral-ink); }
+  .story-explanation-art { border-right: 0; border-bottom: 1px solid var(--rule); }
   .binding-progress-note { display: none; }
   .story-loom { grid-template-columns: auto 1fr; }
 }
@@ -1149,7 +1148,7 @@ summary:focus-visible {
   .stage-page { padding-top: 1.5rem; }
   .stage-intro { grid-template-columns: 1fr; gap: 1rem; }
   .encounter-chat-layout { grid-template-columns: 1fr; }
-  .encounter-chat-layout::before { grid-column: 1; grid-row: 2; height: 10px; }
+  .encounter-chat-layout::before { grid-column: 1; grid-row: 2; height: 1px; }
   .conversation-panel { grid-column: 1; grid-row: 1; }
   .conversation-notes { grid-column: 1; grid-row: 3; border-top: 1px solid var(--rule); border-left: 0; }
   .chat-bubble { max-width: 94%; }

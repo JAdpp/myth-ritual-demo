@@ -802,7 +802,7 @@ input:disabled {
   margin-bottom: 1.2rem;
   padding-left: 0.9rem;
   color: var(--ink-soft);
-  border-left: 2px solid var(--mineral);
+  border-left: 1px solid var(--rule);
   font-size: var(--step-0);
 }
 
@@ -1053,7 +1053,7 @@ input:disabled {
 }
 
 .recovery-panel {
-  border-top: 3px solid var(--mineral);
+  border-top: 1px solid var(--rule);
 }
 
 .story-offer {
@@ -1232,7 +1232,7 @@ input:disabled {
   padding-left: 0.85rem;
   margin: 0 0 0.8rem;
   color: var(--ink-soft);
-  border-left: 2px solid var(--mineral);
+  border-left: 1px solid var(--rule);
   font-size: var(--step--2);
   line-height: var(--lh-tight);
 }
@@ -1485,7 +1485,7 @@ input:disabled {
   padding: 0.9rem 1rem;
   margin: 1.1rem 0;
   color: var(--ink-soft);
-  border-left: 2px solid var(--mineral);
+  border-left: 1px solid var(--rule);
   background: rgba(74, 109, 102, 0.07);
   font-size: var(--step--1);
 }
@@ -2007,7 +2007,7 @@ input:disabled {
   padding-left: 0.9rem;
   margin: 0.7rem 0 0;
   color: var(--ink-soft);
-  border-left: 2px solid var(--lamp);
+  border-left: 1px solid var(--rule);
   font-size: var(--step--1);
   line-height: var(--lh-tight);
 }
@@ -2219,7 +2219,7 @@ input:disabled {
   padding-left: 1.2rem;
   margin: 0;
   color: var(--lamp-ink);
-  border-left: 2px solid var(--lamp);
+  border-left: 1px solid var(--rule);
   font-size: var(--step-2);
   line-height: var(--lh-heading);
 }

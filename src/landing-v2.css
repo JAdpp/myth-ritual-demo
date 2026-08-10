@@ -476,7 +476,6 @@
   margin: 0 0 0 auto;
   padding: 0.8rem 0.9rem;
   color: rgb(240 247 243 / 82%);
-  border-right: 2px solid var(--md-branch);
   background: rgb(205 166 95 / 10%);
   font-size: 0.86rem;
   line-height: 1.75;
@@ -511,7 +510,6 @@
 .hero-signal-result {
   gap: 0.85rem;
   padding: 0.95rem;
-  border-left: 2px solid var(--md-source);
   background: rgb(109 158 145 / 12%);
 }
 
@@ -1417,7 +1415,6 @@
 
 .landing-page-v2 .consent-modal {
   border: 1px solid rgb(74 109 101 / 35%);
-  border-top: 5px solid var(--md-source);
   border-radius: 2px 28px 2px 28px;
   background: rgb(241 245 239 / 97%);
   box-shadow: 0 2.5rem 8rem rgb(0 0 0 / 34%);
