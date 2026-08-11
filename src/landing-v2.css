@@ -30,6 +30,27 @@
   background: var(--md-paper);
 }
 
+/* Chinese body copy on this page kept ending on one or two orphaned
+   characters, which is the main thing that made the reading feel off. There is
+   no space to steal in a CJK line, so the browser has to reflow the block
+   instead: `pretty` pulls the last line up to a sensible length. Headings get
+   `balance`, which evens the lines of a short block outright. */
+.landing-page-v2 p,
+.landing-page-v2 li,
+.landing-page-v2 dd,
+.landing-page-v2 blockquote,
+.landing-page-v2 figcaption {
+  text-wrap: pretty;
+}
+
+.landing-page-v2 h1,
+.landing-page-v2 h2,
+.landing-page-v2 h3,
+.landing-page-v2 h4,
+.landing-page-v2 dt {
+  text-wrap: balance;
+}
+
 .stage-welcome .site-header-landing {
   position: absolute;
   z-index: 60;
@@ -666,8 +687,12 @@
   line-height: 1.9;
 }
 
+/* The decorative ring below is deliberately hung past the right edge, so the
+   section has to clip it. Without this the ring widened the document by 128px
+   at desktop and the whole landing page could be panned sideways. */
 .case-showcase {
   position: relative;
+  overflow: clip;
 }
 
 .case-showcase::before {
@@ -1348,7 +1373,10 @@
 .landing-page-v2 .landing-final-cta {
   position: relative;
   isolation: isolate;
-  width: min(1380px, calc(100vw - 2rem));
+  /* Wider than a section on purpose, but on the same gutter: a 2rem margin
+     against everything else's 2.5rem put this panel 4px outside every other
+     section edge on any viewport too narrow to grant the breakout. */
+  width: min(1380px, calc(100vw - 2.5rem));
   min-height: 34rem;
   padding: clamp(3rem, 7vw, 7rem);
   margin: 0 auto clamp(1rem, 3vw, 2.5rem);
