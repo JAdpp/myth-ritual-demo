@@ -49,15 +49,15 @@ export function SiteHeader({
     <header className={`site-header${isLanding ? " site-header-landing" : ""}`} data-variant={isLanding ? "landing" : "experience"}>
       <a className="brand" href="#main" aria-label="梦蝶记体验首页">
         <img className="brand-mark" src="/assets/mengdie-logo-mark-side-v5-transparent.png" alt="" />
-        <span><strong className="brand-wordmark">梦蝶记</strong><small>中国古典神话传说与个人经历共谱</small></span>
+        <span><strong className="brand-wordmark">梦蝶记</strong><small>中国古典叙事与个人经历共谱</small></span>
       </a>
       {isLanding && !isGuide ? (
         <nav className="landing-nav" aria-label="首页导航">
           <a href="#case-showcase">案例</a>
           <a href="#how-it-works">功能</a>
+          <a href="#interface">界面</a>
           <a href="#technology">技术</a>
           <a href="#corpus">故事来源</a>
-          <a className="landing-nav-cta" href="#hero-actions">开始 <span aria-hidden="true">↗</span></a>
         </nav>
       ) : null}
       {onLanguageChange && (

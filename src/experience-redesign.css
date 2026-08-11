@@ -1006,10 +1006,35 @@ summary:focus-visible {
 .offer-heading p { max-width: 48rem; color: var(--ink-soft); }
 .offer-boundary { padding: 0.7rem 1rem; border: 1px solid rgb(161 61 49 / 26%); border-radius: 12px; background: rgb(250 240 237 / 62%); }
 
+/* The offer is a hand of cards held out, so it is dealt as one: the outer two
+   pivot away from a point below the middle card and settle slightly lower,
+   which is what makes a fan read as a fan rather than as three tilted boxes.
+   The angle is small on purpose — these carry body text that still has to sit
+   on a level baseline. */
 .illustrated-story-grid {
+  --fan-angle: 2.4deg;
+  --fan-drop: 14px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+  align-items: start;
+  padding-block: 0.9rem;
+}
+
+.illustrated-story-grid > * {
+  --card-angle: 0deg;
+  --card-drop: 0px;
+  transform-origin: 50% 190%;
+}
+
+.illustrated-story-grid > :first-child:not(:only-child) {
+  --card-angle: calc(var(--fan-angle) * -1);
+  --card-drop: var(--fan-drop);
+}
+
+.illustrated-story-grid > :last-child:not(:only-child) {
+  --card-angle: var(--fan-angle);
+  --card-drop: var(--fan-drop);
 }
 
 .illustrated-story-card {
@@ -1024,7 +1049,8 @@ summary:focus-visible {
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-.illustrated-story-card:hover { border-color: rgb(59 125 128 / 58%); box-shadow: var(--shadow-md); transform: translateY(-3px); }
+.illustrated-story-card { transform: rotate(var(--card-angle)) translateY(var(--card-drop)); }
+.illustrated-story-card:hover { border-color: rgb(59 125 128 / 58%); box-shadow: var(--shadow-md); }
 .illustrated-story-card.selected { border: 2px solid var(--mineral-ink); box-shadow: 0 18px 42px rgb(36 78 85 / 18%); }
 .story-card-choice { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); font-family: var(--sans); font-size: 0.76rem; }
 .story-card-choice input { accent-color: var(--seal); }
@@ -1154,7 +1180,9 @@ summary:focus-visible {
   .conversation-panel { grid-column: 1; grid-row: 1; }
   .conversation-notes { grid-column: 1; grid-row: 3; border-top: 1px solid var(--rule); border-left: 0; }
   .chat-bubble { max-width: 94%; }
-  .illustrated-story-grid { grid-template-columns: 1fr; }
+  /* Stacked, there is no hand to fan out; tilted cards in a single column just
+     read as crooked. */
+  .illustrated-story-grid { grid-template-columns: 1fr; --fan-angle: 0deg; --fan-drop: 0px; }
   .offer-actions,
   .story-explanation-actions { align-items: stretch; flex-direction: column; }
   .offer-actions > div { flex-wrap: wrap; }
@@ -1252,8 +1280,12 @@ summary:focus-visible {
 }
 
 @media (hover: hover) and (pointer: fine) {
+  /* Hovering lifts the card out of the fan without straightening it — the
+     rotation has to be carried through, or a card would snap upright the
+     moment the pointer touched it. */
   .story-card-tilt:hover {
-    transform: perspective(900px) rotateX(2.2deg) rotateY(-2.6deg) translateY(-4px);
+    transform: perspective(900px) rotate(var(--card-angle))
+      translateY(calc(var(--card-drop) - 6px)) rotateX(2deg);
     box-shadow: var(--shadow-lg);
   }
   .story-card-tilt:hover .story-card-selected-mark { opacity: 0.55; }
@@ -1261,9 +1293,11 @@ summary:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* The fan is layout, not motion, so it stays; what goes is the movement
+     between the two states. */
   .illustrated-story-card,
   .story-card-tilt:hover {
-    transform: none;
+    transform: rotate(var(--card-angle)) translateY(var(--card-drop));
     transition: none;
   }
 }

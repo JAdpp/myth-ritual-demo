@@ -77,7 +77,7 @@ export function App() {
   const safetyStopped = Boolean(getSafetyStopRoute(brief));
 
   useEffect(() => {
-    document.title = "梦蝶记 · 中国古典神话传说与个人经历共谱";
+    document.title = "梦蝶记 · 中国古典叙事与个人经历共谱";
   }, []);
 
   useEffect(() => {

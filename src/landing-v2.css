@@ -813,17 +813,24 @@
   letter-spacing: 0.08em;
 }
 
+/* The quote is the emotional anchor and should read largest, but at 2.2rem in
+   a 461px column it ran to five lines and set the height of the whole panel:
+   the other two columns were left with about 250px of hole above their pinned
+   footnotes. 1.85rem still doubles the body text and takes 98px off the row. */
 .case-moment-user blockquote {
   margin-bottom: 2.3rem;
   color: #1b2f2b;
   font-family: var(--md-display);
-  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+  font-size: clamp(1.4rem, 2.1vw, 1.85rem);
   line-height: 1.7;
 }
 
+/* `margin-top: auto` pins this to the bottom of the column so the three
+   footnotes line up — but as a <p> it also carried a default bottom margin,
+   which left it sitting 14px higher than the other two. */
 .case-note {
   padding-top: 1.1rem;
-  margin-top: auto;
+  margin: auto 0 0;
   color: #536862;
   border-top: 1px solid #c5d1cd;
   font-size: 0.86rem;
@@ -841,8 +848,9 @@
 }
 
 .case-moment-source {
+  /* The 8% tint already carries the colour coding; the 4px cap on top was the
+     accent edge again, just spelled as an inset shadow. */
   background: rgb(109 158 145 / 8%);
-  box-shadow: inset 0 4px var(--md-source);
 }
 
 .case-story-lockup {
@@ -891,7 +899,6 @@
 
 .case-moment-branch {
   background: rgb(205 166 95 / 8%);
-  box-shadow: inset 0 4px var(--md-branch);
 }
 
 .case-moment-branch > p:not(.case-step) {
@@ -1222,11 +1229,14 @@
   background: rgb(229 241 235 / 13%);
 }
 
+/* The colour used to be a 3px bar across the top of each card — the accent
+   edge this project does not use. Here the colour is the subject, so it moves
+   into the label as a specimen chip: still the first thing you see, but read
+   as a sample rather than as trim. */
 .technology-proof-grid article {
   min-height: 13.5rem;
   padding: clamp(1.3rem, 2.5vw, 2.2rem);
   background: rgb(7 28 32 / 94%);
-  box-shadow: inset 0 3px var(--proof-color);
 }
 
 .technology-proof-grid .proof-source { --proof-color: var(--md-source); }
@@ -1234,10 +1244,21 @@
 .technology-proof-grid .proof-seal { --proof-color: var(--md-seal); }
 
 .technology-proof-grid article > span {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
   color: var(--proof-color);
   font-family: var(--md-utility);
   font-size: 0.6rem;
   letter-spacing: 0.1em;
+}
+
+.technology-proof-grid article > span > i {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 2px;
+  background: var(--proof-color);
+  box-shadow: 0 0 0 1px rgb(229 241 235 / 22%);
 }
 
 .technology-proof-grid h3 {
@@ -1943,5 +1964,304 @@
 
   .hero-signal-card {
     background: #0a252a;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Interface showcase — the three screens the product is made of.
+   The card art is real product output; everything around it is built
+   from the same tokens the experience uses, so the miniature cannot
+   drift into looking better than the thing it depicts.
+   ------------------------------------------------------------------ */
+
+.interface-showcase {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem);
+}
+
+.showcase-cards {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  margin: 0;
+}
+
+.showcase-cards > figcaption h3 {
+  margin: 0.6rem 0 0.6rem;
+  font-family: var(--md-display);
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  font-weight: 500;
+}
+
+.showcase-cards > figcaption p {
+  max-width: 44rem;
+  margin: 0;
+  color: #516a64;
+  line-height: 1.9;
+}
+
+/* Three cards held out like a hand, matching the fan the offer screen
+   deals them in. */
+.showcase-card-fan {
+  --fan-angle: 2.6deg;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.9rem, 2vw, 1.6rem);
+  align-items: start;
+  /* Rotating a 427px card by 2.6deg throws its corners about 33px past the
+     track on each side. The inline padding buys that room out of the fan's own
+     width, so the cards stay inside the section instead of hanging over its
+     edge — pulling the padding back out with a negative margin would defeat
+     the point. */
+  padding: 1rem 2.25rem;
+}
+
+.showcase-card {
+  position: relative;
+  overflow: hidden;
+  background: #fbfcfa;
+  border: 1px solid #ccd8d3;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgb(28 56 51 / 8%);
+  transform-origin: 50% 190%;
+  transform: rotate(var(--fan-angle)) translateY(14px);
+}
+
+.showcase-card-fan > :first-child {
+  transform: rotate(calc(var(--fan-angle) * -1)) translateY(14px);
+}
+
+.showcase-card.is-front {
+  border-color: #9e5647;
+  box-shadow: 0 0 0 2px rgb(158 86 71 / 20%), 0 18px 40px rgb(28 56 51 / 12%);
+  transform: none;
+}
+
+.showcase-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #f4f5f0;
+  border-bottom: 1px solid #dde5e1;
+}
+
+.showcase-card-body {
+  padding: clamp(0.9rem, 1.6vw, 1.3rem);
+}
+
+.showcase-card-body h4 {
+  margin: 0 0 0.25rem;
+  font-family: var(--md-display);
+  font-size: 1.24rem;
+  font-weight: 500;
+}
+
+.showcase-card-body small {
+  display: block;
+  margin-bottom: 0.7rem;
+  color: #6a807a;
+  font-family: var(--md-utility);
+  font-size: 0.7rem;
+}
+
+.showcase-card-body p {
+  margin: 0;
+  color: #4d635d;
+  font-size: 0.82rem;
+  line-height: 1.85;
+}
+
+.showcase-card-mark {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  color: #9e5647;
+  border: 1px solid #9e5647;
+  border-radius: 3px;
+  background: rgb(251 252 250 / 92%);
+  font-family: var(--md-utility);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+}
+
+.showcase-note {
+  color: #6a807a;
+  font-family: var(--md-utility);
+  font-size: 0.7rem;
+  line-height: 1.8;
+}
+
+.showcase-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.showcase-canvas,
+.showcase-theatre {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  margin: 0;
+  padding: clamp(1.3rem, 2.5vw, 2rem);
+  border: 1px solid #ccd8d3;
+  border-radius: 4px;
+  background: #fafbf8;
+}
+
+.showcase-canvas h3,
+.showcase-theatre h3 {
+  margin: 0.5rem 0 0;
+  font-family: var(--md-display);
+  font-size: 1.32rem;
+  font-weight: 500;
+}
+
+.showcase-canvas > small,
+.showcase-theatre > small {
+  color: #6a807a;
+  font-family: var(--md-utility);
+  font-size: 0.7rem;
+  line-height: 1.8;
+}
+
+/* Canon on the left, the visitor's branch on the right, one row per node. */
+.canvas-nodes {
+  display: grid;
+  gap: 1px;
+  padding: 0;
+  margin: 0;
+  background: #dde5e1;
+  border: 1px solid #dde5e1;
+  list-style: none;
+}
+
+.canvas-nodes li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5.2rem minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.62rem 0.7rem;
+  background: #fff;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.canvas-nodes strong {
+  color: #3d7068;
+  font-family: var(--md-utility);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.canvas-node-canon {
+  color: #46605a;
+}
+
+.canvas-node-branch {
+  color: #7a6335;
+  text-align: right;
+}
+
+/* A stage seen between two curtains, at the moment one act is playing. */
+.theatre-frame {
+  position: relative;
+  overflow: hidden;
+  min-height: 12rem;
+  padding: clamp(1.1rem, 2.4vw, 1.9rem);
+  background: #0b2126;
+  border-radius: 3px;
+}
+
+.theatre-curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 13%;
+  background: linear-gradient(90deg, #47231f, #2d1613);
+}
+
+.theatre-curtain-left { left: 0; }
+
+.theatre-curtain-right {
+  right: 0;
+  background: linear-gradient(270deg, #47231f, #2d1613);
+}
+
+.theatre-stage {
+  position: relative;
+  z-index: 1;
+  max-width: 26rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.theatre-act {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #9bc9bd;
+  font-family: var(--md-utility);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+}
+
+.theatre-stage p {
+  margin: 0;
+  color: #e6efe9;
+  font-family: var(--md-display);
+  font-size: 0.96rem;
+  line-height: 2;
+}
+
+.theatre-controls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-top: 1.4rem;
+}
+
+.theatre-controls span {
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  color: rgb(229 241 235 / 45%);
+  border: 1px solid rgb(229 241 235 / 22%);
+  border-radius: 50%;
+  font-family: var(--md-utility);
+  font-size: 0.64rem;
+}
+
+.theatre-controls .is-current {
+  color: #0b2126;
+  border-color: #9bc9bd;
+  background: #9bc9bd;
+}
+
+@media (max-width: 860px) {
+  .showcase-card-fan {
+    grid-template-columns: 1fr;
+    --fan-angle: 0deg;
+    padding-inline: 0;
+    margin-inline: 0;
+  }
+
+  .showcase-card,
+  .showcase-card-fan > :first-child {
+    transform: none;
+  }
+
+  .showcase-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .canvas-nodes li {
+    grid-template-columns: minmax(0, 1fr) 4.4rem minmax(0, 1fr);
+    font-size: 0.72rem;
   }
 }
