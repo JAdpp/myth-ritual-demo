@@ -1,10 +1,10 @@
 {
   "annotation_version": "mengdie-annotation-v1.1",
   "catalog_version": "c1-single-story-wikisource-2026-08-09-demo-pool-v1",
-  "current_run_max_provider_calls": 9000,
-  "current_run_provider_calls": 1115,
-  "current_run_workers": 16,
-  "ledger_record_attempts": 14447,
+  "current_run_max_provider_calls": 1,
+  "current_run_provider_calls": 0,
+  "current_run_workers": 0,
+  "ledger_record_attempts": 18024,
   "ledger_records": 12353,
   "model": "deepseek-v4-flash",
   "model_preannotation": true,
@@ -19,18 +19,15 @@
   "source_database": "data/corpus/c1_single_story/catalog.sqlite3",
   "source_database_sha256": "b432d4f702b8b61f0220b7965d8c6db45a725929e15a19a7e23171b68d92a74b",
   "status_counts": {
-    "quarantined": 4,
-    "queued": 2565,
-    "retryable_failed": 91,
-    "valid": 9693
+    "valid": 12353
   },
   "status_summary": {
-    "failed": 95,
-    "pending": 2656,
-    "quarantined": 4,
-    "succeeded": 9693
+    "failed": 0,
+    "pending": 0,
+    "quarantined": 0,
+    "succeeded": 12353
   },
-  "updated_at": "2026-08-11T07:16:47+00:00",
+  "updated_at": "2026-08-11T10:49:12+00:00",
   "valid_ndjson": "data/corpus/a1_retrieval_annotations/annotations.valid.ndjson",
-  "valid_ndjson_sha256": "43b95b7c50eb4333f285633514695e3a4046260af3f69f6cca33844aeb04ab1e"
+  "valid_ndjson_sha256": "31a0cf6944eeefac9f088f3fbe0c3d2b2e231bb6665b9f43699019d747933e3b"
 }

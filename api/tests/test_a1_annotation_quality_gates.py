@@ -306,6 +306,89 @@ def test_insufficient_record_may_return_an_empty_trigger() -> None:
     assert "narrative_arc.trigger" not in supports
 
 
+def test_final_retry_downgrades_an_unattempted_insufficient_trigger() -> None:
+    entry = source_entry("此条仅记一段难以辨明首尾的异闻，人物行动与结果都未详载，暂无法重建完整叙事。")
+    raw = raw_annotation(entry)
+    raw["narrativeSufficiency"] = "insufficient"
+    raw["narrativeSufficiencyReason"] = "原文仅存零散异闻，未形成可辨识的叙事结构。"
+    raw["narrativeArc"]["trigger"] = "古籍记载的异闻"
+
+    record = normalise_annotation(
+        raw,
+        entry,
+        schema_validator=VALIDATOR,
+        catalog_version="fixture-catalog-v1",
+        model="deepseek-v4-flash",
+        allow_local_repair=True,
+    )["annotation_record"]
+
+    assert record["narrative_arc"]["trigger"] == "未知"
+    assert record["annotation_meta"]["overall_confidence"] == "low"
+    assert all(
+        "narrative_arc.trigger" not in item["supports"]
+        for item in record["evidence"]
+    )
+
+
+def test_unattempted_insufficient_trigger_requires_final_retry_repair() -> None:
+    entry = source_entry("此条仅记一段难以辨明首尾的异闻，人物行动与结果都未详载，暂无法重建完整叙事。")
+    raw = raw_annotation(entry)
+    raw["narrativeSufficiency"] = "insufficient"
+    raw["narrativeSufficiencyReason"] = "原文仅存零散异闻，未形成可辨识的叙事结构。"
+    raw["narrativeArc"]["trigger"] = "古籍记载的异闻"
+
+    with pytest.raises(AnnotationError, match="missing evidence links: narrative_arc.trigger"):
+        normalise_annotation(
+            raw,
+            entry,
+            schema_validator=VALIDATOR,
+            catalog_version="fixture-catalog-v1",
+            model="deepseek-v4-flash",
+        )
+
+
+def test_final_retry_preserves_an_insufficient_trigger_with_exact_support() -> None:
+    entry = source_entry("此条仅记一段难以辨明首尾的异闻，人物行动与结果都未详载，暂无法重建完整叙事。")
+    raw = raw_annotation(entry)
+    raw["narrativeSufficiency"] = "insufficient"
+    raw["narrativeSufficiencyReason"] = "原文仅存零散异闻，未形成完整叙事，但开端仍可定位。"
+    raw["narrativeArc"]["trigger"] = "古籍记下一段异闻"
+    raw["evidence"][0]["supports"].append("narrative_arc.trigger")
+
+    record = normalise_annotation(
+        raw,
+        entry,
+        schema_validator=VALIDATOR,
+        catalog_version="fixture-catalog-v1",
+        model="deepseek-v4-flash",
+        allow_local_repair=True,
+    )["annotation_record"]
+
+    assert record["narrative_arc"]["trigger"] == "古籍记下一段异闻"
+    assert any(
+        "narrative_arc.trigger" in item["supports"]
+        for item in record["evidence"]
+    )
+
+
+def test_final_retry_does_not_downgrade_a_sufficient_unsupported_trigger() -> None:
+    entry = source_entry("此条明确记述主人公出门、遇见异人、返回乡里的连续行动与结果，叙事首尾俱全。")
+    raw = raw_annotation(entry)
+    raw["narrativeSufficiency"] = "sufficient"
+    raw["narrativeSufficiencyReason"] = None
+    raw["narrativeArc"]["trigger"] = "主人公出门遇见异人"
+
+    with pytest.raises(AnnotationError, match="missing evidence links: narrative_arc.trigger"):
+        normalise_annotation(
+            raw,
+            entry,
+            schema_validator=VALIDATOR,
+            catalog_version="fixture-catalog-v1",
+            model="deepseek-v4-flash",
+            allow_local_repair=True,
+        )
+
+
 def test_explicit_no_trigger_statement_normalizes_to_unknown_without_evidence() -> None:
     entry = source_entry("班孟展示飞行、入地与喷墨成字等异能，末后进入山中。")
     raw = raw_annotation(entry)

@@ -1772,6 +1772,7 @@ def normalise_annotation(
     ]
 
     evidence_map: dict[str, set[str]] = {}
+    raw_declared_trigger_support = False
     for item in require_list(raw.get("evidence"), "evidence"):
         if not isinstance(item, dict):
             raise AnnotationError("evidence item must be an object")
@@ -1779,6 +1780,8 @@ def normalise_annotation(
         supports = [support_value] if isinstance(support_value, str) else require_list(
             support_value, "supports"
         )
+        if "narrative_arc.trigger" in supports:
+            raw_declared_trigger_support = True
         excerpt_value = item.get("excerpt")
         try:
             add_evidence(evidence_map, entry, excerpt_value, supports)
@@ -1841,6 +1844,8 @@ def normalise_annotation(
     for item in require_list(raw.get("plotBeats"), "plotBeats")[:6]:
         if not isinstance(item, dict) or item.get("type") not in {"trigger", "action_or_turn", "outcome"}:
             raise AnnotationError("invalid plot beat")
+        if item["type"] == "trigger":
+            raw_declared_trigger_support = True
         try:
             excerpt = clean_excerpt(item.get("evidenceExcerpt"), "plot beat evidence")
         except AnnotationError as exc:
@@ -1943,6 +1948,20 @@ def normalise_annotation(
         current_supports = {
             support for supports in evidence_map.values() for support in supports
         }
+        if (
+            sufficiency != "sufficient"
+            and trigger.strip().lower() not in {"unknown", "未知", "不详", "不明"}
+            and not raw_declared_trigger_support
+            and "narrative_arc.trigger" not in current_supports
+        ):
+            # For an explicitly insufficient/unknown record, a generic trigger
+            # with no attempted source support is an unsupported claim.  On the
+            # final local-repair pass, downgrade it to unknown instead of
+            # inventing an evidence link.  If the model attempted a trigger
+            # citation that failed source resolution, keep failing closed so a
+            # real retry must repair the quote.
+            trigger = "未知"
+            pruned_claims += 1
         if (
             sufficiency != "sufficient"
             and "retrieval_profile.modern_retrieval_summary" not in current_supports
