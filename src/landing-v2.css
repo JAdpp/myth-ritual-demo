@@ -261,8 +261,14 @@
   z-index: 5;
 }
 
+/* Wide enough for the headline's own measure. The h1 asks for 10em and the
+   lead paragraph caps itself at 39rem, but this used to cap both at 43rem —
+   fine until the font hit its 6.2rem ceiling around 1650px, after which
+   「生出一条新支线。」 no longer fitted and dropped 「线。」 onto a line of its
+   own. The two rules were written against different assumptions; this is the
+   one that has to follow the type. */
 .landing-hero-cinematic .landing-hero-copy {
-  max-width: 43rem;
+  max-width: 50rem;
   animation: hero-copy-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -302,7 +308,11 @@
   margin: 0 0 clamp(1.7rem, 3vw, 2.6rem);
   color: var(--md-moon);
   font-family: var(--md-display);
-  font-size: clamp(3rem, 6vw, 6.2rem);
+  /* The ceiling is set by the longest authored line, 「生出一条新支线。」, and
+     the width the hero grid actually hands this column. At 6.2rem the line
+     needed about 770px in a 734px column, so it wrapped and left 「线。」 alone
+     — the headline outgrew its own container above roughly 1650px. */
+  font-size: clamp(3rem, 6vw, 5.8rem);
   font-weight: 500;
   line-height: 1.03;
   letter-spacing: -0.03em;
@@ -314,10 +324,15 @@
   font-style: normal;
 }
 
+/* The slot holds the width of the longest word so the comma after it does not
+   jump on every keystroke. Every rotating word is two characters, which at this
+   tracking measure 1.94em, plus 0.09em of caret and its margin — 2.18em left a
+   fifth of a character of dead space sitting there permanently, on top of the
+   gap the typing itself opens. */
 .hero-word-slot {
   --hero-word-color: var(--md-source-bright);
   display: inline-block;
-  width: 2.18em;
+  width: 2.03em;
   color: var(--hero-word-color);
   text-align: left;
   white-space: nowrap;
@@ -926,6 +941,12 @@
   padding-top: clamp(3rem, 7vw, 6rem);
 }
 
+/* The narrow first column belongs to .section-label, which spans both rows.
+   Neither of the two blocks using this grid actually renders a label, so
+   auto-placement was dropping the <h2> into the label column: a 4.9rem display
+   heading in a 10rem gutter, three characters to a line, six lines deep, with
+   the lead paragraph alone in the wide column and the rest of the row empty.
+   Placement is explicit now, and the gutter collapses when no label is there. */
 .landing-page-v2 .section-heading-block.landing-section-heading {
   display: grid;
   grid-template-columns: minmax(10rem, 0.35fr) minmax(20rem, 1fr);
@@ -934,12 +955,25 @@
   margin-bottom: 3rem;
 }
 
+.landing-page-v2 .section-heading-block.landing-section-heading:not(:has(.section-label)),
+.technology-heading:not(:has(.section-label)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .section-heading-block.landing-section-heading .section-label {
+  grid-column: 1;
   grid-row: 1 / span 2;
 }
 
 .section-heading-block.landing-section-heading h2 {
+  grid-column: -2;
+  grid-row: 1;
   margin: 0;
+}
+
+.section-heading-block.landing-section-heading > p:last-child {
+  grid-column: -2;
+  grid-row: 2;
 }
 
 .section-heading-block.landing-section-heading > p:last-child {
@@ -1112,16 +1146,21 @@
 }
 
 .technology-heading .section-label {
+  grid-column: 1;
   grid-row: 1 / span 2;
   color: var(--md-source-bright);
 }
 
 .technology-heading h2 {
+  grid-column: -2;
+  grid-row: 1;
   margin: 0;
   color: var(--md-moon);
 }
 
 .technology-heading > p:last-child {
+  grid-column: -2;
+  grid-row: 2;
   max-width: 42rem;
   margin: 0;
   color: rgb(232 243 237 / 59%);
