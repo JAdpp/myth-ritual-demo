@@ -1,0 +1,2124 @@
+{
+  "metadata": {
+    "benchmark_id": "mengdie-a1-semantic-review-gold36-v1",
+    "benchmark_version": "1.0.0",
+    "benchmark_kind": "single_developer_development_audit",
+    "formal_human_gold_standard": false,
+    "human_independent_double_annotation": false,
+    "research_ready": false,
+    "entry_count": 36,
+    "clear_error_count": 32,
+    "true_pass_count": 4,
+    "entry_ids_sha256": "695d7111f3c62524c2103bbb00fb0bd2f0d9dfe5c120384c8768affd1f80198c",
+    "audited_review_prompt_version": "mengdie-a1-semantic-review-v3-nonthinking-field-checklist",
+    "audited_review_prompt_sha256": "5dd04b68542e7be341a65764f2b127a839cdafa2d4faa499f02ddd27e7677cee",
+    "scope_note": "???????????? reviewer ???????????????????????????????",
+    "direction_note": "?????????????????direction-aware ????? omission/overreach/contradiction/evidence??????????????????????????"
+  },
+  "checklist_fields": [
+    "modernRetrievalSummary",
+    "narrativeSufficiency",
+    "keyEntities",
+    "plotBeats",
+    "motifTerms",
+    "lifeContext",
+    "narrativeArc.trigger",
+    "narrativeArc.conflictTypes",
+    "narrativeArc.agencyModes",
+    "narrativeArc.endingMode",
+    "autoSafetyScreen.status",
+    "autoSafetyScreen.flags",
+    "autoSafetyScreen.interpretationRisks",
+    "autoSafetyScreen.uncertainties",
+    "evidence.supports"
+  ],
+  "entry_ids": [
+    "c1ws_01f9a580693a808e75e46a8b",
+    "c1ws_03a54f5f990c5f30ea24bfbf",
+    "c1ws_0f86f62f00844f2212cdda20",
+    "c1ws_14b2f8f79143208a8101adbd",
+    "c1ws_14f6ae2ed1f11b70bc6b9a18",
+    "c1ws_1b56183e189e472e88626a78",
+    "c1ws_20f7823ff4b71207123492c0",
+    "c1ws_2562f4acb5e1a5bfdc63d8f8",
+    "c1ws_284ad6549bf7e76b5ac58e20",
+    "c1ws_375ffb1e130931b2fca860c5",
+    "c1ws_3ebf40626b503579d7e73111",
+    "c1ws_41d4583c20074b37692de4f4",
+    "c1ws_542cb712c8083a9a33987a5d",
+    "c1ws_5f39a387129c724759b81e50",
+    "c1ws_69695ed418387d083f6fec45",
+    "c1ws_8fcf84ae25b24c1146e9ef87",
+    "c1ws_9774c2d60f729e8a1017b2f1",
+    "c1ws_9823d4a6ddad79988a9ea29d",
+    "c1ws_a3a14cee1929909f14a1da5d",
+    "c1ws_a5d2f417735451a558642f83",
+    "c1ws_a778be54273358c9446341aa",
+    "c1ws_aac4a3bc333bce9dbcc86184",
+    "c1ws_b18323709622681a30dc0b30",
+    "c1ws_b26d0cc45f1113053403ecac",
+    "c1ws_b4814e15eb447646bef14b02",
+    "c1ws_be7908e03aeaa6bef172f445",
+    "c1ws_c1857828dcb29c683acd2a08",
+    "c1ws_c3414bfcab3cfd9ec8277244",
+    "c1ws_c3e6952328371a4e50c607ec",
+    "c1ws_c5b382504b89bc2e166ced4b",
+    "c1ws_cfd21df2c11abbfd4f31bb14",
+    "c1ws_dbc94183687634f5a79e1da9",
+    "c1ws_de05639e2461136713710eba",
+    "c1ws_e5e5f1d0a511406223132604",
+    "c1ws_e7d6ba9a2ca314ff9e97a309",
+    "c1ws_f738941c7221a6badb9a24db"
+  ],
+  "entries": [
+    {
+      "entry_id": "c1ws_01f9a580693a808e75e46a8b",
+      "title": "洪貞",
+      "source_text_sha256": "7c1d4b57f896f121b1b92464dad87425a0f02d731b282b1a72dbbd9ed5e878cb",
+      "candidate_annotation_sha256": "8c951a407182e4a0237a7b2a8bffedbd72f6026c122c36a6fec9f149982eca4f",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "narrativeArc.agencyModes",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks",
+        "narrativeArc.conflictTypes"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "confront?supernatural_horror ? fatalism ???? institutional_collective ? avoid?",
+      "issue_expectations": [
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "confront ????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "????????supernatural_horror ???"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "fatalism ?????"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? institutional_collective?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? avoid?"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "d13645635a0cf11d858985a449ad8d084663d3c534193208afe63f08a60ee020",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": true,
+        "concise_notes": "?? v3 ?? revise????? issue ?????????????? issue ????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_03a54f5f990c5f30ea24bfbf",
+      "title": "獵戶說虎",
+      "source_text_sha256": "7ea5f10667af555f52a3e8cf3f473c7197c5cf18aee865e2a3cc4543328978b8",
+      "candidate_annotation_sha256": "f56587c8be59c417cec4aaca052e0ef4307d572eb843dfd0f059c254920f8468",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.interpretationRisks",
+        "narrativeArc.trigger",
+        "autoSafetyScreen.flags"
+      ],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.status"
+      ],
+      "concise_notes": "normalize_violence ???????trigger ?????????????????????agency?ending?status ? violence ???",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "normalize_violence ?????????"
+        },
+        {
+          "field": "narrativeArc.trigger",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? trigger ?????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? child_harm ? supernatural_horror?"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "????????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "confront ??????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "ending ??????"
+        },
+        {
+          "field": "autoSafetyScreen.status",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "auto_screened ??????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "violence ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "cb5d050dcd647fd554b5a69a31f2c7992c89f662ea6d0030ecf192532105a53a",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": true,
+        "concise_notes": "?? v3 ?? revise????? issue ?????????????? issue ????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_0f86f62f00844f2212cdda20",
+      "title": "愛奴",
+      "source_text_sha256": "a30359bdddb9c30207abf2f0b8dfd2329895e8ae30159c2188836334f21e2f75",
+      "candidate_annotation_sha256": "37b5c11aaf0c1a27369d3b2a1ce223bf65f189989d7de9871916422d70aa511f",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.interpretationRisks",
+        "keyEntities",
+        "narrativeArc.conflictTypes",
+        "autoSafetyScreen.flags",
+        "modernRetrievalSummary",
+        "narrativeArc.agencyModes"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "???????gender_stereotype ????????????????????? withdraw?????????????????? confront ???",
+      "issue_expectations": [
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? separation ?? transformation?"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "gender_stereotype ????"
+        },
+        {
+          "field": "keyEntities",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "????????"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? relational?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? supernatural_horror?"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "?????????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? withdraw?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "death?violence?physical_injury?captivity ? coercion_or_abuse ?????"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "fatalism ?????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "confront ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "df7c32d18295bfe31f1ee66fbd004590c9ac431e274ad799bc5fed6ea6c235d8",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": true,
+        "concise_notes": "?? v3 ?? revise????? issue ?????????????? issue ????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_14b2f8f79143208a8101adbd",
+      "title": "麒麟喊冤",
+      "source_text_sha256": "baae1262ac964b4c5a09bfb1029a78d089d5298d7ee46a3183f84c060bab187a",
+      "candidate_annotation_sha256": "56f3922b24c07844a5d246c3b4aeffb4a14f1c32f7f1eea2d6d07c7d48f11b05",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.status",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "lifeContext",
+        "narrativeArc.conflictTypes",
+        "modernRetrievalSummary"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "illness?captivity?status?confront ? ending ?????/?????????????????????????violence ?????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "illness ? captivity ???"
+        },
+        {
+          "field": "autoSafetyScreen.status",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "status ????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "confront ????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "transformation ????"
+        },
+        {
+          "field": "lifeContext",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? work_study_pressure ? choice_uncertainty?"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? nature_fate?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? supernatural_horror?"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "????????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "violence ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "97431fb8d3ad430bd6ccf81e31a6ddd2bbf07774050379407ea6d3cb19d1643b",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_14f6ae2ed1f11b70bc6b9a18",
+      "title": "霍女",
+      "source_text_sha256": "43bc2e0112ae681a24eef815419d6a4849c146dabfdcde37e463d3b745ab7d60",
+      "candidate_annotation_sha256": "3588fdbd58491051b0caf29095537120a5bba6453876426e382e1fcc7e8293d8",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.interpretationRisks",
+        "narrativeArc.agencyModes",
+        "autoSafetyScreen.flags"
+      ],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary",
+        "narrativeArc.endingMode"
+      ],
+      "concise_notes": "fatalism ? transform_method ????????????????????????illness ??????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "fatalism ?????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "transform_method ?????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? death?sexual_content ? coercion_or_abuse?"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? gender_stereotype?"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "illness ?????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "?????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "36eee81ae1b9d79b9957d3beca34b5b2cc51c269478f12a7b82e8efb3b8d5218",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_1b56183e189e472e88626a78",
+      "title": "謝自然",
+      "source_text_sha256": "f853e4eb2563e98ae8f87ab654ae30c664618158750734f6bf73172f66da7bc3",
+      "candidate_annotation_sha256": "cc422b1151a518311c1dbe1f8a6bb3ffa71e563abaddcbb26ed55d28385934cf",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.interpretationRisks",
+        "narrativeArc.agencyModes",
+        "autoSafetyScreen.uncertainties",
+        "autoSafetyScreen.flags",
+        "lifeContext",
+        "narrativeArc.conflictTypes"
+      ],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary",
+        "narrativeArc.endingMode"
+      ],
+      "concise_notes": "fatalism?endure ? uncertainty ???????????/???????/?????????????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "fatalism ????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "endure ????"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? illness ? coercion_or_abuse?"
+        },
+        {
+          "field": "lifeContext",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? identity_transition ? persistence_change?"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? institutional_collective ? relational?"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "????????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "??????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "db3a6c060880f9c4f3ddd153ce4ce81211f5d82ab609bb4ba90da95ae14976a7",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_20f7823ff4b71207123492c0",
+      "title": "成珪",
+      "source_text_sha256": "c563034a417833f2b30ec5da8de6df9b6f0a84a2c2aecc46710f9a0e5b453609",
+      "candidate_annotation_sha256": "0c86b22e7b127a5d4a3d0f4b17a838d374a4ec9da11e2a4908e3129be557d8af",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.status",
+        "narrativeArc.endingMode",
+        "narrativeArc.agencyModes"
+      ],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary"
+      ],
+      "concise_notes": "illness?status=unknown ? restoration ??? seek_help???????? confront ???",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "illness ???"
+        },
+        {
+          "field": "autoSafetyScreen.status",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? auto_screened?"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "restoration ????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? seek_help?"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "???????????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "confront ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "f8531d2a728f2b9dbc05e96232e37aa244206994fccd5c743546d23a869fe657",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_2562f4acb5e1a5bfdc63d8f8",
+      "title": "孝子",
+      "source_text_sha256": "01748fcd81fa11a6c60075c0f3b874a6384a0b38c055096f1f1a63c947c21283",
+      "candidate_annotation_sha256": "2defc1adb98bc337aff69274a45d4c4823280676b5e5cfaa7a586f02c95d0b96",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.flags",
+        "narrativeArc.conflictTypes",
+        "lifeContext",
+        "narrativeArc.agencyModes",
+        "autoSafetyScreen.uncertainties"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "???????????????/???????????????????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? self_harm_or_suicide?"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? nature_fate?"
+        },
+        {
+          "field": "lifeContext",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? long_term_responsibility ? persistence_change?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "???????? agency?"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "??????????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "43ae854c6f960adb99df562af4bdabb23fd85d556900436a29dee8baa5403abe",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_284ad6549bf7e76b5ac58e20",
+      "title": "泥鬼",
+      "source_text_sha256": "6cdde506b12cecd637e174f808d02a0b906e2d73b1eec7b22dd0de25c90cca3b",
+      "candidate_annotation_sha256": "b00af251e98dcc6a785e5eb4cc726abbd1f93178e4c15b4dc9b3e6b61ee8e91f",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.flags",
+        "narrativeArc.agencyModes",
+        "modernRetrievalSummary"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "physical_injury ? confront ???? illness ? supernatural_horror??????????????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "physical_injury ??????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? illness ? supernatural_horror?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "confront ??????"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "??????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "c208240c86a12e235af5f2dfe13e84e80077babc70ee879617810bca8b5119c4",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_375ffb1e130931b2fca860c5",
+      "title": "羊乳鹿",
+      "source_text_sha256": "3307109b73026d1869dda2149dc8d429e51542f219a221857ab683879c71c4bd",
+      "candidate_annotation_sha256": "0674d75a87c414e49005328973c429b1c39d2625a32365c8cb380a8070503d35",
+      "gold_has_clear_error": false,
+      "must_detect_fields": [],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary",
+        "narrativeSufficiency",
+        "keyEntities",
+        "plotBeats",
+        "motifTerms",
+        "lifeContext",
+        "narrativeArc.trigger",
+        "narrativeArc.conflictTypes",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks",
+        "autoSafetyScreen.uncertainties",
+        "evidence.supports"
+      ],
+      "concise_notes": "?????????????",
+      "issue_expectations": [],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "0d6d311d4dfafc11e7ca3babc67fef16838b552f99a39d901cd258f34b90bba3",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_3ebf40626b503579d7e73111",
+      "title": "小棺",
+      "source_text_sha256": "e564ad5c61b28314c45c524f2ea2669c2b1923436bb0c1d8eb73bfa8d4da5764",
+      "candidate_annotation_sha256": "3a86041f0c6f633121541434a00913b39016992cd1c6f349685e951682697942",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "modernRetrievalSummary",
+        "narrativeArc.agencyModes",
+        "autoSafetyScreen.flags"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "??????????confront ????????????????????????",
+      "issue_expectations": [
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "??????????????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "confront ???????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? supernatural_horror?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "death ? violence ?????"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "fatalism ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "221e9a7a4c6dae9e6c7e235605bf9d514752a617ccf79997e99ff8abac3a9239",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_41d4583c20074b37692de4f4",
+      "title": "玉女峰",
+      "source_text_sha256": "034828ed02d4565875255903299be676c9d262354ac2f98a68d3ccd8cc5a0ee7",
+      "candidate_annotation_sha256": "3a34325a69e27c2aaadf6444702afbdb4d44a339381da5042208212e7c61933d",
+      "gold_has_clear_error": false,
+      "must_detect_fields": [],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary",
+        "narrativeSufficiency",
+        "keyEntities",
+        "plotBeats",
+        "motifTerms",
+        "lifeContext",
+        "narrativeArc.trigger",
+        "narrativeArc.conflictTypes",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks",
+        "autoSafetyScreen.uncertainties",
+        "evidence.supports"
+      ],
+      "concise_notes": "?????????????",
+      "issue_expectations": [],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "fc8dee06b488f3a08190bd7a3d77b2297f8e2c59e8a4dad96656bc9c7d9cb383",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_542cb712c8083a9a33987a5d",
+      "title": "照海鏡",
+      "source_text_sha256": "bb6d6ab6f9ab21139d59a0ff6169e553821262628339e24d3a49b7fb820eb7d5",
+      "candidate_annotation_sha256": "e86bb1b54f5e3616665d7ae1c46f4e3f172ad09c266c57fd4edfad5b5aa3b452",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "narrativeSufficiency",
+        "plotBeats"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "?? sufficient????????????",
+      "issue_expectations": [
+        {
+          "field": "narrativeSufficiency",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? sufficient?"
+        },
+        {
+          "field": "plotBeats",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "?????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "631336225dc9dcc08047818666b83f339c5cfe304ac5f8f010d7a2369948e3d9",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_5f39a387129c724759b81e50",
+      "title": "梓潼令",
+      "source_text_sha256": "cd2b6e33be1fd685e60e50d3a6fcfbcf16f022464434d74bfdb722212aa9ccba",
+      "candidate_annotation_sha256": "02f2a15014bfc478e68de409951db21d56564ebe4530f2ff001e68e9adcd91fe",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "lifeContext"
+      ],
+      "must_not_flag_fields": [
+        "narrativeArc.endingMode"
+      ],
+      "concise_notes": "?????????????????",
+      "issue_expectations": [
+        {
+          "field": "lifeContext",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "??? identity_transition?"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "transformation ????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "03a5fcc1032aece33bcf868b22893731832274cfbe6f348a8a649836ecaa687a",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_69695ed418387d083f6fec45",
+      "title": "伊用昌",
+      "source_text_sha256": "41f59025c4d17a3c7e85ea2892de7dbe6408788be3e975b6aeb62f0a04321864",
+      "candidate_annotation_sha256": "c3e31533dc4d40d02d1604f37f7d78554f5155d17c2379276ecb257e8bbbc7c8",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "lifeContext",
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.uncertainties",
+        "evidence.supports",
+        "autoSafetyScreen.flags",
+        "modernRetrievalSummary"
+      ],
+      "must_not_flag_fields": [
+        "narrativeArc.endingMode",
+        "narrativeArc.conflictTypes"
+      ],
+      "concise_notes": "relationship_boundary?status?uncertainty ? supports ??? animal_harm/illness????????????????????",
+      "issue_expectations": [
+        {
+          "field": "lifeContext",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "relationship_boundary ????"
+        },
+        {
+          "field": "autoSafetyScreen.status",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "status ????"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "uncertainty ????????"
+        },
+        {
+          "field": "evidence.supports",
+          "direction": "evidence",
+          "expectation": "must_detect",
+          "concise_fact": "?? supports ?????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? animal_harm ? illness?"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?????????????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "?????????"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "institutional_collective ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "40cfe357f5a9a3d6a781865241e2f264945ef0ab140400515ac8b2e077d10387",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_8fcf84ae25b24c1146e9ef87",
+      "title": "靈應傳",
+      "source_text_sha256": "126996dc7b092bc3dd2ea07bf35ad77c70e95da76124ffc1b7ab9c45316c8f86",
+      "candidate_annotation_sha256": "ef2411d11de26bd0096c594b837942e64d73978e2e7ac90e6c31ca9f39fb30db",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "lifeContext",
+        "autoSafetyScreen.interpretationRisks",
+        "evidence.supports",
+        "autoSafetyScreen.uncertainties",
+        "autoSafetyScreen.flags",
+        "narrativeArc.agencyModes"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "choice_uncertainty?fatalism ???ending ??? uncertainty ?????????????????? collective_action?",
+      "issue_expectations": [
+        {
+          "field": "lifeContext",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "choice_uncertainty ????"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "fatalism ?????"
+        },
+        {
+          "field": "evidence.supports",
+          "direction": "evidence",
+          "expectation": "must_detect",
+          "concise_fact": "fatalism ? ending ?????????"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? physical_injury?self_harm_or_suicide?supernatural_horror ? grief_or_bereavement?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? collective_action?"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "7901f06fb0e13b4efd27881e65d9810e1c51a42b27b371f2a0dcb9ea4ff83154",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_9774c2d60f729e8a1017b2f1",
+      "title": "牛成章",
+      "source_text_sha256": "d48a9b65e322f4efa389dff6107bc2de3d1b69eeb4ab82da83ec9161f1089f24",
+      "candidate_annotation_sha256": "9ac44033fa4223b1daf398342740fdf2cc5a8e4b6d9e8ed6347253d5e49b5a59",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks"
+      ],
+      "must_not_flag_fields": [
+        "narrativeArc.endingMode"
+      ],
+      "concise_notes": "?????/??????????confront?transformation ? revenge_as_justice ???",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? child_harm ? coercion_or_abuse?"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? gender_stereotype?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "confront ?????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "transformation ?????"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "revenge_as_justice ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "abae6036c065d9d51c7cb69558a6bb398e2d6da28006376e4a4eee079e32066b",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": true,
+        "concise_notes": "?? v3 ?? revise????? issue ?????????????? issue ????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_9823d4a6ddad79988a9ea29d",
+      "title": "李強名妻",
+      "source_text_sha256": "e2be1ee512b30fa7ff8c29780e04ad66591a06d6aa0b6914f65b0810be00b463",
+      "candidate_annotation_sha256": "b628e08b7311be3753cb386e821bd55a667f24ff584ca6a28aeabadc3a4e399b",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "narrativeArc.agencyModes",
+        "narrativeArc.conflictTypes"
+      ],
+      "must_not_flag_fields": [
+        "autoSafetyScreen.interpretationRisks"
+      ],
+      "concise_notes": "endure ???? relational?fatalism ???",
+      "issue_expectations": [
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "endure ????"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? relational?"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "fatalism ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "17afc2c20a40eb54e890704bc5ad8a8a23d2ab2054549411caef573cfa0fd88d",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_a3a14cee1929909f14a1da5d",
+      "title": "高駢",
+      "source_text_sha256": "2a38dcc4c137cf7922abb0da8654bccb5dda21d6053e98070f510f08d569b3a4",
+      "candidate_annotation_sha256": "ba6fa13d46d4e9eb613f48636e5ac627203b4e87d640ed1ae775970cf54013b0",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "lifeContext",
+        "narrativeArc.endingMode"
+      ],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary"
+      ],
+      "concise_notes": "work_study_pressure ???? transformation ???violence ??????",
+      "issue_expectations": [
+        {
+          "field": "lifeContext",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "work_study_pressure ????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? transformation?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "violence ?????"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "5416bcefd6e27a3821e47265a556541e2ced14dad5c6d277fcd952ea8a4a0d8b",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": true,
+        "concise_notes": "?? v3 ?? revise????? issue ?????????????? issue ????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_a5d2f417735451a558642f83",
+      "title": "素秋",
+      "source_text_sha256": "7d9f9ebad5b423ac695ac23811d50924ef68bdc30d97dccb5d18a94e1b0c1718",
+      "candidate_annotation_sha256": "6e71913d796f49f8ad8a1b4fe64a32b88f306340601884d183c3b9b4153d437c",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "narrativeArc.endingMode",
+        "narrativeArc.trigger",
+        "evidence.supports",
+        "autoSafetyScreen.flags",
+        "lifeContext",
+        "narrativeArc.agencyModes",
+        "autoSafetyScreen.interpretationRisks"
+      ],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary",
+        "narrativeSufficiency"
+      ],
+      "concise_notes": "???????????????????????????????????/????????????????????????",
+      "issue_expectations": [
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? separation?"
+        },
+        {
+          "field": "narrativeArc.trigger",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? trigger ?????"
+        },
+        {
+          "field": "evidence.supports",
+          "direction": "evidence",
+          "expectation": "must_detect",
+          "concise_fact": "trigger/support ??????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? violence?physical_injury ? grief_or_bereavement?"
+        },
+        {
+          "field": "lifeContext",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? injustice_conflict?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? seek_help ? confront?"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? gender_stereotype?"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "????????"
+        },
+        {
+          "field": "narrativeSufficiency",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "sufficient ??????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "captivity ? sexual_content ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "dac48a2d4780675593cad00e31283027a10027b9b4b687b81b4307c886ded414",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_a778be54273358c9446341aa",
+      "title": "蚰蜓",
+      "source_text_sha256": "adcd39d31973ec4497a264a59e31bb2dbf03bffa928cb80f730ac2e976f9bd52",
+      "candidate_annotation_sha256": "136c03d7009cefe8d78b2581de1c76df2d6bbf164b520ea176068731b52cf3ab",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.uncertainties"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "animal_harm ????????????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "animal_harm ????????"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "?? animal_harm ??????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "5e446f30de99431dfd68c440af6f882af38e9ebaf0e122708f0e3193deed508c",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_aac4a3bc333bce9dbcc86184",
+      "title": "王賈",
+      "source_text_sha256": "83e1379119af0cd23a0d6006a14d0390e9287cbd0fe9c59a372c229db7866e5a",
+      "candidate_annotation_sha256": "b4cfabcaa5fc89f8f61ff8052d5f34e0bacb3f400139e1dfb074f231766d864a",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.uncertainties"
+      ],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary",
+        "narrativeSufficiency",
+        "narrativeArc.endingMode",
+        "narrativeArc.conflictTypes",
+        "narrativeArc.agencyModes"
+      ],
+      "concise_notes": "status=unknown???????????? uncertainty ???????????????????????????????????? agency ???????????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.status",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? auto_screened?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "physical_injury ????????????"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? animal_harm?illness?grief_or_bereavement?coercion_or_abuse ? supernatural_horror?"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "????????"
+        },
+        {
+          "field": "narrativeSufficiency",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "?????????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "????????"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "??????????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "agency ??????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "a681ccaf9a24c9c7a1b1fdee1effd1f721e0d2a3ce93dac5f3df29b3a7233788",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_b18323709622681a30dc0b30",
+      "title": "鼠戲",
+      "source_text_sha256": "86381aef2fcf3edada87bfcae71a44fc5ce9af1945db7ba9371f4acf5f7506ae",
+      "candidate_annotation_sha256": "c3c861ea6eb7bd047d9da440f49407b8ff5233b04e7f77f5ca591641a9a59678",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.uncertainties"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "status=unknown???????????????????????????????????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.status",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? auto_screened?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "????? none_identified ???"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "???????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "7fabb49541ab93f96efa02e60f38937425ebb2e959d930dfada767c539bfe322",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_b26d0cc45f1113053403ecac",
+      "title": "大人",
+      "source_text_sha256": "3f231553b871db8814a568c8d356dcc45d326be78f83041b67fabe91537d7750",
+      "candidate_annotation_sha256": "daf4a7e416329c221e1d9daa368b15fe1124054742db7f36379785ae80503ea1",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.uncertainties",
+        "autoSafetyScreen.interpretationRisks",
+        "autoSafetyScreen.flags",
+        "narrativeArc.agencyModes",
+        "evidence.supports"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "?????????normalize_violence ????????????????endure ??????????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "????????????????"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "normalize_violence ????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? supernatural_horror ? captivity?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?????????? endure?"
+        },
+        {
+          "field": "evidence.supports",
+          "direction": "evidence",
+          "expectation": "must_detect",
+          "concise_fact": "endure ???????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "4b2a4ca99378f28dde0bd732a850c68c87141ce58cea9bee8d81cd11ef3cbffd",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_b4814e15eb447646bef14b02",
+      "title": "大力將軍",
+      "source_text_sha256": "e690dfd72713e4945a6f4e69aa3b852dda1bb7bb208945c8cf1d3a680fe6a0b0",
+      "candidate_annotation_sha256": "7eed90659939b5ef1dcdba4182fed4aa756037fedb66f6b7e4dd676d3d7edac6",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "lifeContext",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "plotBeats",
+        "autoSafetyScreen.flags"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "??????????????????????????",
+      "issue_expectations": [
+        {
+          "field": "lifeContext",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? identity_transition?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "agency ??? unknown?"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? transformation?"
+        },
+        {
+          "field": "plotBeats",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "??????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? captivity?"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "28ce68a605c91f9839d7495e904cd0c3121f383a2d5544399091afbcd60800bc",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_be7908e03aeaa6bef172f445",
+      "title": "司馬承禎",
+      "source_text_sha256": "94269b0b57b374f8696549954306db6d33123df1a4cf5d29d9bea1237f9576a5",
+      "candidate_annotation_sha256": "c0d44185f94bfdff7f729f788098297432dfa4f265083f2c218cefc8760d1b27",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.uncertainties",
+        "narrativeArc.agencyModes"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "status ? uncertainty ???? confront?",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.status",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? auto_screened?"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "??????????????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "?? confront?"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "67ba2c7d70cbf6e6b527c3de7910132fb9928d5251e0427a1d7270283ee18eeb",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_c1857828dcb29c683acd2a08",
+      "title": "李泌",
+      "source_text_sha256": "ca4bb09928d5e1b417b26ccf9097cfc0756d67b8dd76b4af2b1b026e48ebc231",
+      "candidate_annotation_sha256": "058b0cc3ded9678d86fcd307bdd6aa1b33519c12549a7175510b1a6308ffbe8c",
+      "gold_has_clear_error": false,
+      "must_detect_fields": [],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary",
+        "narrativeSufficiency",
+        "keyEntities",
+        "plotBeats",
+        "motifTerms",
+        "lifeContext",
+        "narrativeArc.trigger",
+        "narrativeArc.conflictTypes",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks",
+        "autoSafetyScreen.uncertainties",
+        "evidence.supports"
+      ],
+      "concise_notes": "?????????????",
+      "issue_expectations": [],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "32c047b04dbfb19fb421a26e670d17d27268b83fe343c2f0d80c06682964e958",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_c3414bfcab3cfd9ec8277244",
+      "title": "孔基",
+      "source_text_sha256": "73ef2396cfb4a419e5f9d4ece5b1385b1fa4ac9702ed2f1a79cc93a1c0bc405f",
+      "candidate_annotation_sha256": "f7fa7eab665c9f39cace21aa08d2f39374a7e405caaadf6aa25483332b2ff7b9",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.flags",
+        "narrativeArc.agencyModes"
+      ],
+      "must_not_flag_fields": [
+        "narrativeArc.endingMode"
+      ],
+      "concise_notes": "??????????? confront?death?physical_injury?revenge_as_justice ??????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? supernatural_horror?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? confront?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "death ? physical_injury ?????"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "revenge_as_justice ?????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "?????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "78969a1efb8501602469c6538bd7d121b97a0b92eeeaaad6b5b8869edba93a9c",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_c3e6952328371a4e50c607ec",
+      "title": "郭翰",
+      "source_text_sha256": "5d3f0728cafbd91f3c9bbba8e5eb541b60662b7d56b9324ae645bd8860639b0c",
+      "candidate_annotation_sha256": "904c53d236d91acd97e4843867d73c517632186e1b21b276d4a3640d052e7f10",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "narrativeArc.agencyModes",
+        "lifeContext",
+        "autoSafetyScreen.flags",
+        "narrativeArc.conflictTypes",
+        "autoSafetyScreen.interpretationRisks"
+      ],
+      "must_not_flag_fields": [
+        "narrativeArc.endingMode"
+      ],
+      "concise_notes": "endure ? choice_uncertainty ????????????????fatalism ? separation ???",
+      "issue_expectations": [
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "endure ????"
+        },
+        {
+          "field": "lifeContext",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "choice_uncertainty ????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? death?"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? relational?"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? gender_stereotype?"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "fatalism ?????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "separation ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "39a55f04b8709dbfc7a1b45505bc3290698d79f49cb7387e88d9393153219fe9",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_c5b382504b89bc2e166ced4b",
+      "title": "張誠",
+      "source_text_sha256": "1112be8eca988a1dd84f3d6e10cf24e19a7edc0082107ab4f3a72e398c59a1c3",
+      "candidate_annotation_sha256": "f07bdc002883fcee631136d0088108178b0ed79e62bdffc4c1d7ccaefd8da644",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.uncertainties",
+        "narrativeArc.agencyModes",
+        "evidence.supports",
+        "modernRetrievalSummary",
+        "autoSafetyScreen.flags",
+        "lifeContext"
+      ],
+      "must_not_flag_fields": [],
+      "concise_notes": "status?uncertainty ? confront ????????????????????????/?????????????????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.status",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? auto_screened?"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?????????????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "confront ?????"
+        },
+        {
+          "field": "evidence.supports",
+          "direction": "evidence",
+          "expectation": "must_detect",
+          "concise_fact": "confront ?????????"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "????????????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? child_harm ? animal_harm?"
+        },
+        {
+          "field": "lifeContext",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "????????????/?????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? seek_help?"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "084e44a45e72645880e9f428807480102676eb4a6c4079200e2f3074287617cc",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_cfd21df2c11abbfd4f31bb14",
+      "title": "張文仲",
+      "source_text_sha256": "e1034d25973cf2e051af27e260ea053d34ac20c1d148bd9a05e2cb8fda298c41",
+      "candidate_annotation_sha256": "8dc1e06394f7d5adf309825e22802a26e0bf44acae5f52c6398748de9b399f69",
+      "gold_has_clear_error": false,
+      "must_detect_fields": [],
+      "must_not_flag_fields": [
+        "modernRetrievalSummary",
+        "narrativeSufficiency",
+        "keyEntities",
+        "plotBeats",
+        "motifTerms",
+        "lifeContext",
+        "narrativeArc.trigger",
+        "narrativeArc.conflictTypes",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks",
+        "autoSafetyScreen.uncertainties",
+        "evidence.supports"
+      ],
+      "concise_notes": "?????????????",
+      "issue_expectations": [],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "1eef3bfab7582e2a92b28b0eb705fbcdfa61e2092492e92b43271aeeaf6a4ac5",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_dbc94183687634f5a79e1da9",
+      "title": "畫皮",
+      "source_text_sha256": "1a704b2cde1cf7589258d36008f8ba7c408d1e3715ac901f3b4c64445e033235",
+      "candidate_annotation_sha256": "887da12a373e3364ceb6caef3a177b06ca3fb835dcdaf3269ec71e19ec9914af",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "keyEntities",
+        "plotBeats",
+        "narrativeArc.conflictTypes",
+        "narrativeArc.agencyModes",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks",
+        "autoSafetyScreen.uncertainties"
+      ],
+      "must_not_flag_fields": [
+        "narrativeSufficiency",
+        "modernRetrievalSummary"
+      ],
+      "concise_notes": "?????????/??????????????????fatalism ? uncertainty ???????????????????",
+      "issue_expectations": [
+        {
+          "field": "keyEntities",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "?????????"
+        },
+        {
+          "field": "plotBeats",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "???????????"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? relational ? knowledge_uncertainty?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? seek_help?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? grief_or_bereavement ????????"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "fatalism ?????"
+        },
+        {
+          "field": "autoSafetyScreen.uncertainties",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "??????????????"
+        },
+        {
+          "field": "narrativeSufficiency",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "sufficient ?????"
+        },
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "?????????????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "995a8abb3235ae179b316d467a499e8f9bef8ba44672d9234af70365bf6996d1",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_de05639e2461136713710eba",
+      "title": "張閻王",
+      "source_text_sha256": "0300cbea72e6179b7c4e0ca4f49038b4f567a9a48022526aed8ba545f55257d5",
+      "candidate_annotation_sha256": "712de31a8fb92676fbb49f7f3f3d7cb494ad4d614d03892a395cd93bf42f1941",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "modernRetrievalSummary",
+        "lifeContext",
+        "narrativeArc.conflictTypes",
+        "autoSafetyScreen.flags"
+      ],
+      "must_not_flag_fields": [
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.interpretationRisks"
+      ],
+      "concise_notes": "?????????????????????????????????agency???? fatalism ???",
+      "issue_expectations": [
+        {
+          "field": "modernRetrievalSummary",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "???????????"
+        },
+        {
+          "field": "lifeContext",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? persistence_change?"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? self?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? supernatural_horror?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "?? agency ??????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "??????????"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "fatalism ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "3262a76a2fc95ee53c64f6784dfba31c73236d1f98dfec724a4b55b0e36e04f0",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_e5e5f1d0a511406223132604",
+      "title": "吳保安",
+      "source_text_sha256": "58527d38ca0cb1acbd37bed2654ce04448e3e97fa78cc3ea8ac1c8a93ab3ff33",
+      "candidate_annotation_sha256": "1992139fafe5309f25de8c49230fe5c50fcb23825e4e868a5902095901973ba0",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.flags",
+        "narrativeArc.agencyModes"
+      ],
+      "must_not_flag_fields": [
+        "lifeContext"
+      ],
+      "concise_notes": "???????????? seek_help/collective_action/endure/confront ??????????????????",
+      "issue_expectations": [
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "restoration ???????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? death ? coercion_or_abuse?"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? seek_help?collective_action?endure ? confront ??????"
+        },
+        {
+          "field": "lifeContext",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "long_term_responsibility ? family_duty ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "1cd384150ccc203b7177bada1c9e9bc4902fdc251703d64d940f514cfc18e037",
+        "strict_has_true_issue": false,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ? pass???????????????"
+      }
+    },
+    {
+      "entry_id": "c1ws_e7d6ba9a2ca314ff9e97a309",
+      "title": "淳于棼",
+      "source_text_sha256": "bd15e8ece058ae8572d979cd4c23036e31e142d5e32d81215bd28fce4c1fdc3a",
+      "candidate_annotation_sha256": "54a2d2c5e063648da9f44d08c153368bf0b7cc53338da4ea92e6d28a1bed5814",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.interpretationRisks",
+        "narrativeArc.agencyModes",
+        "autoSafetyScreen.flags",
+        "lifeContext",
+        "narrativeArc.conflictTypes"
+      ],
+      "must_not_flag_fields": [
+        "narrativeArc.endingMode"
+      ],
+      "concise_notes": "status?fatalism ? endure ???????????????????sexual_content?captivity ??????",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.status",
+          "direction": "contradiction",
+          "expectation": "must_detect",
+          "concise_fact": "?? auto_screened?"
+        },
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "fatalism ????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "endure ????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? grief_or_bereavement ??? violence?"
+        },
+        {
+          "field": "lifeContext",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "????????"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "??????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "sexual_content ? captivity ?????"
+        },
+        {
+          "field": "narrativeArc.endingMode",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "??????????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "a53f753fd1de48a4a09ebe387e2cddb30d28994db976df498a0b2934467ea8fd",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    },
+    {
+      "entry_id": "c1ws_f738941c7221a6badb9a24db",
+      "title": "小翠",
+      "source_text_sha256": "87883332519c32cd0cb4bdd270a5dd1a3739693356a531f5ba92dfdb2a77a46e",
+      "candidate_annotation_sha256": "9386e2214f649ba8b2596f1c878dd69d0a8637cf10e096a4cc02f16252159996",
+      "gold_has_clear_error": true,
+      "must_detect_fields": [
+        "autoSafetyScreen.interpretationRisks",
+        "narrativeArc.agencyModes",
+        "autoSafetyScreen.flags"
+      ],
+      "must_not_flag_fields": [
+        "narrativeArc.conflictTypes"
+      ],
+      "concise_notes": "fatalism?gender_stereotype ? endure ?????? confront/transform_method ?????????????relational ? sexual_content ???",
+      "issue_expectations": [
+        {
+          "field": "autoSafetyScreen.interpretationRisks",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "fatalism ? gender_stereotype ?????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "overreach",
+          "expectation": "must_detect",
+          "concise_fact": "endure ?????"
+        },
+        {
+          "field": "narrativeArc.agencyModes",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "? confront/transform_method?"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "omission",
+          "expectation": "must_detect",
+          "concise_fact": "????????????"
+        },
+        {
+          "field": "autoSafetyScreen.flags",
+          "direction": "overreach",
+          "expectation": "must_not_detect",
+          "concise_fact": "?? violence?physical_injury ? sexual_content ?????"
+        },
+        {
+          "field": "narrativeArc.conflictTypes",
+          "direction": "contradiction",
+          "expectation": "must_not_detect",
+          "concise_fact": "relational ?????"
+        }
+      ],
+      "current_v3_issue_audit": {
+        "review_json_sha256": "3ba06fed800e7d704b09e7f5e4b7ca250faefb850c8d7e14fc21c13956b248c8",
+        "strict_has_true_issue": true,
+        "strict_is_pure_fp_revise": false,
+        "concise_notes": "?? v3 ??? issue ?????????????????? issue ?????"
+      }
+    }
+  ]
+}

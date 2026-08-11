@@ -3,6 +3,7 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 
 import type { HealthStatus, SessionConsent } from "../types";
 import { toSimplifiedDisplay } from "../lib/display-text";
+import { QidieAvatar } from "./QidieAvatar";
 import { StatusMessage } from "./StoryLoom";
 
 const FAMILY_TITLES: Record<string, string> = {
@@ -76,6 +77,62 @@ const DEMO_CASES = [
   },
 ] as const;
 
+const HERO_STORY_WORDS = [
+  { text: "神话", tone: "myth" },
+  { text: "传奇", tone: "legend" },
+  { text: "志怪", tone: "strange" },
+  { text: "小说", tone: "fiction" },
+] as const;
+
+function useHeroStoryWord() {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [visibleCharacters, setVisibleCharacters] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const currentWord = HERO_STORY_WORDS[wordIndex];
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return undefined;
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncPreference = () => setReducedMotion(preference.matches);
+    syncPreference();
+    preference.addEventListener?.("change", syncPreference);
+    return () => preference.removeEventListener?.("change", syncPreference);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      if (wordIndex !== 0) setWordIndex(0);
+      if (visibleCharacters !== HERO_STORY_WORDS[0].text.length) {
+        setVisibleCharacters(HERO_STORY_WORDS[0].text.length);
+      }
+      return undefined;
+    }
+
+    let delay = deleting ? 140 : 210;
+    let nextStep = () => setVisibleCharacters((count) => count + (deleting ? -1 : 1));
+
+    if (!deleting && visibleCharacters === currentWord.text.length) {
+      delay = 1_300;
+      nextStep = () => setDeleting(true);
+    } else if (deleting && visibleCharacters === 0) {
+      delay = 280;
+      nextStep = () => {
+        setWordIndex((index) => (index + 1) % HERO_STORY_WORDS.length);
+        setDeleting(false);
+      };
+    }
+
+    const timer = window.setTimeout(nextStep, delay);
+    return () => window.clearTimeout(timer);
+  }, [currentWord.text.length, deleting, reducedMotion, visibleCharacters, wordIndex]);
+
+  return {
+    text: currentWord.text.slice(0, visibleCharacters),
+    tone: currentWord.tone,
+  };
+}
+
 export function ConsentScreen({
   busy,
   error,
@@ -90,6 +147,7 @@ export function ConsentScreen({
   const [modalOpen, setModalOpen] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [activeCaseId, setActiveCaseId] = useState<(typeof DEMO_CASES)[number]["id"]>(DEMO_CASES[0].id);
+  const heroStoryWord = useHeroStoryWord();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const overview = health?.corpusOverview;
   const recommendationCount = overview?.totalRecommendationCandidates
@@ -180,7 +238,12 @@ export function ConsentScreen({
         <div className="landing-hero-copy">
           <p className="hero-edition"><span>中国古典故事</span><i aria-hidden="true" /><span>个人经历</span><i aria-hidden="true" /><span>AI 共谱</span></p>
           <p className="hero-wordmark">梦蝶记</p>
-          <h1 id="welcome-title">古典故事，<br /><em>在你的此刻<br />生出一条新支线。</em></h1>
+          <h1 id="welcome-title" aria-label="古典神话、传奇、志怪与小说，在你的此刻生出一条新支线。">
+            <span aria-hidden="true">
+              古典<span className={`hero-word-slot is-${heroStoryWord.tone}`}><span className="hero-rotating-word">{heroStoryWord.text}</span><i className="hero-type-caret" /></span>，
+            </span>
+            <br /><em>在你的此刻<br />生出一条新支线。</em>
+          </h1>
           <p className="welcome-lead">
             <strong>栖蝶——梦蝶记中的故事向导 AI。</strong>把一件最近发生、你愿意讲的小事告诉它；它会先整理并请你确认，再从可追溯的古籍候选中寻找一则可供比较的故事。原典留在原典，你的选择写成新的现代支线。
           </p>
@@ -199,7 +262,7 @@ export function ConsentScreen({
         <aside className="hero-signal-card" aria-label="栖蝶工作示意">
           <header>
             <div className="hero-guide-identity">
-              <img src="/assets/qidie-assistant-avatar-transparent.png" alt="" />
+              <QidieAvatar size={38} className="hero-guide-avatar" />
               <p><strong>栖蝶</strong><span>故事向导 AI</span></p>
             </div>
             <span className="hero-signal-status">整理过程示意</span>

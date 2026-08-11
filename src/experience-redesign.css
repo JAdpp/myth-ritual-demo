@@ -850,10 +850,10 @@ summary:focus-visible {
   place-items: center;
   color: var(--mineral-ink);
   border: 1px solid rgb(95 127 120 / 30%);
-  border-radius: 12px;
-  background: rgb(255 255 255 / 52%);
+  border-radius: 50%;
+  background: #06262b;
   box-shadow: 0 6px 16px rgb(36 78 76 / 10%);
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .conversation-toolbar h2 { margin: 0; font-size: 1.25rem; }
@@ -895,10 +895,12 @@ summary:focus-visible {
 }
 
 .chat-bubble span img {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   margin-right: 0.18rem;
-  object-fit: contain;
+  border: 1px solid rgb(95 127 120 / 24%);
+  border-radius: 50%;
+  object-fit: cover;
   vertical-align: middle;
 }
 

@@ -2616,3 +2616,16 @@ input:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+.qidie-avatar-fallback {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper-raised);
+  font-family: var(--sans);
+  font-size: 0.48rem;
+  line-height: 1;
+}

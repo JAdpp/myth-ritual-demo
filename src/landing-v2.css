@@ -27,9 +27,7 @@
   max-width: none;
   margin: 0;
   color: #162825;
-  background:
-    linear-gradient(90deg, transparent 49.93%, rgb(36 74 69 / 6%) 50%, transparent 50.07%),
-    var(--md-paper);
+  background: var(--md-paper);
 }
 
 .stage-welcome .site-header-landing {
@@ -295,6 +293,36 @@
   font-style: normal;
 }
 
+.hero-word-slot {
+  --hero-word-color: var(--md-source-bright);
+  display: inline-block;
+  width: 2.18em;
+  color: var(--hero-word-color);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.hero-word-slot.is-myth { --hero-word-color: #9bc9bd; }
+.hero-word-slot.is-legend { --hero-word-color: #d4ae68; }
+.hero-word-slot.is-strange { --hero-word-color: #de7465; }
+.hero-word-slot.is-fiction { --hero-word-color: #b7ceda; }
+
+.hero-rotating-word {
+  color: var(--hero-word-color);
+  text-shadow: 0 0.12em 0.55em color-mix(in srgb, var(--hero-word-color) 22%, transparent);
+  transition: color 180ms ease;
+}
+
+.hero-type-caret {
+  display: inline-block;
+  width: max(2px, 0.035em);
+  height: 0.82em;
+  margin-left: 0.045em;
+  background: var(--hero-word-color);
+  vertical-align: -0.04em;
+  animation: hero-type-caret 760ms steps(1, end) infinite;
+}
+
 .landing-page-v2 .landing-hero-copy h1:focus {
   outline: none;
 }
@@ -433,11 +461,10 @@
 .hero-guide-identity img {
   width: 38px;
   height: 38px;
-  padding: 0.2rem;
   border: 1px solid rgb(224 239 232 / 24%);
   border-radius: 50%;
-  background: rgb(235 244 239 / 92%);
-  object-fit: contain;
+  background: #06262b;
+  object-fit: cover;
 }
 
 .hero-guide-identity p,
@@ -1465,6 +1492,11 @@
   50% { translate: 0 -0.55rem; }
 }
 
+@keyframes hero-type-caret {
+  0%, 46% { opacity: 1; }
+  47%, 100% { opacity: 0; }
+}
+
 @keyframes route-drop {
   0%, 100% { opacity: 0.25; transform: translateY(-2px); }
   50% { opacity: 1; transform: translateY(2px); }
@@ -1828,6 +1860,10 @@
   .hero-signal-card {
     transform: none !important;
     translate: none !important;
+  }
+
+  .hero-type-caret {
+    display: none;
   }
 }
 

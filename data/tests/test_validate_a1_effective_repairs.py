@@ -86,7 +86,7 @@ class FourLedgerFixture:
         self.annotation_db = self.root / "a1.sqlite3"
         self.review_db = self.root / "review.sqlite3"
         self.effective_db = self.root / "effective.sqlite3"
-        self.envelope_schema_path = self.root / "effective-envelope-v3.schema.json"
+        self.envelope_schema_path = self.root / "effective-envelope-v2.schema.json"
         self.source = repair.SourceEntry(
             entry_id="c1ws_aaaaaaaaaaaaaaaaaaaaaaaa",
             source_work_id="fixture-work",
@@ -152,6 +152,11 @@ class FourLedgerFixture:
             review_prompt_sha256=sha256_text(reviewer.SYSTEM_PROMPT),
             review_schema_sha256=validator.sha256_file(REVIEW_SCHEMA_PATH),
             catalog_version="fixture-catalog-v1",
+            canonical_root_sha256=sha256_text(canonical_json(self.base)),
+            parent_effective_sha256=None,
+            repair_iteration=1,
+            immediate_base_origin="canonical_a1",
+            prior_lineage=(),
         )
         self._create_source_db()
         self._create_annotation_db()
@@ -162,21 +167,22 @@ class FourLedgerFixture:
         self._tmp.cleanup()
 
     def _v3_compatible_envelope_schema(self) -> dict:
-        """Adapt the envelope fixture while the production contract is frozen separately."""
-        schema = json.loads(ENVELOPE_SCHEMA_PATH.read_text(encoding="utf-8"))
-        review_def = self.review_schema["$defs"]["review"]
-        checklist = review_def.get("properties", {}).get("checklist")
-        if checklist is not None:
-            schema["$defs"]["checklist"] = copy.deepcopy(
-                self.review_schema["$defs"]["checklist"]
-            )
-            schema["properties"]["review"]["properties"]["checklist"] = {
-                "$ref": "#/$defs/checklist"
+        """Return an isolated copy of the current production envelope contract."""
+        return json.loads(ENVELOPE_SCHEMA_PATH.read_text(encoding="utf-8"))
+
+    def _repaired_raw_annotation(self) -> dict:
+        raw = raw_annotation(self.source)
+        raw["modernRetrievalSummary"] = (
+            "甲梦见故人来访，醒来后才知道此事未曾发生，邻人随后记录此事。"
+        )
+        raw["plotBeats"].append(
+            {
+                "type": "outcome",
+                "text": "邻人记录梦事",
+                "evidenceExcerpt": "邻人随后记录此事",
             }
-            required = schema["properties"]["review"]["required"]
-            if "checklist" not in required:
-                required.append("checklist")
-        return schema
+        )
+        return raw
 
     def _current_review(self) -> dict:
         checklist_schema = self.review_schema["$defs"]["review"]["properties"].get(
@@ -327,8 +333,10 @@ class FourLedgerFixture:
                 effective_schema_sha256=effective_sha,
                 envelope_schema_sha256=envelope_sha,
             )
+            repair.mark_leased(conn, [self.candidate])
+            repaired_raw = self._repaired_raw_annotation()
             result = repair.parse_and_normalize_repairs(
-                {"annotations": [raw_annotation(self.source)]},
+                {"annotations": [repaired_raw]},
                 [self.candidate],
                 provider_meta={
                     "response_id": "resp-fixture",
@@ -347,7 +355,7 @@ class FourLedgerFixture:
                 conn,
                 result,
                 [self.candidate],
-                {"annotations": [raw_annotation(self.source)]},
+                {"annotations": [repaired_raw]},
                 {
                     "response_id": "resp-fixture",
                     "model": "deepseek-v4-flash",
@@ -355,6 +363,48 @@ class FourLedgerFixture:
                     "usage": {"total_tokens": 10},
                 },
             )
+        finally:
+            conn.close()
+
+    def set_current_review_to_latest_effective(self, *, verdict: str) -> None:
+        conn = sqlite3.connect(self.effective_db)
+        try:
+            effective_hash = conn.execute(
+                "SELECT effective_annotation_sha256 FROM effective_repair_jobs WHERE entry_id=?",
+                (self.source.entry_id,),
+            ).fetchone()[0]
+        finally:
+            conn.close()
+        if verdict == "pass":
+            review = {
+                "entryId": self.source.entry_id,
+                "verdict": "pass",
+                "checklist": {
+                    field: True for field in reviewer.CHECKLIST_FIELDS
+                },
+                "issues": [],
+            }
+        else:
+            review = copy.deepcopy(self.review)
+            review["verdict"] = verdict
+        conn = sqlite3.connect(self.review_db)
+        try:
+            conn.execute(
+                """
+                UPDATE semantic_review_jobs
+                SET candidate_annotation_sha256=?,status=?,verdict=?,review_json=?,issues_json=?
+                WHERE entry_id=?
+                """,
+                (
+                    effective_hash,
+                    verdict,
+                    verdict,
+                    canonical_json(review),
+                    canonical_json(review["issues"]),
+                    self.source.entry_id,
+                ),
+            )
+            conn.commit()
         finally:
             conn.close()
 
@@ -373,6 +423,139 @@ class FourLedgerFixture:
 
 
 class EffectiveRepairValidatorTests(unittest.TestCase):
+    def test_second_repair_history_and_final_pass_rereview_close(self) -> None:
+        fixture = FourLedgerFixture()
+        try:
+            conn = sqlite3.connect(fixture.effective_db)
+            try:
+                first_effective_hash = conn.execute(
+                    "SELECT effective_annotation_sha256 FROM effective_repair_jobs WHERE entry_id=?",
+                    (fixture.source.entry_id,),
+                ).fetchone()[0]
+            finally:
+                conn.close()
+            conn = sqlite3.connect(fixture.review_db)
+            try:
+                conn.execute(
+                    "UPDATE semantic_review_jobs SET candidate_annotation_sha256=? WHERE entry_id=?",
+                    (first_effective_hash, fixture.source.entry_id),
+                )
+                conn.commit()
+            finally:
+                conn.close()
+
+            second_candidates, _ = repair.load_repair_candidates(
+                fixture.source_db,
+                fixture.annotation_db,
+                fixture.review_db,
+                fixture.effective_db,
+                verdicts={"revise", "uncertain"},
+                canonical_schema_validator=fixture.canonical_validator,
+                effective_schema_validator=fixture.effective_validator,
+                envelope_schema_validator=fixture.envelope_validator,
+                max_repair_iterations=3,
+            )
+            self.assertEqual(1, len(second_candidates))
+            second = second_candidates[0]
+            self.assertEqual(2, second.repair_iteration)
+            second_raw = fixture._repaired_raw_annotation()
+            second_raw["keyEntities"].append(
+                {
+                    "name": "邻人",
+                    "role": "记录者",
+                    "evidenceExcerpt": "邻人随后记录此事",
+                }
+            )
+            second_raw["motifTerms"] = ["梦境", "记梦"]
+            canonical_sha = validator.sha256_file(CANONICAL_SCHEMA_PATH)
+            effective_sha = sha256_text(canonical_json(fixture.effective_schema))
+            envelope_sha = validator.sha256_file(fixture.envelope_schema_path)
+            response = {"annotations": [second_raw]}
+            provider_meta = {
+                "response_id": "resp-fixture-2",
+                "model": "deepseek-v4-flash",
+                "requested_model": "deepseek-v4-flash",
+                "usage": {
+                    "prompt_tokens": 12,
+                    "completion_tokens": 8,
+                    "total_tokens": 20,
+                },
+            }
+            result = repair.parse_and_normalize_repairs(
+                response,
+                [second],
+                provider_meta=provider_meta,
+                canonical_schema_validator=fixture.canonical_validator,
+                effective_schema_validator=fixture.effective_validator,
+                envelope_schema_validator=fixture.envelope_validator,
+                canonical_schema_sha256=canonical_sha,
+                effective_schema_sha256=effective_sha,
+                envelope_schema_sha256=envelope_sha,
+            )
+            conn = repair.init_effective_db(fixture.effective_db)
+            try:
+                repair.enqueue_candidates(
+                    conn,
+                    [second],
+                    model="deepseek-v4-flash",
+                    canonical_schema_sha256=canonical_sha,
+                    effective_schema_sha256=effective_sha,
+                    envelope_schema_sha256=envelope_sha,
+                )
+                repair.mark_leased(conn, [second])
+                repair.mark_valid(conn, result, [second], response, provider_meta)
+            finally:
+                conn.close()
+
+            fixture.set_current_review_to_latest_effective(verdict="pass")
+            report = fixture.validate(
+                require_count=1,
+                require_all_reviewed_revisions=True,
+                require_effective_rereview_pass=True,
+            )
+            self.assertTrue(report.passed, report.errors)
+            self.assertEqual(1, report.effective_rereview_pass_count)
+        finally:
+            fixture.close()
+
+    def test_current_pass_rereview_closes_the_semantic_loop(self) -> None:
+        fixture = FourLedgerFixture()
+        try:
+            fixture.set_current_review_to_latest_effective(verdict="pass")
+            report = fixture.validate(
+                require_count=1,
+                require_all_reviewed_revisions=True,
+                require_effective_rereview_pass=True,
+            )
+            self.assertTrue(report.passed, report.errors)
+            self.assertEqual(1, report.effective_rereview_pass_count)
+            self.assertEqual(0, report.required_revision_count)
+        finally:
+            fixture.close()
+
+    def test_closure_gate_rejects_a_repair_that_has_not_been_rereviewed(self) -> None:
+        fixture = FourLedgerFixture()
+        try:
+            report = fixture.validate(require_effective_rereview_pass=True)
+            self.assertFalse(report.passed)
+            self.assertTrue(
+                any("lacks a current pass re-review" in item for item in report.errors)
+            )
+        finally:
+            fixture.close()
+
+    def test_revise_rereview_of_latest_effective_is_unresolved(self) -> None:
+        fixture = FourLedgerFixture()
+        try:
+            fixture.set_current_review_to_latest_effective(verdict="revise")
+            report = fixture.validate(require_all_reviewed_revisions=True)
+            self.assertFalse(report.passed)
+            self.assertTrue(
+                any("has not been repaired" in item for item in report.errors)
+            )
+        finally:
+            fixture.close()
+
     def test_valid_effective_repair_passes_all_hash_and_semantic_gates(self) -> None:
         fixture = FourLedgerFixture()
         try:
@@ -416,7 +599,7 @@ class EffectiveRepairValidatorTests(unittest.TestCase):
             report = fixture.validate()
             self.assertFalse(report.passed)
             self.assertTrue(
-                any("base candidate hash closure failed" in item for item in report.errors)
+                any("canonical root hash closure failed" in item for item in report.errors)
             )
         finally:
             fixture.close()

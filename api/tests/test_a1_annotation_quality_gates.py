@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sqlite3
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from pathlib import Path
+from threading import Barrier, Lock, current_thread
 
 from jsonschema import Draft202012Validator, FormatChecker
 from opencc import OpenCC
+import pytest
 
 import data.annotate_c1_retrieval as annotator
 
@@ -44,6 +48,133 @@ def source_entry(text: str) -> SourceEntry:
         text=text,
         extracted_text_sha256=hashlib.sha256(text.encode("utf-8")).hexdigest(),
     )
+
+
+@pytest.mark.parametrize("worker_count", [8, 16])
+def test_simplified_conversion_is_thread_local_and_complete(worker_count) -> None:
+    barrier = Barrier(worker_count)
+
+    def convert_in_worker(_: int) -> tuple[int, tuple[str, ...]]:
+        converter_id = id(annotator.simplified_converter())
+        barrier.wait(timeout=5)
+        converted = tuple(
+            annotator.to_simplified_generated_text(text)
+            for text in (
+                "齋戒誦經",
+                "後來發現",
+                "萬卷書",
+                "董吉是於潛人，世代奉佛",
+            )
+            * 20
+        )
+        return converter_id, converted
+
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        results = list(executor.map(convert_in_worker, range(worker_count)))
+
+    assert len({converter_id for converter_id, _ in results}) == worker_count
+    expected = (
+        "斋戒诵经",
+        "后来发现",
+        "万卷书",
+        "董吉是于潜人，世代奉佛",
+    ) * 20
+    assert all(converted == expected for _, converted in results)
+
+
+def test_valid_row_simplification_repair_preserves_provenance(tmp_path) -> None:
+    entry = source_entry("張生遭強姦後被囚禁於獄，終於逃出。此事由鄰人記下，以警後來者。")
+    annotation = {
+        "annotation_record": normalise(entry),
+    }
+    annotation["annotation_record"]["retrieval_profile"][
+        "modern_retrieval_summary"
+    ] = "人物遭遇侵害與拘禁，之後設法離開，原文僅提供簡短經過。"
+    provenance_before = json.dumps(
+        {
+            "unit": annotation["annotation_record"]["unit"],
+            "source_profile": annotation["annotation_record"]["source_profile"],
+            "evidence": annotation["annotation_record"]["evidence"],
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+    )
+    conn = annotator.init_derived_db(tmp_path / "annotations.sqlite3")
+    annotator.enqueue(conn, [entry])
+    annotator.mark_valid(
+        conn,
+        entry.entry_id,
+        annotation,
+        {"response_id": "fixture", "usage": {}, "model": "deepseek-v4-flash"},
+    )
+
+    repaired_records, repaired_fields = annotator.repair_valid_generated_texts(
+        conn,
+        schema_validator=VALIDATOR,
+    )
+    stored = json.loads(
+        conn.execute(
+            "SELECT annotation_json FROM annotation_jobs WHERE entry_id=?",
+            (entry.entry_id,),
+        ).fetchone()[0]
+    )
+    conn.close()
+
+    assert (repaired_records, repaired_fields) == (1, 1)
+    assert stored["annotation_record"]["retrieval_profile"][
+        "modern_retrieval_summary"
+    ] == "人物遭遇侵害与拘禁，之后设法离开，原文仅提供简短经过。"
+    provenance_after = json.dumps(
+        {
+            "unit": stored["annotation_record"]["unit"],
+            "source_profile": stored["annotation_record"]["source_profile"],
+            "evidence": stored["annotation_record"]["evidence"],
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+    )
+    assert provenance_after == provenance_before
+
+
+def test_valid_unknown_trigger_support_repair_removes_only_nonclaim_link(tmp_path) -> None:
+    entry = source_entry("甲受命远行，途中折返，将所见告知乡人。其事首尾简略，未载其他。")
+    annotation = {"annotation_record": normalise(entry)}
+    record = annotation["annotation_record"]
+    record["narrative_arc"]["trigger"] = "unknown"
+    record["evidence"][0]["supports"].append("narrative_arc.trigger")
+    evidence_before = [
+        (item["excerpt"], item["start_char"], item["end_char"])
+        for item in record["evidence"]
+    ]
+    conn = annotator.init_derived_db(tmp_path / "annotations.sqlite3")
+    annotator.enqueue(conn, [entry])
+    annotator.mark_valid(
+        conn,
+        entry.entry_id,
+        annotation,
+        {"response_id": "fixture", "usage": {}, "model": "deepseek-v4-flash"},
+    )
+
+    repaired_records, removed_links = annotator.repair_valid_unknown_trigger_supports(
+        conn,
+        schema_validator=VALIDATOR,
+    )
+    stored = json.loads(
+        conn.execute(
+            "SELECT annotation_json FROM annotation_jobs WHERE entry_id=?",
+            (entry.entry_id,),
+        ).fetchone()[0]
+    )["annotation_record"]
+    conn.close()
+
+    assert (repaired_records, removed_links) == (1, 1)
+    assert all(
+        "narrative_arc.trigger" not in item["supports"] for item in stored["evidence"]
+    )
+    assert [
+        (item["excerpt"], item["start_char"], item["end_char"])
+        for item in stored["evidence"]
+    ] == evidence_before
 
 
 def raw_annotation(entry: SourceEntry) -> dict[str, object]:
@@ -161,6 +292,31 @@ def test_insufficient_record_may_return_an_empty_trigger() -> None:
     )
     raw["narrativeSufficiency"] = "insufficient"
     raw["narrativeArc"]["trigger"] = ""
+
+    record = normalise_annotation(
+        raw,
+        entry,
+        schema_validator=VALIDATOR,
+        catalog_version="fixture-catalog-v1",
+        model="deepseek-v4-flash",
+    )["annotation_record"]
+
+    assert record["narrative_arc"]["trigger"] == "未知"
+    supports = {support for item in record["evidence"] for support in item["supports"]}
+    assert "narrative_arc.trigger" not in supports
+
+
+def test_explicit_no_trigger_statement_normalizes_to_unknown_without_evidence() -> None:
+    entry = source_entry("班孟展示飞行、入地与喷墨成字等异能，末后进入山中。")
+    raw = raw_annotation(entry)
+    raw["narrativeSufficiency"] = "sufficient"
+    raw["narrativeSufficiencyReason"] = "原文有明确人物和连续动作。"
+    raw["narrativeArc"] = {
+        "trigger": "无明确冲突触发，仅为异能展示。",
+        "conflictTypes": [],
+        "agencyModes": ["unknown"],
+        "endingMode": "unknown",
+    }
 
     record = normalise_annotation(
         raw,
@@ -388,6 +544,232 @@ def test_provider_call_budget_is_a_hard_process_ceiling() -> None:
     assert budget.exhausted is True
 
 
+@pytest.mark.parametrize("worker_count", [8, 16])
+def test_parallel_worker_offline_run_closes_wal_and_call_ledgers(
+    tmp_path, monkeypatch, capsys, worker_count
+) -> None:
+    """Exercise the production worker orchestration without any HTTP calls."""
+
+    record_count = 512
+    batch_size = 6
+    batch_count = (record_count + batch_size - 1) // batch_size
+    source_db = tmp_path / "source.sqlite3"
+    source_conn = sqlite3.connect(source_db)
+    source_conn.execute(
+        """
+        CREATE TABLE entries(
+            entry_id TEXT PRIMARY KEY,
+            source_work_id TEXT,
+            source_work_title TEXT,
+            source_work_period TEXT,
+            volume TEXT,
+            source_locator TEXT,
+            entry_ordinal INTEGER,
+            title TEXT,
+            source_url TEXT,
+            char_count INTEGER,
+            text TEXT,
+            extracted_text_sha256 TEXT,
+            dedupe_status TEXT,
+            runtime_eligible INTEGER
+        )
+        """
+    )
+    source_rows = []
+    for index in range(record_count):
+        text = f"甲奉命远行，事毕归来。第{index:03d}则。"
+        source_rows.append(
+            (
+                f"c1ws_{index:024x}",
+                "fixture-work",
+                "测试古籍",
+                "清",
+                "卷一",
+                f"卷一·第{index + 1}则",
+                index + 1,
+                f"测试条目{index + 1}",
+                "https://example.test/source",
+                len(text),
+                text,
+                hashlib.sha256(text.encode("utf-8")).hexdigest(),
+                "canonical",
+                1,
+            )
+        )
+    source_conn.executemany(
+        "INSERT INTO entries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", source_rows
+    )
+    source_conn.commit()
+    source_conn.close()
+
+    summary_path = tmp_path / "summary.json"
+    summary_path.write_text(
+        json.dumps({"catalog_version": "fixture-catalog-v1"}), encoding="utf-8"
+    )
+    output_dir = tmp_path / "annotations"
+    conversion_lock = Lock()
+    converter_ids_by_thread: dict[str, int] = {}
+
+    class FakeParallelWorkerClient:
+        model = "deepseek-v4-flash"
+        available = True
+        first_call_barrier = Barrier(worker_count)
+        accounting_lock = Lock()
+        worker_instances: list["FakeParallelWorkerClient"] = []
+        worker_rpms: list[float] = []
+        calls: list[tuple[int, str, tuple[str, ...]]] = []
+
+        def __init__(self, *, rpm, timeout, max_tokens, call_budget=None) -> None:
+            del timeout, max_tokens
+            self.call_budget = call_budget
+            self.call_count = 0
+            self.is_first_call = True
+            if call_budget is not None:
+                with type(self).accounting_lock:
+                    type(self).worker_instances.append(self)
+                    type(self).worker_rpms.append(float(rpm))
+
+        def complete(self, entries, retries, *, correction=None):
+            del retries, correction
+            if self.is_first_call:
+                self.is_first_call = False
+                type(self).first_call_barrier.wait(timeout=10)
+            assert self.call_budget is not None
+            self.call_budget.reserve()
+            self.call_count += 1
+            with type(self).accounting_lock:
+                call_id = len(type(self).calls) + 1
+                type(self).calls.append(
+                    (
+                        call_id,
+                        current_thread().name,
+                        tuple(entry.entry_id for entry in entries),
+                    )
+                )
+            return (
+                {
+                    "annotations": [
+                        {"entryId": entry.entry_id} for entry in entries
+                    ]
+                },
+                {
+                    "response_id": f"offline-fake-{call_id}",
+                    "usage": {
+                        "prompt_tokens": 1,
+                        "completion_tokens": 1,
+                        "total_tokens": 2,
+                    },
+                    "model": self.model,
+                },
+            )
+
+        def close(self) -> None:
+            return None
+
+    def fake_normalise(raw, entry, **kwargs):
+        del raw, kwargs
+        thread_name = current_thread().name
+        converted = annotator.to_simplified_generated_text("齋戒誦經")
+        assert converted == "斋戒诵经"
+        with conversion_lock:
+            converter_ids_by_thread[thread_name] = id(annotator.simplified_converter())
+        return {"annotation_record": {"unit": {"unit_id": entry.entry_id}}}
+
+    monkeypatch.setattr(annotator, "DeepSeekBatchClient", FakeParallelWorkerClient)
+    monkeypatch.setattr(annotator, "normalise_annotation", fake_normalise)
+
+    total_rpm = worker_count * 60_000
+    result = annotator.main(
+        [
+            "--source-db",
+            str(source_db),
+            "--summary",
+            str(summary_path),
+            "--schema",
+            str(ROOT / "contracts" / "a1-retrieval-annotation.schema.json"),
+            "--output-dir",
+            str(output_dir),
+            "--sample-mode",
+            "stable",
+            "--batch-size",
+            str(batch_size),
+            "--batch-char-limit",
+            "4000",
+            "--workers",
+            str(worker_count),
+            "--rpm",
+            str(total_rpm),
+            "--retries",
+            "0",
+            "--max-provider-calls",
+            str(batch_count),
+            "--live",
+            "--confirm-full-run",
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert result == 0, captured.err
+    assert "locked" not in captured.err.lower()
+    assert len(FakeParallelWorkerClient.worker_instances) == worker_count
+    assert all(client.call_count > 0 for client in FakeParallelWorkerClient.worker_instances)
+    assert FakeParallelWorkerClient.worker_rpms == [total_rpm / worker_count] * worker_count
+    assert sum(FakeParallelWorkerClient.worker_rpms) == total_rpm
+    assert annotator.per_worker_rpm(40, worker_count) == 40 / worker_count
+    assert annotator.per_worker_rpm(40, 0) == 0
+    assert len(converter_ids_by_thread) == worker_count
+    assert len(set(converter_ids_by_thread.values())) == worker_count
+    assert len(FakeParallelWorkerClient.calls) == batch_count
+    assert len({call_id for call_id, _, _ in FakeParallelWorkerClient.calls}) == batch_count
+
+    ledger_path = output_dir / "annotations.sqlite3"
+    ledger = sqlite3.connect(ledger_path)
+    status_counts = dict(
+        ledger.execute(
+            "SELECT status,COUNT(*) FROM annotation_jobs GROUP BY status"
+        ).fetchall()
+    )
+    row = ledger.execute(
+        """
+        SELECT COUNT(*), COUNT(DISTINCT entry_id),
+               COUNT(DISTINCT provider_response_id), SUM(attempts)
+        FROM annotation_jobs
+        """
+    ).fetchone()
+    integrity = ledger.execute("PRAGMA integrity_check").fetchone()[0]
+    journal_mode = ledger.execute("PRAGMA journal_mode").fetchone()[0]
+    last_event = ledger.execute(
+        "SELECT event_type,detail_json FROM run_events ORDER BY id DESC LIMIT 1"
+    ).fetchone()
+    ledger.close()
+
+    assert status_counts == {"valid": record_count}
+    assert row == (record_count, record_count, batch_count, record_count)
+    assert integrity == "ok"
+    assert journal_mode == "wal"
+    assert last_event[0] == "run_finished"
+    terminal_detail = json.loads(last_event[1])
+    assert terminal_detail["providerCalls"] == batch_count
+    assert terminal_detail["completedBatches"] == batch_count
+    assert terminal_detail["plannedBatches"] == batch_count
+
+    manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["status_counts"] == {"valid": record_count}
+    assert manifest["current_run_provider_calls"] == batch_count
+    assert manifest["current_run_max_provider_calls"] == batch_count
+    assert manifest["current_run_workers"] == worker_count
+    assert manifest["ledger_record_attempts"] == record_count
+
+    exported = [
+        json.loads(line)
+        for line in (output_dir / "annotations.valid.ndjson")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    assert len(exported) == record_count
+    assert len({item["annotation_record"]["unit"]["unit_id"] for item in exported}) == record_count
+
+
 def test_failed_batch_attempt_counts_against_each_rows_semantic_budget(
     tmp_path, monkeypatch
 ) -> None:
@@ -451,6 +833,74 @@ def test_full_wikisource_edition_note_may_be_bridged_without_fuzzy_rewrite() -> 
 
     assert resolved == source
     assert resolved in source
+
+
+def test_angle_bracket_edition_notes_without_outer_parentheses_may_be_bridged() -> None:
+    fixtures = (
+        (
+            "火至〈「火至」二字原本無，據明抄本補。〉皆焚。長舒家正住下，分意燒燬",
+            "火至皆焚。長舒家正住下，分意燒燬",
+        ),
+        (
+            "沒官爲輕，改〈輕改字原作改輕，據宋孔平仲續世説一改〉從死",
+            "沒官爲輕，改從死",
+        ),
+    )
+
+    for source, candidate in fixtures:
+        resolved = annotator.resolve_source_excerpt(source, candidate)
+        assert resolved == source
+        assert resolved in source
+
+
+def test_fullwidth_square_bracket_edition_note_may_be_bridged() -> None:
+    source = "北虜南［陸本無「南」字］犯南京。合圍方急，有穹龜見城中。"
+    candidate = "北虜南犯南京。合圍方急，有穹龜見城中。"
+
+    resolved = annotator.resolve_source_excerpt(source, candidate)
+
+    assert resolved == source
+    assert "［陸本無「南」字］" in resolved
+
+
+@pytest.mark.parametrize(
+    ("entry_id", "source", "raw_trigger"),
+    (
+        (
+            "c1ws_7dd8ac23e3e3205ef2ad43f2",
+            "有頭陀道人之(明鈔本作「入」。)學，至養□(葉本作「正」。)齋前，再三瞻視不去",
+            "有頭陀道人之學，至養正齋前，再三瞻視不去",
+        ),
+        (
+            "c1ws_003657bb5d3edec1f097ae26",
+            "變怪驟興，正晝鬼見形於中庭，窺户嘯梁，移床徙釡，(葉本作「几」。)"
+            "歌笑馳走，百端千態，舉室怖駭，寢食不安。",
+            "變怪驟興，正晝鬼見形於中庭，窺户嘯梁，移床徙釜，"
+            "歌笑馳走，百端千態，舉室怖駭，寢食不安。",
+        ),
+    ),
+    ids=("建康頭陀", "王直夫"),
+)
+def test_real_quarantine_trigger_maps_back_to_short_exact_source(
+    entry_id: str,
+    source: str,
+    raw_trigger: str,
+) -> None:
+    """Replay the two quarantined trigger quotes without reading the live ledger."""
+    resolved = annotator.resolve_source_excerpt(source, raw_trigger)
+
+    assert resolved is not None, entry_id
+    assert resolved == source
+    assert resolved in source
+    assert len(resolved) <= 80
+
+
+def test_unlisted_rare_variant_is_not_silently_normalized() -> None:
+    source = "甲神乙記下此事。"
+    candidate = "甲神乙記下此事。"
+
+    assert "神" not in annotator.EVIDENCE_SOURCE_VARIANTS
+    assert annotator.resolve_source_excerpt(source, candidate) is None
 
 
 def test_adverbial_zu_wei_does_not_force_a_death_warning() -> None:
@@ -541,6 +991,51 @@ def test_unique_simplified_unquoted_evidence_maps_back_to_original_source() -> N
     assert "奪" in resolved and "「" in resolved
 
 
+def test_known_wikisource_missing_glyph_placeholder_maps_to_untouched_source() -> None:
+    marker = annotator.WIKISOURCE_MISSING_GLYPH_PLACEHOLDER
+    source = marker * 3 + "董掌奏記府主褊急。" + marker * 2 + "詣梁園勸梁太祖入中原。"
+    candidate = "董掌奏記府主褊急。詣梁園勸梁太祖入中原。"
+
+    resolved = annotator.resolve_source_excerpt(source, candidate)
+
+    assert resolved == source[3:]
+    assert marker in resolved
+    assert resolved in source
+
+
+def test_other_private_use_characters_are_not_silently_dropped() -> None:
+    source = "甲" + "\ue434" + "乙記下此事。"
+
+    assert annotator.resolve_source_excerpt(source, "甲乙記下此事。") is None
+
+
+def test_one_unmarked_sentence_omission_may_bridge_unique_exact_anchors() -> None:
+    source = (
+        "忽有一人排闥叫呼，相貌粗黑，言辭鄙陋，腰插騾鞭，"
+        "如隨商客騾馱者。罵曰"
+    )
+    candidate = "忽有一人排闥叫呼，相貌粗黑，言辭鄙陋，腰插騾鞭，罵曰"
+
+    resolved = annotator.resolve_source_excerpt(source, candidate)
+
+    assert resolved == source
+    assert resolved in source
+
+
+def test_unmarked_omission_rejects_no_boundary_or_ambiguous_anchors() -> None:
+    no_boundary = "甲帶長劍徒步越山乙在門外等候"
+    ambiguous = "甲出門。中途歇息。乙歸來。甲出門。另走小徑。乙歸來。"
+
+    assert annotator.resolve_source_excerpt(
+        no_boundary,
+        "甲帶長劍乙在門外等候",
+    ) is None
+    assert annotator.resolve_source_excerpt(
+        ambiguous,
+        "甲出門。乙歸來。",
+    ) is None
+
+
 def test_simplified_evidence_mapping_rejects_duplicate_or_overlong_spans() -> None:
     duplicate = "狐聞之，曰：「勿失。」狐聞之，曰：「勿失。」"
     overlong = "狐聞之，曰：「" + "此事甚詳。" * 20 + "勿失。」"
@@ -570,6 +1065,25 @@ def test_multi_ellipsis_evidence_resolves_as_separate_exact_source_quotes() -> N
         "內一人取所佩篋櫝，出紙小幅",
         "勸周曰：「服此即安。」",
     ]
+
+
+def test_segment_order_uses_recovered_span_when_quote_closes_after_omission() -> None:
+    source = (
+        "馬生云：「三人俱貴達。大李少府位極人臣。"
+        "從今後十年，家有大難，兄弟並流，唯公與一弟獲全。"
+        "又十年之後，方卻得官。」"
+    )
+    candidate = (
+        "馬生云：「三人俱貴達。……"
+        "從今後十年，家有大難，兄弟並流，唯公與一弟獲全。」"
+    )
+
+    resolved = annotator.resolve_segmented_source_excerpts(source, candidate)
+
+    assert resolved == [
+        "馬生云：「三人俱貴達。",
+        "從今後十年，家有大難，兄弟並流，唯公與一弟獲全。",
+    ]
     assert all(item in source and len(item) <= 80 for item in resolved)
 
 
@@ -578,6 +1092,61 @@ def test_multi_ellipsis_evidence_fails_closed_if_any_segment_is_ambiguous() -> N
     candidate = "甲梦见鬼物。……丙终于醒来。"
 
     assert annotator.resolve_segmented_source_excerpts(source, candidate) is None
+
+
+def test_ascii_multi_ellipsis_resolves_as_separate_exact_source_quotes() -> None:
+    source = (
+        "忽有一女，自西乘馬而來，青衣老少數人隨後。"
+        "女有殊色，所乘駿馬極佳。崔生未及細視，則已過矣。"
+    )
+    candidate = "忽有一女，自西乘馬而來...女有殊色...崔生未及細視，則已過矣。"
+
+    resolved = annotator.resolve_segmented_source_excerpts(source, candidate)
+
+    assert resolved == [
+        "忽有一女，自西乘馬而來",
+        "女有殊色",
+        "崔生未及細視，則已過矣。",
+    ]
+    assert all(item in source and len(item) <= 80 for item in resolved)
+
+
+def test_unmarked_omitted_source_sentence_resolves_only_exact_ordered_chunks() -> None:
+    source = (
+        "盧肇、丁稜之及第也，先是放榜訖，則須謁宰相。"
+        "其導啟詞語，一出榜元者，俯仰疾徐，尤宜精審。"
+        "時肇首冠，有故不至。次乃稜也。"
+    )
+    candidate = (
+        "盧肇、丁稜之及第也，先是放榜訖，則須謁宰相。"
+        "時肇首冠，有故不至。次乃稜也。"
+    )
+
+    assert annotator.resolve_segmented_source_excerpts(source, candidate) == [
+        "盧肇、丁稜之及第也，先是放榜訖，則須謁宰相。",
+        "時肇首冠，有故不至。",
+        "次乃稜也。",
+    ]
+    assert (
+        annotator.resolve_segmented_source_excerpts(
+            source,
+            "時肇首冠，有故不至。盧肇、丁稜之及第也，先是放榜訖，則須謁宰相。",
+        )
+        is None
+    )
+
+
+def test_edition_note_plus_punctuation_drift_maps_to_untouched_source() -> None:
+    source = (
+        "乃見承雲著通天冠，長八尺，自言〈（「言」原作「有」，據明抄本改）〉。"
+        "為方伯，某第三子有雋才，方當與君周旋。"
+    )
+    candidate = "乃見承雲著通天冠，長八尺，自言為方伯，某第三子有雋才，方當與君周旋"
+
+    resolved = annotator.resolve_source_excerpt(source, candidate)
+
+    assert resolved == source[:-1]
+    assert "據明抄本改" in resolved
 
 
 def test_source_footnotes_and_format_chars_map_back_to_untouched_evidence() -> None:
@@ -622,3 +1191,38 @@ def test_final_retry_gives_insufficient_metadata_a_source_summary_anchor() -> No
         and evidence["excerpt"] in entry.text
         for evidence in record["evidence"]
     )
+
+
+def test_punctuation_and_whitespace_only_quote_drift_maps_to_exact_source() -> None:
+    source = "\u5ffd\u4e00\u591c\u5922\u5100\u5f9e\u751a\u90fd\uff0c\u5fa1\u98a8\u800c\u884c\u3002\n\u81f3\u4e00\u8655\uff0c\u984d\u66f0\u300c\u542b\u5143\u6bbf\u300d\uff0c\u65c1\u8a2d\u516c\u5ea7\u3002"
+    candidate = "\u5ffd\u4e00\u591c\u5922\u5100\u5f9e\u751a\u90fd\uff0c\u5fa1\u98a8\u800c\u884c\u3002\u81f3\u4e00\u8655\uff0c\u984d\u66f0\u542b\u5143\u6bbf\u3002"
+
+    resolved = annotator.resolve_source_excerpt(source, candidate)
+
+    assert resolved is not None
+    assert resolved in source
+    assert len(resolved) <= 80
+    assert "\n" in resolved and "\u300c" in resolved
+
+
+def test_punctuation_only_quote_recovery_rejects_lexical_or_ambiguous_drift() -> None:
+    source = "\u7532\u5165\u9580\uff0c\u4e59\u5f8c\u4f86\u3002\u7532\u5165\u9580\uff0c\u4e59\u5f8c\u4f86\u3002"
+
+    assert annotator.resolve_source_excerpt(source, "\u7532\u5165\u9580\u3002\u4e19\u5f8c\u4f86\u3002") is None
+    assert annotator.resolve_source_excerpt(source, "\u7532\u5165\u9580\u3002\u4e59\u5f8c\u4f86\u3002") is None
+
+
+def test_legacy_interpretation_risk_support_prefix_is_canonicalized() -> None:
+    entry = source_entry("\u6b64\u5fc5\u5929\u547d\u4e5f\u3002\u4eba\u7686\u4fe1\u4e4b\u3002")
+    evidence_map: dict[str, set[str]] = {}
+
+    excerpt = annotator.add_evidence(
+        evidence_map,
+        entry,
+        "\u6b64\u5fc5\u5929\u547d\u4e5f\u3002",
+        ["interpretation_risks.fatalism"],
+    )
+
+    assert evidence_map[excerpt] == {
+        "auto_safety_screen.interpretation_risks.fatalism"
+    }

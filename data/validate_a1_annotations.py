@@ -78,6 +78,7 @@ DEFAULT_ACCEPTED_STATUSES = frozenset(
         "complete",
         "completed",
         "done",
+        "valid",
         "validated",
         "automatically_validated",
         "sampled_reviewed",
@@ -812,10 +813,8 @@ def evidence_semantic_issues(annotation: Mapping[str, Any], db_source_text: str)
 
     narrative = ensure_mapping(annotation.get("narrative_arc"))
     trigger = narrative.get("trigger")
-    sufficiency = retrieval.get("narrative_sufficiency")
     if not (
-        sufficiency in {"insufficient", "unknown"}
-        and isinstance(trigger, str)
+        isinstance(trigger, str)
         and trigger.strip().lower() in {"unknown", "未知", "不详", "不明"}
     ):
         required_supports.add("narrative_arc.trigger")

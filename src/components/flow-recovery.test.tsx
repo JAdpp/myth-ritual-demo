@@ -193,6 +193,72 @@ describe("front-end recovery and safety states", () => {
 });
 
 describe("landing and conversational encounter", () => {
+  it("types and deletes the rotating classical-story categories without changing the accessible heading", () => {
+    vi.useFakeTimers();
+    try {
+      render(<ConsentScreen busy={false} error={null} health={null} onBegin={noop} />);
+
+      const heading = container.querySelector<HTMLHeadingElement>("#welcome-title");
+      const slot = container.querySelector<HTMLElement>(".hero-word-slot");
+      const word = container.querySelector<HTMLElement>(".hero-rotating-word");
+      expect(heading?.getAttribute("aria-label")).toBe("古典神话、传奇、志怪与小说，在你的此刻生出一条新支线。");
+      expect(slot?.classList.contains("is-myth")).toBe(true);
+      expect(word?.textContent).toBe("");
+
+      act(() => vi.advanceTimersByTime(210));
+      expect(word?.textContent).toBe("神");
+      act(() => vi.advanceTimersByTime(210));
+      expect(word?.textContent).toBe("神话");
+      act(() => vi.advanceTimersByTime(1_300));
+      expect(word?.textContent).toBe("神话");
+      act(() => vi.advanceTimersByTime(140));
+      expect(word?.textContent).toBe("神");
+      act(() => vi.advanceTimersByTime(140));
+      expect(word?.textContent).toBe("");
+      act(() => vi.advanceTimersByTime(280));
+      expect(slot?.classList.contains("is-legend")).toBe(true);
+      expect(word?.textContent).toBe("");
+      act(() => vi.advanceTimersByTime(210));
+      expect(word?.textContent).toBe("传");
+      act(() => vi.advanceTimersByTime(210));
+      expect(word?.textContent).toBe("传奇");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("keeps the hero word static when reduced motion is requested", () => {
+    const originalMatchMedia = window.matchMedia;
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: vi.fn(() => ({
+        matches: true,
+        media: "(prefers-reduced-motion: reduce)",
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+    vi.useFakeTimers();
+    try {
+      render(<ConsentScreen busy={false} error={null} health={null} onBegin={noop} />);
+      const word = container.querySelector<HTMLElement>(".hero-rotating-word");
+      expect(word?.textContent).toBe("神话");
+      act(() => vi.advanceTimersByTime(10_000));
+      expect(word?.textContent).toBe("神话");
+    } finally {
+      vi.useRealTimers();
+      if (typeof originalMatchMedia === "function") {
+        Object.defineProperty(window, "matchMedia", { configurable: true, value: originalMatchMedia });
+      } else {
+        Reflect.deleteProperty(window, "matchMedia");
+      }
+    }
+  });
+
   it("keeps consent in an entry-triggered modal and renders the live corpus overview", async () => {
     const onBegin = vi.fn(async () => undefined);
     const health: HealthStatus = {
@@ -328,7 +394,7 @@ describe("landing and conversational encounter", () => {
     expect(container.textContent).toContain("请讲一件最近真实发生、你愿意分享的小事");
     expect(container.textContent).toContain("和栖蝶聊一段");
     expect(container.textContent).not.toContain("智能助手");
-    const avatars = [...container.querySelectorAll<HTMLImageElement>('img[src="/assets/qidie-assistant-avatar-transparent.png"]')];
+    const avatars = [...container.querySelectorAll<HTMLImageElement>('img[src="/assets/qidie-guide-avatar-chibi-v1.webp"]')];
     expect(avatars.length).toBeGreaterThanOrEqual(2);
     expect(avatars.every((avatar) => avatar.alt === "栖蝶头像")).toBe(true);
 

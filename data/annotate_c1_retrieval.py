@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from queue import Empty, Queue
-from threading import Event, Lock
+from threading import Event, Lock, local
 from typing import Any, Iterable, Sequence
 
 import httpx
@@ -54,10 +54,44 @@ DEFAULT_SUMMARY = ROOT / "data" / "corpus" / "c1_single_story" / "summary.json"
 DEFAULT_SCHEMA = ROOT / "contracts" / "a1-retrieval-annotation.schema.json"
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "corpus" / "a1_retrieval_annotations"
 SQLITE_BUSY_TIMEOUT_MS = 30_000
+MAX_WORKERS = 16
 ANNOTATION_VERSION = "mengdie-annotation-v1.1"
 SCHEMA_VERSION = "mengdie-a1-schema-v1.1"
 PROMPT_VERSION = "mengdie-a1-v1.1-nonthinking-r6-quality-gates"
-SIMPLIFIED_CONVERTER = OpenCC("t2s")
+SIMPLIFIED_CONVERTER_LOCAL = local()
+WIKISOURCE_MISSING_GLYPH_PLACEHOLDER = "\U000f2cf4"
+EVIDENCE_SOURCE_VARIANTS = {"釡": "釜"}
+
+
+def simplified_converter() -> OpenCC:
+    """Return one OpenCC instance per worker thread.
+
+    The annotation worker shares this module across several threads.  OpenCC's
+    Python wrapper does not document a thread-safety guarantee for a shared
+    converter, so each worker owns its converter instead of racing on a module
+    singleton.  Source text and exact evidence never pass through this helper.
+    """
+
+    converter = getattr(SIMPLIFIED_CONVERTER_LOCAL, "converter", None)
+    if converter is None:
+        converter = OpenCC("t2s")
+        SIMPLIFIED_CONVERTER_LOCAL.converter = converter
+    return converter
+
+
+def to_simplified_generated_text(value: str) -> str:
+    # OpenCC phrase segmentation can expose a second conversion only after the
+    # first pass (for example ``於潛`` -> ``於潜`` -> ``于潜``).  Iterate to a
+    # fixed point so a row is already idempotent when the independent validator
+    # applies its own t2s check.
+    converter = simplified_converter()
+    current = value
+    for _ in range(4):
+        converted = converter.convert(current)
+        if converted == current:
+            return current
+        current = converted
+    return current
 
 LIFE_CONTEXTS = {
     "relationship_boundary",
@@ -467,6 +501,12 @@ def pack_batches(
     return batches
 
 
+def per_worker_rpm(total_rpm: float, active_workers: int) -> float:
+    """Split the configured process RPM evenly across active workers."""
+
+    return total_rpm / active_workers if active_workers > 0 else 0.0
+
+
 def configure_derived_connection(conn: sqlite3.Connection) -> sqlite3.Connection:
     """Configure one thread-owned derived DB connection for concurrent writers."""
     conn.row_factory = sqlite3.Row
@@ -842,7 +882,7 @@ def clean_text(value: Any, name: str, minimum: int, maximum: int) -> str:
         raise AnnotationError(f"{name} must be text")
     # All model-authored prose is stored as Simplified Chinese.  Source text,
     # locators and exact evidence never pass through this function.
-    cleaned = SIMPLIFIED_CONVERTER.convert(re.sub(r"\s+", " ", value).strip())
+    cleaned = to_simplified_generated_text(re.sub(r"\s+", " ", value).strip())
     if not minimum <= len(cleaned) <= maximum:
         raise AnnotationError(f"{name} length is outside {minimum}..{maximum}")
     return cleaned
@@ -852,7 +892,7 @@ def clean_summary(value: Any, *, allow_local_repair: bool) -> tuple[str, bool]:
     """Validate the modern summary, with a final-attempt sentence-bound repair."""
     if not isinstance(value, str):
         raise AnnotationError("modernRetrievalSummary must be text")
-    cleaned = SIMPLIFIED_CONVERTER.convert(re.sub(r"\s+", " ", value).strip())
+    cleaned = to_simplified_generated_text(re.sub(r"\s+", " ", value).strip())
     if len(cleaned) < 20:
         raise AnnotationError("modernRetrievalSummary length is outside 20..250")
     if len(cleaned) <= 250:
@@ -863,6 +903,232 @@ def clean_summary(value: Any, *, allow_local_repair: bool) -> tuple[str, bool]:
     sentence_end = max(window.rfind(mark) for mark in "。！？；")
     repaired = window[: sentence_end + 1] if sentence_end >= 19 else window
     return repaired, True
+
+
+def is_explicitly_unknown_trigger(value: Any) -> bool:
+    """Recognize a model's explicit statement that the source has no trigger."""
+
+    if not isinstance(value, str):
+        return False
+    cleaned = to_simplified_generated_text(re.sub(r"\s+", "", value)).lower()
+    if cleaned in {"unknown", "未知", "不详", "不明"}:
+        return True
+    return bool(
+        re.match(
+            r"^(?:无|没有|未见|不详|不明)(?:明确|具体|可辨|可识别)?"
+            r".{0,20}(?:触发|起因|冲突)",
+            cleaned,
+        )
+    )
+
+
+def simplify_annotation_generated_texts(annotation: dict[str, Any]) -> int:
+    """Normalize only model-authored display text in one stored envelope.
+
+    This mirrors the independent validator's generated-field allowlist.  It
+    deliberately excludes the source profile, titles, locators and verbatim
+    evidence so a repair can never rewrite provenance.
+    """
+
+    record = annotation.get("annotation_record")
+    if not isinstance(record, dict):
+        raise AnnotationError("stored annotation_record must be an object")
+    changed = 0
+
+    def convert_key(mapping: Any, key: str) -> None:
+        nonlocal changed
+        if not isinstance(mapping, dict) or not isinstance(mapping.get(key), str):
+            return
+        value = mapping[key]
+        converted = to_simplified_generated_text(value)
+        if converted != value:
+            mapping[key] = converted
+            changed += 1
+
+    retrieval = record.get("retrieval_profile")
+    convert_key(retrieval, "modern_retrieval_summary")
+    convert_key(retrieval, "narrative_sufficiency_reason")
+    if isinstance(retrieval, dict):
+        for entity in retrieval.get("key_entities") or []:
+            convert_key(entity, "name")
+            convert_key(entity, "role")
+        for beat in retrieval.get("plot_beats") or []:
+            convert_key(beat, "text")
+        motifs = retrieval.get("motif_terms")
+        if isinstance(motifs, list):
+            for index, value in enumerate(motifs):
+                if not isinstance(value, str):
+                    continue
+                converted = to_simplified_generated_text(value)
+                if converted != value:
+                    motifs[index] = converted
+                    changed += 1
+
+    convert_key(record.get("narrative_arc"), "trigger")
+    safety = record.get("auto_safety_screen")
+    if isinstance(safety, dict):
+        uncertainties = safety.get("uncertainties")
+        if isinstance(uncertainties, list):
+            for index, value in enumerate(uncertainties):
+                if not isinstance(value, str):
+                    continue
+                converted = to_simplified_generated_text(value)
+                if converted != value:
+                    uncertainties[index] = converted
+                    changed += 1
+    return changed
+
+
+def repair_valid_generated_texts(
+    conn: sqlite3.Connection,
+    *,
+    schema_validator: Draft202012Validator,
+) -> tuple[int, int]:
+    """Repair legacy valid rows that escaped Simplified-Chinese normalization."""
+
+    repaired_records = 0
+    repaired_fields = 0
+    rows = conn.execute(
+        "SELECT entry_id, annotation_json FROM annotation_jobs "
+        "WHERE status='valid' AND annotation_json IS NOT NULL"
+    ).fetchall()
+    for row in rows:
+        try:
+            annotation = json.loads(row["annotation_json"])
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise AnnotationError(
+                f"stored valid annotation is not JSON: {row['entry_id']}"
+            ) from exc
+        if not isinstance(annotation, dict):
+            raise AnnotationError(
+                f"stored valid annotation is not an object: {row['entry_id']}"
+            )
+        record = annotation.get("annotation_record")
+        if not isinstance(record, dict):
+            raise AnnotationError(
+                f"stored valid annotation_record is missing: {row['entry_id']}"
+            )
+        immutable_before = json.dumps(
+            {
+                "unit": record.get("unit"),
+                "source_profile": record.get("source_profile"),
+                "evidence": record.get("evidence"),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        changed = simplify_annotation_generated_texts(annotation)
+        if not changed:
+            continue
+        immutable_after = json.dumps(
+            {
+                "unit": record.get("unit"),
+                "source_profile": record.get("source_profile"),
+                "evidence": record.get("evidence"),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        if immutable_after != immutable_before:
+            raise AnnotationError(
+                f"generated-text repair changed provenance: {row['entry_id']}"
+            )
+        errors = sorted(schema_validator.iter_errors(annotation), key=lambda exc: list(exc.path))
+        if errors:
+            first = errors[0]
+            raise AnnotationError(
+                f"generated-text repair failed schema at {list(first.path)}: {first.message}"
+            )
+        with conn:
+            conn.execute(
+                "UPDATE annotation_jobs SET annotation_json=?, updated_at=? "
+                "WHERE entry_id=? AND status='valid'",
+                (
+                    json.dumps(annotation, ensure_ascii=False, separators=(",", ":")),
+                    utc_now(),
+                    row["entry_id"],
+                ),
+            )
+        repaired_records += 1
+        repaired_fields += changed
+    return repaired_records, repaired_fields
+
+
+def repair_valid_unknown_trigger_supports(
+    conn: sqlite3.Connection,
+    *,
+    schema_validator: Draft202012Validator,
+) -> tuple[int, int]:
+    """Remove legacy evidence links to an explicitly unknown trigger.
+
+    ``unknown`` is a non-claim and therefore must neither require nor retain a
+    support path.  Only the derived ``supports`` array is changed; exact
+    excerpts, offsets and source fields remain byte-for-byte untouched.
+    """
+
+    repaired_records = 0
+    removed_links = 0
+    rows = conn.execute(
+        "SELECT entry_id, annotation_json FROM annotation_jobs "
+        "WHERE status='valid' AND annotation_json IS NOT NULL"
+    ).fetchall()
+    for row in rows:
+        try:
+            annotation = json.loads(row["annotation_json"])
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise AnnotationError(
+                f"stored valid annotation is not JSON: {row['entry_id']}"
+            ) from exc
+        record = annotation.get("annotation_record") if isinstance(annotation, dict) else None
+        if not isinstance(record, dict):
+            raise AnnotationError(
+                f"stored valid annotation_record is missing: {row['entry_id']}"
+            )
+        trigger = (record.get("narrative_arc") or {}).get("trigger")
+        if not isinstance(trigger, str) or trigger.strip().lower() not in {
+            "unknown",
+            "未知",
+            "不详",
+            "不明",
+        }:
+            continue
+        changed = 0
+        for evidence in record.get("evidence") or []:
+            if not isinstance(evidence, dict) or not isinstance(evidence.get("supports"), list):
+                continue
+            supports = evidence["supports"]
+            kept = [value for value in supports if value != "narrative_arc.trigger"]
+            changed += len(supports) - len(kept)
+            if not kept:
+                raise AnnotationError(
+                    "unknown-trigger support repair would leave empty evidence: "
+                    f"{row['entry_id']}"
+                )
+            evidence["supports"] = kept
+        if not changed:
+            continue
+        errors = sorted(schema_validator.iter_errors(annotation), key=lambda exc: list(exc.path))
+        if errors:
+            first = errors[0]
+            raise AnnotationError(
+                f"unknown-trigger support repair failed schema at {list(first.path)}: "
+                f"{first.message}"
+            )
+        with conn:
+            conn.execute(
+                "UPDATE annotation_jobs SET annotation_json=?, updated_at=? "
+                "WHERE entry_id=? AND status='valid'",
+                (
+                    json.dumps(annotation, ensure_ascii=False, separators=(",", ":")),
+                    utc_now(),
+                    row["entry_id"],
+                ),
+            )
+        repaired_records += 1
+        removed_links += changed
+    return repaired_records, removed_links
 
 
 def clean_excerpt(value: Any, name: str = "evidence excerpt") -> str:
@@ -918,7 +1184,7 @@ def resolve_source_excerpt(source_text: str, candidate: str) -> str | None:
                     return exact_span
     excluded: set[int] = set()
     for match in re.finditer(
-        r"〈（[^（）]*）〉|\([^()]*\)|（[^（）]*）",
+        r"〈[^〈〉\r\n]*〉|［[^［］\r\n]*］|\([^()\r\n]*\)|（[^（）\r\n]*）",
         source_text,
     ):
         excluded.update(range(match.start(), match.end()))
@@ -950,16 +1216,21 @@ def resolve_source_excerpt(source_text: str, candidate: str) -> str | None:
         indices: list[int] = []
         ignored_source_indices: set[int] = set()
         if with_indices:
-            for note in re.finditer(r"\[\d+\]", text):
+            for note in re.finditer(
+                r"\[\d+\]|〈[^〈〉\r\n]*〉|［[^［］\r\n]*］|\([^()\r\n]*\)|（[^（）\r\n]*）",
+                text,
+            ):
                 ignored_source_indices.update(range(note.start(), note.end()))
         for source_index, char in enumerate(text):
             if (
                 char in dropped_quotes
                 or source_index in ignored_source_indices
+                or (with_indices and char == WIKISOURCE_MISSING_GLYPH_PLACEHOLDER)
                 or (with_indices and unicodedata.category(char) == "Cf")
             ):
                 continue
-            converted = SIMPLIFIED_CONVERTER.convert(char)
+            normalized_char = EVIDENCE_SOURCE_VARIANTS.get(char, char) if with_indices else char
+            converted = to_simplified_generated_text(normalized_char)
             chars.extend(converted)
             if with_indices:
                 indices.extend([source_index] * len(converted))
@@ -970,38 +1241,219 @@ def resolve_source_excerpt(source_text: str, candidate: str) -> str | None:
     )
     normalized_candidate, _ = display_form(candidate, with_indices=False)
     if (
-        len(normalized_candidate) < 2
-        or normalized_source.count(normalized_candidate) != 1
+        len(normalized_candidate) >= 2
+        and normalized_source.count(normalized_candidate) == 1
     ):
-        return None
-    normalized_start = normalized_source.find(normalized_candidate)
-    normalized_end = normalized_start + len(normalized_candidate) - 1
-    source_start = normalized_indices[normalized_start]
-    source_end = normalized_indices[normalized_end] + 1
-    while source_start > 0 and source_text[source_start - 1] in dropped_quotes:
-        source_start -= 1
-    while source_end < len(source_text) and source_text[source_end] in dropped_quotes:
-        source_end += 1
-    exact_span = source_text[source_start:source_end]
-    return exact_span if len(exact_span) <= 80 else None
+        normalized_start = normalized_source.find(normalized_candidate)
+        normalized_end = normalized_start + len(normalized_candidate) - 1
+        source_start = normalized_indices[normalized_start]
+        source_end = normalized_indices[normalized_end] + 1
+        while source_start > 0 and source_text[source_start - 1] in dropped_quotes:
+            source_start -= 1
+        while source_end < len(source_text) and source_text[source_end] in dropped_quotes:
+            source_end += 1
+        exact_span = source_text[source_start:source_end]
+        if len(exact_span) <= 80:
+            return exact_span
+
+    # A square missing-glyph marker can be followed by an explicit edition
+    # note such as ``□(葉本作「正」。)``.  If the model copies the quoted edition
+    # reading, map that reading back to the entire untouched source construct.
+    # This is limited to the explicit placeholder plus a quoted replacement;
+    # ordinary textual variants are never silently substituted.
+    placeholder_note = re.compile(
+        r"□(?:\([^()\r\n]*作「(?P<ascii_rep>[^」\r\n]{1,4})」[^()\r\n]*\)"
+        r"|（[^（）\r\n]*作「(?P<full_rep>[^」\r\n]{1,4})」[^（）\r\n]*）)"
+    )
+    replacements = {match.start(): match for match in placeholder_note.finditer(source_text)}
+    if replacements:
+        replacement_spans = [
+            (match.start(), match.end()) for match in replacements.values()
+        ]
+        ignored_editorial_indices: set[int] = set()
+        for note in re.finditer(
+            r"\[\d+\]|〈[^〈〉\r\n]*〉|［[^［］\r\n]*］|\([^()\r\n]*\)|（[^（）\r\n]*）",
+            source_text,
+        ):
+            if any(
+                replacement_start <= note.start()
+                and note.end() <= replacement_end
+                for replacement_start, replacement_end in replacement_spans
+            ):
+                continue
+            ignored_editorial_indices.update(range(note.start(), note.end()))
+        alt_chars: list[str] = []
+        alt_starts: list[int] = []
+        alt_ends: list[int] = []
+        source_index = 0
+        while source_index < len(source_text):
+            match = replacements.get(source_index)
+            if match is not None:
+                replacement = match.group("ascii_rep") or match.group("full_rep") or ""
+                converted = to_simplified_generated_text(replacement)
+                for char in converted:
+                    alt_chars.append(char)
+                    alt_starts.append(match.start())
+                    alt_ends.append(match.end())
+                source_index = match.end()
+                continue
+            char = source_text[source_index]
+            if (
+                char in dropped_quotes
+                or source_index in ignored_editorial_indices
+                or char == WIKISOURCE_MISSING_GLYPH_PLACEHOLDER
+                or unicodedata.category(char) == "Cf"
+            ):
+                source_index += 1
+                continue
+            normalized_char = EVIDENCE_SOURCE_VARIANTS.get(char, char)
+            converted = to_simplified_generated_text(normalized_char)
+            for converted_char in converted:
+                alt_chars.append(converted_char)
+                alt_starts.append(source_index)
+                alt_ends.append(source_index + 1)
+            source_index += 1
+        alternative_source = "".join(alt_chars)
+        if (
+            len(normalized_candidate) >= 2
+            and alternative_source.count(normalized_candidate) == 1
+        ):
+            normalized_start = alternative_source.find(normalized_candidate)
+            normalized_end = normalized_start + len(normalized_candidate) - 1
+            source_start = alt_starts[normalized_start]
+            source_end = alt_ends[normalized_end]
+            exact_span = source_text[source_start:source_end]
+            if len(exact_span) <= 80:
+                return exact_span
+
+    # Last, admit punctuation/whitespace-only transcription drift.  Models
+    # sometimes turn a source comma into a full stop, omit a line break, or
+    # drop quotation marks while otherwise copying every source character.
+    # Build a source-side index map with only Unicode punctuation, whitespace,
+    # Wikisource numeric footnotes and format controls removed; require the
+    # normalized candidate to occur exactly once and always return the
+    # untouched source span.  This is deliberately narrower than fuzzy text
+    # matching: no lexical character may be inserted, removed or substituted.
+    def punctuation_free_form(
+        text: str, *, with_indices: bool
+    ) -> tuple[str, list[int]]:
+        chars: list[str] = []
+        indices: list[int] = []
+        ignored_source_indices: set[int] = set()
+        if with_indices:
+            for note in re.finditer(
+                r"\[\d+\]|〈[^〈〉\r\n]*〉|［[^［］\r\n]*］|\([^()\r\n]*\)|（[^（）\r\n]*）",
+                text,
+            ):
+                ignored_source_indices.update(range(note.start(), note.end()))
+        for source_index, char in enumerate(text):
+            if (
+                source_index in ignored_source_indices
+                or (with_indices and char == WIKISOURCE_MISSING_GLYPH_PLACEHOLDER)
+                or char.isspace()
+                or unicodedata.category(char) in {"Cf", "Cc"}
+                or unicodedata.category(char).startswith("P")
+            ):
+                continue
+            normalized_char = EVIDENCE_SOURCE_VARIANTS.get(char, char) if with_indices else char
+            converted = to_simplified_generated_text(normalized_char)
+            chars.extend(converted)
+            if with_indices:
+                indices.extend([source_index] * len(converted))
+        return "".join(chars), indices
+
+    punctuation_free_source, punctuation_free_indices = punctuation_free_form(
+        source_text, with_indices=True
+    )
+    punctuation_free_candidate, _ = punctuation_free_form(
+        candidate, with_indices=False
+    )
+    if (
+        len(punctuation_free_candidate) >= 2
+        and punctuation_free_source.count(punctuation_free_candidate) == 1
+    ):
+        normalized_start = punctuation_free_source.find(punctuation_free_candidate)
+        normalized_end = normalized_start + len(punctuation_free_candidate) - 1
+        source_start = punctuation_free_indices[normalized_start]
+        source_end = punctuation_free_indices[normalized_end] + 1
+        exact_span = source_text[source_start:source_end]
+        if len(exact_span) <= 80:
+            return bounded_exact_window(exact_span)
+
+    # A model can occasionally concatenate two exact source anchors without
+    # inserting an ellipsis.  This is the final fallback so stricter quote,
+    # edition-note and punctuation mappings always get first refusal.  Admit
+    # one omitted source span only when every candidate character is accounted
+    # for by a unique ordered prefix/suffix, the omission crosses an explicit
+    # source sentence boundary, and every valid split maps to the same short
+    # untouched source span.
+    if 4 <= len(candidate) <= 80:
+        omission_spans: set[str] = set()
+        for split_at in range(2, len(candidate) - 1):
+            left_anchor = candidate[:split_at]
+            right_anchor = candidate[split_at:]
+            if max(len(left_anchor), len(right_anchor)) < 8:
+                continue
+            if source_text.count(left_anchor) != 1 or source_text.count(right_anchor) != 1:
+                continue
+            source_start = source_text.find(left_anchor)
+            left_end = source_start + len(left_anchor)
+            right_start = source_text.find(right_anchor, left_end)
+            if right_start <= left_end:
+                continue
+            omitted = source_text[left_end:right_start]
+            if not any(mark in omitted for mark in "。！？；\n\r"):
+                continue
+            exact_span = source_text[source_start : right_start + len(right_anchor)]
+            if len(exact_span) <= 80:
+                omission_spans.add(exact_span)
+        if len(omission_spans) == 1:
+            return next(iter(omission_spans))
+    return None
 
 
 def resolve_segmented_source_excerpts(
     source_text: str, candidate: str
 ) -> list[str] | None:
-    """Resolve an explicit multi-ellipsis quote as separate exact snippets."""
-    if "……" not in candidate:
-        return None
-    parts = [part.strip() for part in candidate.split("……")]
+    """Resolve an explicit multi-ellipsis quote as separate exact snippets.
+
+    Models use both the Chinese ellipsis and three-or-more ASCII full stops
+    when marking omitted source text. Treat those markers identically while
+    preserving the existing unique/exact/fail-closed evidence guarantees.
+    """
+    ellipsis_pattern = r"(?:……|\.{3,})"
+    if re.search(ellipsis_pattern, candidate) is not None:
+        parts = [part.strip() for part in re.split(ellipsis_pattern, candidate)]
+    else:
+        # A copied quotation can also omit a complete intervening source
+        # sentence without inserting an ellipsis.  Recover only when the
+        # candidate itself contains at least two complete sentence-sized
+        # chunks; every chunk must remain an exact, unique source substring in
+        # the original order.  This never admits paraphrase or fuzzy matching.
+        parts = [
+            part.strip()
+            for part in re.findall(r"[^。！？；]+[。！？；]?", candidate)
+            if part.strip()
+        ]
     if len(parts) < 2 or any(len(part) < 2 for part in parts):
         return None
     resolved: list[str] = []
+    previous_source_end = -1
     for part in parts:
-        if source_text.count(part) > 1:
-            return None
         excerpt = resolve_source_excerpt(source_text, part)
         if excerpt is None or len(excerpt) > 80:
             return None
+        # Ordering must be checked against the exact recovered source span,
+        # not the model fragment.  A fragment may carry a closing quote that
+        # appears only after omitted source text; the strict display resolver
+        # deliberately drops that dangling mark before returning the untouched
+        # source span.
+        if source_text.count(excerpt) != 1:
+            return None
+        source_start = source_text.find(excerpt)
+        if source_start < previous_source_end:
+            return None
+        previous_source_end = source_start + len(excerpt)
         if excerpt not in resolved:
             resolved.append(excerpt)
     return resolved if len(resolved) >= 2 else None
@@ -1016,6 +1468,8 @@ def add_evidence(
         raise AnnotationError("evidence excerpt is not an exact source substring")
     support_set = evidence_map.setdefault(resolved, set())
     for support in supports:
+        if isinstance(support, str) and support.startswith("interpretation_risks."):
+            support = "auto_safety_screen." + support
         if not isinstance(support, str) or not ALLOWED_SUPPORT.fullmatch(support):
             raise AnnotationError("evidence contains an invalid support path")
         support_set.add(support)
@@ -1267,7 +1721,9 @@ def normalise_annotation(
     if not isinstance(arc_raw, dict):
         raise AnnotationError("narrativeArc must be an object")
     trigger_raw = arc_raw.get("trigger")
-    if sufficiency != "sufficient" and trigger_raw in {None, ""}:
+    if is_explicitly_unknown_trigger(trigger_raw):
+        trigger = "未知"
+    elif sufficiency != "sufficient" and trigger_raw in {None, ""}:
         trigger = "未知"
     else:
         trigger = clean_text(trigger_raw, "narrativeArc.trigger", 2, 160)
@@ -1508,10 +1964,12 @@ def normalise_annotation(
     require_broad_safety_signal_coverage(entry.text, flags)
 
     required_supports = {"retrieval_profile.modern_retrieval_summary"}
-    trigger_requires_support = not (
-        sufficiency != "sufficient"
-        and trigger.strip().lower() in {"unknown", "未知", "不详", "不明"}
-    )
+    trigger_requires_support = trigger.strip().lower() not in {
+        "unknown",
+        "未知",
+        "不详",
+        "不明",
+    }
     if trigger_requires_support:
         required_supports.add("narrative_arc.trigger")
     required_supports.update(f"life_context.{value}" for value in life_context)
@@ -2256,7 +2714,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--workers",
         type=int,
         default=1,
-        help="Independent annotation workers; total --rpm is divided across them (1..4).",
+        help=(
+            "Independent annotation workers; total --rpm is divided across "
+            f"them (1..{MAX_WORKERS})."
+        ),
     )
     parser.add_argument("--rpm", type=int, default=10)
     parser.add_argument("--timeout", type=float, default=120.0)
@@ -2292,8 +2753,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if not 1 <= args.batch_size <= 6:
         raise SystemExit("--batch-size must be between 1 and 6")
-    if not 1 <= args.workers <= 4:
-        raise SystemExit("--workers must be between 1 and 4")
+    if not 1 <= args.workers <= MAX_WORKERS:
+        raise SystemExit(f"--workers must be between 1 and {MAX_WORKERS}")
     if (
         not 1 <= args.batch_char_limit <= 4000
         or args.rpm <= 0
@@ -2373,6 +2834,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         invalidated = invalidate_incompatible_valid_rows(
             conn, requested_model=requested_model
         )
+        locally_simplified_records, locally_simplified_fields = (
+            repair_valid_generated_texts(
+                conn,
+                schema_validator=schema_validator,
+            )
+        )
+        locally_pruned_trigger_records, locally_pruned_trigger_links = (
+            repair_valid_unknown_trigger_supports(
+                conn,
+                schema_validator=schema_validator,
+            )
+        )
         locally_recovered = revalidate_stored_responses(
             conn,
             selected,
@@ -2390,7 +2863,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         max_provider_calls = args.max_provider_calls or max(1, len(todo_batches) * 4)
         call_budget = ProviderCallBudget(max_provider_calls)
         active_workers = min(args.workers, len(todo_batches))
-        worker_rpm = args.rpm / active_workers if active_workers else 0.0
+        worker_rpm = per_worker_rpm(args.rpm, active_workers)
         log_event(
             conn,
             "run_started",
@@ -2399,6 +2872,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "pendingRecords": len(todo),
                 "provenanceInvalidated": invalidated,
                 "locallyRecovered": locally_recovered,
+                "locallySimplifiedRecords": locally_simplified_records,
+                "locallySimplifiedFields": locally_simplified_fields,
+                "locallyPrunedUnknownTriggerRecords": locally_pruned_trigger_records,
+                "locallyPrunedUnknownTriggerLinks": locally_pruned_trigger_links,
                 "activeWorkers": active_workers,
                 "totalRequestsPerMinute": args.rpm,
                 "requestsPerMinutePerWorker": worker_rpm,
@@ -2413,6 +2890,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "pendingBatches": len(todo_batches),
                     "provenanceInvalidated": invalidated,
                     "locallyRecovered": locally_recovered,
+                    "locallySimplifiedRecords": locally_simplified_records,
+                    "locallySimplifiedFields": locally_simplified_fields,
+                    "locallyPrunedUnknownTriggerRecords": locally_pruned_trigger_records,
+                    "locallyPrunedUnknownTriggerLinks": locally_pruned_trigger_links,
                     "activeWorkers": active_workers,
                     "totalRequestsPerMinute": args.rpm,
                     "requestsPerMinutePerWorker": worker_rpm,

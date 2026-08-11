@@ -17,14 +17,17 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from data import repair_a1_from_semantic_reviews as repair  # noqa: E402
+from data import review_a1_semantics as reviewer  # noqa: E402
 
 
 CANONICAL_SCHEMA_PATH = PROJECT_ROOT / "contracts" / "a1-retrieval-annotation.schema.json"
 ENVELOPE_SCHEMA_PATH = (
     PROJECT_ROOT / "contracts" / "a1-effective-repair-envelope.schema.json"
 )
+REVIEW_SCHEMA_PATH = PROJECT_ROOT / "contracts" / "a1-semantic-review.schema.json"
 CANONICAL_SCHEMA = json.loads(CANONICAL_SCHEMA_PATH.read_text(encoding="utf-8"))
 ENVELOPE_SCHEMA = json.loads(ENVELOPE_SCHEMA_PATH.read_text(encoding="utf-8"))
+REVIEW_SCHEMA = json.loads(REVIEW_SCHEMA_PATH.read_text(encoding="utf-8"))
 EFFECTIVE_SCHEMA = repair.build_effective_schema(CANONICAL_SCHEMA)
 CANONICAL_VALIDATOR = Draft202012Validator(
     CANONICAL_SCHEMA, format_checker=FormatChecker()
@@ -35,6 +38,7 @@ EFFECTIVE_VALIDATOR = Draft202012Validator(
 ENVELOPE_VALIDATOR = Draft202012Validator(
     ENVELOPE_SCHEMA, format_checker=FormatChecker()
 )
+REVIEW_VALIDATOR = Draft202012Validator(REVIEW_SCHEMA, format_checker=FormatChecker())
 
 
 def source_entry(
@@ -345,6 +349,89 @@ def load_fixture_candidates(
 
 
 class EffectiveEnvelopeTests(unittest.TestCase):
+    def test_v4_dual_stage_merge_is_directly_consumable_by_repair(self) -> None:
+        stage_codes = set(
+            json.loads(
+                (PROJECT_ROOT / "contracts" / "a1-semantic-review-stage.schema.json")
+                .read_text(encoding="utf-8")
+            )["$defs"]["issueCode"]["enum"]
+        )
+        review_codes = set(
+            REVIEW_SCHEMA["$defs"]["issue"]["properties"]["code"]["enum"]
+        )
+        self.assertEqual(stage_codes, set(reviewer.UNIFIED_CODE_BY_STAGE_CODE))
+        self.assertEqual(
+            review_codes, set(reviewer.UNIFIED_CODE_BY_STAGE_CODE.values())
+        )
+        candidate = repair_candidate()
+        review_candidate = reviewer.ReviewCandidate(
+            entry_id=candidate.entry_id,
+            source_work_id=candidate.source.source_work_id,
+            source_work_title=candidate.source.source_work_title,
+            title=candidate.source.title,
+            source_locator=candidate.source.source_locator,
+            entry_ordinal=candidate.source.entry_ordinal,
+            char_count=candidate.source.char_count,
+            source_text=candidate.source.text,
+            source_text_sha256=candidate.source.extracted_text_sha256,
+            candidate_annotation_sha256=candidate.base_candidate_sha256,
+            candidate_projection={},
+            locked_safety_flags=(),
+        )
+        checks = {
+            field: {"checked": True, "issueCodes": []}
+            for field in reviewer.CHECKLIST_FIELDS
+        }
+        omission_issue = {
+            "code": "summary_material_omission",
+            "field": "modernRetrievalSummary",
+            "targetValue": "邻人记录此事",
+            "sourceExcerpt": "邻人随后记录此事",
+            "correctionHint": "补入邻人记录此事。",
+        }
+        omission_checks = json.loads(json.dumps(checks, ensure_ascii=False))
+        omission_checks["modernRetrievalSummary"]["issueCodes"] = [
+            "summary_material_omission"
+        ]
+        merged = reviewer.merge_stage_reviews(
+            {
+                candidate.entry_id: {
+                    "entryId": candidate.entry_id,
+                    "fieldChecks": omission_checks,
+                    "issues": [omission_issue],
+                }
+            },
+            {
+                candidate.entry_id: {
+                    "entryId": candidate.entry_id,
+                    "fieldChecks": checks,
+                    "issues": [],
+                }
+            },
+            [review_candidate],
+            schema_validator=REVIEW_VALIDATOR,
+        )
+        merged_review = merged[candidate.entry_id]
+        repair._validate_review(
+            merged_review,
+            entry_id=candidate.entry_id,
+            verdict="revise",
+            source_text=candidate.source.text,
+        )
+        v4_candidate = replace(
+            candidate,
+            review=merged_review,
+            review_sha256=repair.sha256_text(repair.canonical_json(merged_review)),
+            review_prompt_version=reviewer.PROMPT_VERSION,
+            review_prompt_sha256=repair.sha256_text(reviewer.SYSTEM_PROMPT),
+            review_schema_sha256=repair.sha256_file(REVIEW_SCHEMA_PATH),
+        )
+        result = parse(v4_candidate)
+        self.assertEqual(
+            v4_candidate.review_sha256,
+            result["effective_envelope"]["review_sha256"],
+        )
+
     def test_truthful_repair_meta_and_hash_closure(self) -> None:
         candidate = repair_candidate()
         result = parse(candidate)

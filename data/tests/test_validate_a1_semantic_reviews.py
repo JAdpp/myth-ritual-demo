@@ -17,6 +17,9 @@ import review_a1_semantics as reviewer  # noqa: E402
 
 
 SCHEMA_PATH = PROJECT_ROOT / "contracts" / "a1-semantic-review.schema.json"
+STAGE_SCHEMA_PATH = (
+    PROJECT_ROOT / "contracts" / "a1-semantic-review-stage.schema.json"
+)
 ENTRY_ID = "c1ws_0123456789abcdef01234567"
 SOURCE_TEXT = "某甲梦见故人来访，醒后才知此事未曾发生。"
 
@@ -88,6 +91,88 @@ def pass_review() -> dict:
     }
 
 
+def pass_stage() -> dict:
+    return {
+        "entryId": ENTRY_ID,
+        "fieldChecks": {
+            field: {"checked": True, "issueCodes": []}
+            for field in validator.CHECKLIST_FIELDS
+        },
+        "issues": [],
+    }
+
+
+def effective_row_stub() -> tuple[dict, dict, str]:
+    canonical = annotation_stub()
+    root_hash = validator.sha256_text(validator.canonical_json(canonical))
+    review = issue_review("revise")
+    review_hash = validator.sha256_text(validator.canonical_json(review))
+    effective = json.loads(json.dumps(canonical, ensure_ascii=False))
+    effective["annotation_record"]["retrieval_profile"][
+        "modern_retrieval_summary"
+    ] = "某甲梦见故人来访，醒后确认梦中事件没有发生。"
+    effective["annotation_record"]["annotation_meta"] = {
+        "research_review_status": "not_reviewed",
+        "research_ready": False,
+        "human_review": {"reviewed": False},
+        "repair_provenance": {
+            "canonical_root_sha256": root_hash,
+            "base_candidate_sha256": root_hash,
+            "immediate_base_sha256": root_hash,
+            "parent_effective_sha256": None,
+            "repair_iteration": 1,
+            "immediate_base_origin": "canonical_a1",
+            "review_sha256": review_hash,
+            "automatic_semantic_repair": True,
+            "human_reviewed": False,
+        },
+    }
+    effective_hash = validator.sha256_text(validator.canonical_json(effective))
+    lineage = [
+        {
+            "repair_iteration": 1,
+            "canonical_root_sha256": root_hash,
+            "immediate_base_sha256": root_hash,
+            "parent_effective_sha256": None,
+            "review_sha256": review_hash,
+            "effective_annotation_sha256": effective_hash,
+        }
+    ]
+    envelope = {
+        "entry_id": ENTRY_ID,
+        "source_text_sha256": validator.sha256_text(SOURCE_TEXT),
+        "canonical_root_sha256": root_hash,
+        "base_candidate_sha256": root_hash,
+        "parent_effective_sha256": None,
+        "repair_iteration": 1,
+        "immediate_base_origin": "canonical_a1",
+        "lineage": lineage,
+        "review_sha256": review_hash,
+        "effective_annotation_sha256": effective_hash,
+        "base_annotation": canonical,
+        "review": review,
+        "effective_annotation": effective,
+        "human_reviewed": False,
+        "research_ready": False,
+    }
+    row = {
+        "source_text_sha256": validator.sha256_text(SOURCE_TEXT),
+        "canonical_root_sha256": root_hash,
+        "base_candidate_sha256": root_hash,
+        "parent_effective_sha256": None,
+        "repair_iteration": 1,
+        "immediate_base_origin": "canonical_a1",
+        "lineage_json": validator.canonical_json(lineage),
+        "review_sha256": review_hash,
+        "base_annotation_json": validator.canonical_json(canonical),
+        "review_json": validator.canonical_json(review),
+        "effective_annotation_json": validator.canonical_json(effective),
+        "effective_annotation_sha256": effective_hash,
+        "effective_envelope_json": validator.canonical_json(envelope),
+    }
+    return row, effective, root_hash
+
+
 def issue_review(verdict: str) -> dict:
     return {
         "entryId": ENTRY_ID,
@@ -98,7 +183,7 @@ def issue_review(verdict: str) -> dict:
                 "code": "summary_modality_negation",
                 "field": "modernRetrievalSummary",
                 "sourceExcerpt": "未曾发生",
-                "correctionHint": "保留梦境和否定边界。",
+                "correctionHint": "将现有摘要替换为保留梦境和否定边界的表述。",
             }
         ],
     }
@@ -208,6 +293,16 @@ class SemanticReviewValidatorTests(unittest.TestCase):
             candidate_hash=candidate_hash,
         )
         review = pass_review()
+        stages = {mode: pass_stage() for mode in ("omission", "contradiction")}
+        merged_raw = {
+            "mode": "merged",
+            "reviewVersion": validator.EXPECTED_REVIEW_PROMPT_VERSION,
+            "stagePromptVersions": dict(validator.EXPECTED_STAGE_PROMPT_VERSIONS),
+            "stagePromptSha256": dict(validator.EXPECTED_STAGE_PROMPT_SHA256),
+            "thinkingMode": validator.EXPECTED_THINKING_MODE,
+            "reasoningEffort": validator.EXPECTED_REASONING_EFFORT,
+            "stageReviews": {ENTRY_ID: stages},
+        }
         with sqlite3.connect(self.review_db) as conn:
             conn.execute(
                 """
@@ -224,7 +319,10 @@ class SemanticReviewValidatorTests(unittest.TestCase):
                     verdict TEXT,
                     review_json TEXT,
                     issues_json TEXT,
+                    raw_response_json TEXT,
                     model TEXT NOT NULL,
+                    thinking_mode TEXT NOT NULL,
+                    reasoning_effort TEXT,
                     provider_reported_model TEXT,
                     prompt_version TEXT NOT NULL,
                     prompt_sha256 TEXT NOT NULL,
@@ -233,7 +331,7 @@ class SemanticReviewValidatorTests(unittest.TestCase):
                 """
             )
             conn.execute(
-                "INSERT INTO semantic_review_jobs VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO semantic_review_jobs VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     ENTRY_ID,
                     source_hash,
@@ -247,13 +345,60 @@ class SemanticReviewValidatorTests(unittest.TestCase):
                     "pass",
                     validator.canonical_json(review),
                     validator.canonical_json([]),
+                    validator.canonical_json(merged_raw),
                     validator.EXPECTED_REVIEW_MODEL,
+                    validator.EXPECTED_THINKING_MODE,
+                    validator.EXPECTED_REASONING_EFFORT,
                     validator.EXPECTED_REVIEW_MODEL,
                     validator.EXPECTED_REVIEW_PROMPT_VERSION,
                     validator.EXPECTED_REVIEW_PROMPT_SHA256,
                     validator.sha256_file(SCHEMA_PATH),
                 ),
             )
+            conn.execute(
+                """
+                CREATE TABLE semantic_review_stages(
+                    entry_id TEXT NOT NULL,
+                    mode TEXT NOT NULL,
+                    source_text_sha256 TEXT NOT NULL,
+                    candidate_annotation_sha256 TEXT NOT NULL,
+                    input_json TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    stage_review_json TEXT,
+                    raw_response_json TEXT,
+                    model TEXT NOT NULL,
+                    thinking_mode TEXT NOT NULL,
+                    reasoning_effort TEXT,
+                    provider_reported_model TEXT,
+                    prompt_version TEXT NOT NULL,
+                    prompt_sha256 TEXT NOT NULL,
+                    stage_schema_sha256 TEXT NOT NULL,
+                    PRIMARY KEY(entry_id,mode)
+                )
+                """
+            )
+            for mode, stage in stages.items():
+                raw_stage = {"mode": mode, "reviews": [stage]}
+                conn.execute(
+                    "INSERT INTO semantic_review_stages VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (
+                        ENTRY_ID,
+                        mode,
+                        source_hash,
+                        candidate_hash,
+                        validator.canonical_json(input_json),
+                        "valid",
+                        validator.canonical_json(stage),
+                        validator.canonical_json(raw_stage),
+                        validator.EXPECTED_REVIEW_MODEL,
+                        validator.EXPECTED_THINKING_MODE,
+                        validator.EXPECTED_REASONING_EFFORT,
+                        validator.EXPECTED_REVIEW_MODEL,
+                        validator.EXPECTED_STAGE_PROMPT_VERSIONS[mode],
+                        validator.EXPECTED_STAGE_PROMPT_SHA256[mode],
+                        validator.sha256_file(STAGE_SCHEMA_PATH),
+                    ),
+                )
 
     def validate(self, **overrides: object) -> validator.ValidationReport:
         kwargs: dict[str, object] = {
@@ -267,11 +412,51 @@ class SemanticReviewValidatorTests(unittest.TestCase):
         return validator.validate_databases(**kwargs)  # type: ignore[arg-type]
 
     def set_review(self, review: dict) -> None:
+        stages = {mode: pass_stage() for mode in ("omission", "contradiction")}
+        if review.get("issues"):
+            first = review["issues"][0]
+            if (
+                first.get("code") == "summary_modality_negation"
+                and first.get("field") == "modernRetrievalSummary"
+            ):
+                directional_issue = {
+                    "code": "summary_modality_negation_contradiction",
+                    "field": "modernRetrievalSummary",
+                    "targetValue": annotation_stub()["annotation_record"][
+                        "retrieval_profile"
+                    ]["modern_retrieval_summary"],
+                    "sourceExcerpt": first["sourceExcerpt"],
+                    "correctionHint": first["correctionHint"],
+                }
+                stages["contradiction"] = {
+                    "entryId": ENTRY_ID,
+                    "fieldChecks": {
+                        field: {
+                            "checked": True,
+                            "issueCodes": (
+                                [directional_issue["code"]]
+                                if field == "modernRetrievalSummary"
+                                else []
+                            ),
+                        }
+                        for field in validator.CHECKLIST_FIELDS
+                    },
+                    "issues": [directional_issue],
+                }
+        merged_raw = {
+            "mode": "merged",
+            "reviewVersion": validator.EXPECTED_REVIEW_PROMPT_VERSION,
+            "stagePromptVersions": dict(validator.EXPECTED_STAGE_PROMPT_VERSIONS),
+            "stagePromptSha256": dict(validator.EXPECTED_STAGE_PROMPT_SHA256),
+            "thinkingMode": validator.EXPECTED_THINKING_MODE,
+            "reasoningEffort": validator.EXPECTED_REASONING_EFFORT,
+            "stageReviews": {ENTRY_ID: stages},
+        }
         with sqlite3.connect(self.review_db) as conn:
             conn.execute(
                 """
                 UPDATE semantic_review_jobs
-                SET status=?,verdict=?,review_json=?,issues_json=?
+                SET status=?,verdict=?,review_json=?,issues_json=?,raw_response_json=?
                 WHERE entry_id=?
                 """,
                 (
@@ -279,9 +464,24 @@ class SemanticReviewValidatorTests(unittest.TestCase):
                     review["verdict"],
                     validator.canonical_json(review),
                     validator.canonical_json(review["issues"]),
+                    validator.canonical_json(merged_raw),
                     ENTRY_ID,
                 ),
             )
+            for mode, stage in stages.items():
+                conn.execute(
+                    """
+                    UPDATE semantic_review_stages
+                    SET stage_review_json=?,raw_response_json=?
+                    WHERE entry_id=? AND mode=?
+                    """,
+                    (
+                        validator.canonical_json(stage),
+                        validator.canonical_json({"mode": mode, "reviews": [stage]}),
+                        ENTRY_ID,
+                        mode,
+                    ),
+                )
 
     def test_complete_current_pass_chain_passes_without_writing_files(self) -> None:
         before = {
@@ -299,12 +499,33 @@ class SemanticReviewValidatorTests(unittest.TestCase):
         self.assertEqual(before, after)
 
     def test_pinned_review_provenance_matches_the_current_runner(self) -> None:
+        self.assertEqual(reviewer.THINKING_MODE, validator.EXPECTED_THINKING_MODE)
+        self.assertIs(reviewer.REASONING_EFFORT, validator.EXPECTED_REASONING_EFFORT)
         self.assertEqual(
             reviewer.PROMPT_VERSION, validator.EXPECTED_REVIEW_PROMPT_VERSION
         )
         self.assertEqual(
             reviewer.sha256_text(reviewer.SYSTEM_PROMPT),
             validator.EXPECTED_REVIEW_PROMPT_SHA256,
+        )
+        self.assertEqual(
+            reviewer.STAGE_PROMPT_VERSIONS,
+            validator.EXPECTED_STAGE_PROMPT_VERSIONS,
+        )
+        self.assertEqual(
+            {
+                mode: reviewer.sha256_text(reviewer.SYSTEM_PROMPTS[mode])
+                for mode in reviewer.REVIEW_MODES
+            },
+            validator.EXPECTED_STAGE_PROMPT_SHA256,
+        )
+        self.assertEqual(
+            reviewer.STAGE_ISSUE_FIELD_BY_CODE,
+            validator.STAGE_ISSUE_FIELD_BY_CODE,
+        )
+        self.assertEqual(
+            reviewer.UNIFIED_CODE_BY_STAGE_CODE,
+            validator.UNIFIED_CODE_BY_STAGE_CODE,
         )
         self.assertEqual(reviewer.ISSUE_FIELD_BY_CODE, validator.ISSUE_FIELD_BY_CODE)
         self.assertEqual(reviewer.CHECKLIST_FIELDS, validator.CHECKLIST_FIELDS)
@@ -316,6 +537,114 @@ class SemanticReviewValidatorTests(unittest.TestCase):
             reviewer.annotation_projection(annotation_stub()),
             validator.annotation_projection(annotation_stub()),
         )
+
+    def test_raw_stage_shape_closure_is_independent_and_fail_closed(self) -> None:
+        safe_raw = {
+            "mode": "contradiction",
+            "reviews": [
+                {
+                    "entryId": ENTRY_ID,
+                    "fieldChecks": [
+                        {"field": field, "checked": True, "issues": []}
+                        for field in validator.CHECKLIST_FIELDS
+                    ],
+                }
+            ],
+        }
+        with sqlite3.connect(self.review_db) as conn:
+            conn.execute(
+                """
+                UPDATE semantic_review_stages SET raw_response_json=?
+                WHERE entry_id=? AND mode='contradiction'
+                """,
+                (validator.canonical_json(safe_raw), ENTRY_ID),
+            )
+        report = self.validate()
+        self.assertTrue(report.passed, report.errors)
+        self.assertEqual(
+            reviewer.canonicalize_stage_response_shape(safe_raw),
+            validator.canonicalize_stage_response_shape(safe_raw),
+        )
+
+        unsafe_raw = {
+            "mode": "contradiction",
+            "reviews": [
+                {
+                    "entryId": ENTRY_ID,
+                    "fieldChecks": [
+                        {"checked": True, "issueCodes": []}
+                        for _ in validator.CHECKLIST_FIELDS
+                    ],
+                    "issues": [],
+                }
+            ],
+        }
+        with sqlite3.connect(self.review_db) as conn:
+            conn.execute(
+                """
+                UPDATE semantic_review_stages SET raw_response_json=?
+                WHERE entry_id=? AND mode='contradiction'
+                """,
+                (validator.canonical_json(unsafe_raw), ENTRY_ID),
+            )
+        report = self.validate()
+        self.assertFalse(report.passed)
+        self.assertTrue(
+            any("contradiction raw" in error for error in report.errors),
+            report.errors,
+        )
+
+    def test_directional_stage_status_hash_and_raw_response_are_hard_gates(self) -> None:
+        with sqlite3.connect(self.review_db) as conn:
+            conn.execute(
+                """
+                UPDATE semantic_review_stages
+                SET status='retryable_failed',prompt_sha256=?
+                WHERE mode='omission'
+                """,
+                ("c" * 64,),
+            )
+        report = self.validate()
+        self.assertFalse(report.passed)
+        self.assertTrue(any("omission stage" in error for error in report.errors))
+
+        with sqlite3.connect(self.review_db) as conn:
+            conn.execute(
+                """
+                UPDATE semantic_review_stages
+                SET status='valid',prompt_sha256=?,raw_response_json='{}'
+                WHERE mode='omission'
+                """,
+                (validator.EXPECTED_STAGE_PROMPT_SHA256["omission"],),
+            )
+        report = self.validate()
+        self.assertFalse(report.passed)
+        self.assertTrue(any("omission raw" in error for error in report.errors))
+
+    def test_effective_candidate_hash_lineage_and_review_closure_are_independent(self) -> None:
+        row, expected, root_hash = effective_row_stub()
+        candidate, candidate_hash, iteration = validator.validated_effective_candidate(
+            row,  # type: ignore[arg-type]
+            entry_id=ENTRY_ID,
+            source_text=SOURCE_TEXT,
+            source_hash=validator.sha256_text(SOURCE_TEXT),
+            canonical_root_sha256=root_hash,
+        )
+        self.assertEqual(expected, candidate)
+        self.assertEqual(
+            validator.sha256_text(validator.canonical_json(expected)), candidate_hash
+        )
+        self.assertEqual(1, iteration)
+
+        broken = dict(row, review_sha256="d" * 64)
+        with self.assertRaisesRegex(ValueError, "review hash"):
+            validator.validated_effective_candidate(
+                broken,  # type: ignore[arg-type]
+                entry_id=ENTRY_ID,
+                source_text=SOURCE_TEXT,
+                source_hash=validator.sha256_text(SOURCE_TEXT),
+                canonical_root_sha256=root_hash,
+            )
 
     def test_current_candidate_and_source_hashes_are_required(self) -> None:
         with sqlite3.connect(self.review_db) as conn:
@@ -355,7 +684,9 @@ class SemanticReviewValidatorTests(unittest.TestCase):
 
         self.set_review(issue_review("uncertain"))
         self.assertFalse(self.validate().passed)
-        self.assertTrue(self.validate(allow_uncertain=True).passed)
+        report = self.validate(allow_uncertain=True)
+        self.assertFalse(report.passed)
+        self.assertTrue(any("deterministic stage union" in error for error in report.errors))
 
     def test_nonfinal_status_never_passes(self) -> None:
         with sqlite3.connect(self.review_db) as conn:
@@ -402,7 +733,9 @@ class SemanticReviewValidatorTests(unittest.TestCase):
         review = issue_review("uncertain")
         review["issues"][0]["correctionHint"] = "语境残缺，需确认否定范围。"
         self.set_review(review)
-        self.assertTrue(self.validate(allow_uncertain=True).passed)
+        report = self.validate(allow_uncertain=True)
+        self.assertFalse(report.passed)
+        self.assertTrue(any("deterministic stage union" in error for error in report.errors))
 
     def test_prompt_schema_and_model_provenance_are_required(self) -> None:
         with sqlite3.connect(self.review_db) as conn:
@@ -420,6 +753,42 @@ class SemanticReviewValidatorTests(unittest.TestCase):
         self.assertIn("prompt_version is not current", joined)
         self.assertIn("prompt_sha256 is not current", joined)
         self.assertIn("schema hash is not current", joined)
+
+    def test_thinking_provenance_is_closed_at_job_stage_and_merged_layers(self) -> None:
+        with sqlite3.connect(self.review_db) as conn:
+            conn.execute(
+                """
+                UPDATE semantic_review_jobs
+                SET thinking_mode='enabled',reasoning_effort='high'
+                """
+            )
+            conn.execute(
+                """
+                UPDATE semantic_review_stages
+                SET thinking_mode='enabled',reasoning_effort='high'
+                WHERE mode='omission'
+                """
+            )
+            merged_raw = json.loads(
+                conn.execute(
+                    "SELECT raw_response_json FROM semantic_review_jobs"
+                ).fetchone()[0]
+            )
+            merged_raw["thinkingMode"] = "enabled"
+            merged_raw["reasoningEffort"] = "high"
+            conn.execute(
+                "UPDATE semantic_review_jobs SET raw_response_json=?",
+                (validator.canonical_json(merged_raw),),
+            )
+
+        report = self.validate()
+        self.assertFalse(report.passed)
+        joined = "\n".join(report.errors)
+        self.assertIn("review thinking_mode is not current", joined)
+        self.assertIn("review reasoning_effort is not current", joined)
+        self.assertIn("omission stage thinking_mode is not current", joined)
+        self.assertIn("omission stage reasoning_effort is not current", joined)
+        self.assertIn("merged raw response provenance is invalid", joined)
 
     def test_expected_count_and_full_coverage_are_hard_gates(self) -> None:
         report = self.validate(expected_count=2)

@@ -153,6 +153,9 @@ describe("semi-structured mapping assistant", () => {
     expect(container.textContent).toContain("由你决定是否应用");
     expect(container.querySelector(".mapping-assistant__mode")).toBeNull();
     expect(container.textContent).not.toContain("自由对话模型尚未接入");
+    expect(container.querySelector<HTMLImageElement>('.mapping-assistant__avatar')?.src).toContain("/assets/qidie-guide-avatar-chibi-v1.webp");
+    expect(container.querySelector<HTMLImageElement>('.mapping-message--assistant .mapping-message__avatar')?.src).toContain("/assets/qidie-guide-avatar-chibi-v1.webp");
+    expect(container.querySelector('.mapping-message--user .mapping-message__avatar')).toBeNull();
 
     const composer = container.querySelector<HTMLTextAreaElement>("#mapping-chat-input");
     expect(composer).toBeInstanceOf(HTMLTextAreaElement);

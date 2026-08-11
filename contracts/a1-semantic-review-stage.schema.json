@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/contracts/a1-semantic-review-stage.schema.json",
+  "title": "Mengdie A1 v4 directional semantic-review stage response",
+  "type": "object",
+  "required": ["mode", "reviews"],
+  "properties": {
+    "mode": { "enum": ["omission", "contradiction"] },
+    "reviews": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/review" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "issueCode": {
+      "enum": [
+        "summary_material_omission",
+        "narrative_sufficiency_omission",
+        "key_entity_omission",
+        "plot_beat_omission",
+        "motif_omission",
+        "life_context_omission",
+        "trigger_omission",
+        "conflict_omission",
+        "agency_omission",
+        "ending_omission",
+        "safety_status_omission",
+        "safety_flag_omission",
+        "safety_uncertainty_omission",
+        "interpretation_risk_omission",
+        "summary_actor_contradiction",
+        "summary_action_object_contradiction",
+        "summary_modality_negation_contradiction",
+        "summary_time_contradiction",
+        "summary_outcome_contradiction",
+        "summary_location_contradiction",
+        "summary_quantity_contradiction",
+        "summary_relation_contradiction",
+        "summary_causality_contradiction",
+        "summary_other_fact_contradiction",
+        "other_version_intrusion",
+        "narrative_sufficiency_contradiction",
+        "key_entity_overreach",
+        "plot_beat_overreach",
+        "motif_overreach",
+        "life_context_overreach",
+        "trigger_contradiction",
+        "conflict_overreach",
+        "agency_overreach",
+        "ending_contradiction",
+        "safety_status_contradiction",
+        "safety_flag_overreach",
+        "safety_uncertainty_contradiction",
+        "interpretation_risk_overreach",
+        "evidence_support_contradiction"
+      ]
+    },
+    "field": {
+      "enum": [
+        "modernRetrievalSummary",
+        "narrativeSufficiency",
+        "keyEntities",
+        "plotBeats",
+        "motifTerms",
+        "lifeContext",
+        "narrativeArc.trigger",
+        "narrativeArc.conflictTypes",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks",
+        "autoSafetyScreen.uncertainties",
+        "evidence.supports"
+      ]
+    },
+    "fieldCheck": {
+      "type": "object",
+      "required": ["checked", "issueCodes"],
+      "properties": {
+        "checked": { "const": true },
+        "issueCodes": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 12,
+          "items": { "$ref": "#/$defs/issueCode" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "fieldChecks": {
+      "type": "object",
+      "required": [
+        "modernRetrievalSummary",
+        "narrativeSufficiency",
+        "keyEntities",
+        "plotBeats",
+        "motifTerms",
+        "lifeContext",
+        "narrativeArc.trigger",
+        "narrativeArc.conflictTypes",
+        "narrativeArc.agencyModes",
+        "narrativeArc.endingMode",
+        "autoSafetyScreen.status",
+        "autoSafetyScreen.flags",
+        "autoSafetyScreen.interpretationRisks",
+        "autoSafetyScreen.uncertainties",
+        "evidence.supports"
+      ],
+      "properties": {
+        "modernRetrievalSummary": { "$ref": "#/$defs/fieldCheck" },
+        "narrativeSufficiency": { "$ref": "#/$defs/fieldCheck" },
+        "keyEntities": { "$ref": "#/$defs/fieldCheck" },
+        "plotBeats": { "$ref": "#/$defs/fieldCheck" },
+        "motifTerms": { "$ref": "#/$defs/fieldCheck" },
+        "lifeContext": { "$ref": "#/$defs/fieldCheck" },
+        "narrativeArc.trigger": { "$ref": "#/$defs/fieldCheck" },
+        "narrativeArc.conflictTypes": { "$ref": "#/$defs/fieldCheck" },
+        "narrativeArc.agencyModes": { "$ref": "#/$defs/fieldCheck" },
+        "narrativeArc.endingMode": { "$ref": "#/$defs/fieldCheck" },
+        "autoSafetyScreen.status": { "$ref": "#/$defs/fieldCheck" },
+        "autoSafetyScreen.flags": { "$ref": "#/$defs/fieldCheck" },
+        "autoSafetyScreen.interpretationRisks": { "$ref": "#/$defs/fieldCheck" },
+        "autoSafetyScreen.uncertainties": { "$ref": "#/$defs/fieldCheck" },
+        "evidence.supports": { "$ref": "#/$defs/fieldCheck" }
+      },
+      "additionalProperties": false
+    },
+    "issue": {
+      "type": "object",
+      "required": ["code", "field", "targetValue", "sourceExcerpt", "correctionHint"],
+      "properties": {
+        "code": { "$ref": "#/$defs/issueCode" },
+        "field": { "$ref": "#/$defs/field" },
+        "targetValue": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "sourceExcerpt": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "correctionHint": { "type": "string", "minLength": 2, "maxLength": 160 }
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "required": ["entryId", "fieldChecks", "issues"],
+      "properties": {
+        "entryId": { "type": "string", "pattern": "^c1ws_[0-9a-f]{24}$" },
+        "fieldChecks": { "$ref": "#/$defs/fieldChecks" },
+        "issues": {
+          "type": "array",
+          "maxItems": 10,
+          "items": { "$ref": "#/$defs/issue" }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

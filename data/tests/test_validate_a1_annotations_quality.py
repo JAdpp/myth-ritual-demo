@@ -84,6 +84,13 @@ class EvidenceSupportGateTests(unittest.TestCase):
     def test_baseline_supports_are_valid(self) -> None:
         self.assertEqual([], validator.evidence_semantic_issues(annotation_stub(), self.SOURCE))
 
+    def test_explicit_unknown_trigger_never_requires_evidence_support(self) -> None:
+        annotation = annotation_stub()
+        annotation["narrative_arc"]["trigger"] = "未知"
+        annotation["evidence"][0]["supports"].remove("narrative_arc.trigger")
+
+        self.assertEqual([], validator.evidence_semantic_issues(annotation, self.SOURCE))
+
     def test_dangling_support_fails(self) -> None:
         annotation = annotation_stub()
         annotation["evidence"][0]["supports"].append("auto_safety_screen.flags.death")
@@ -164,6 +171,11 @@ class SafetyGateTests(unittest.TestCase):
         annotation = annotation_stub(flags=["illness"])
         issues = validator.safety_quality_issues(annotation, "此人患病多年。")
         self.assertNotIn("SAFETY_SIGNAL_UNCOVERED", {code for code, _ in issues})
+
+
+class ValidatorStatusContractTests(unittest.TestCase):
+    def test_generator_valid_status_is_accepted_by_default(self) -> None:
+        self.assertIn("valid", validator.DEFAULT_ACCEPTED_STATUSES)
 
 
 if __name__ == "__main__":

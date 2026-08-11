@@ -23,3 +23,7 @@ coverage/
 # Generated databases (rebuild from data/corpus shards)
 *.sqlite3
 *.sqlite3-*
+
+# Compiled caches under data/ were tracked by accident; ignore them like api/.
+data/__pycache__/
+data/**/__pycache__/

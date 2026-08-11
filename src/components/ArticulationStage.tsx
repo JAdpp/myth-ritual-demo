@@ -19,6 +19,7 @@ import {
 } from "../lib/story";
 import { toSimplifiedDisplay } from "../lib/display-text";
 import { NarrativeMappingCanvas, deriveSourceBeats } from "./NarrativeMappingCanvas";
+import { QidieAvatar } from "./QidieAvatar";
 import { StatusMessage } from "./StoryLoom";
 
 type AssistantIntent = "clarify" | "reorder" | "fill_gap" | "preserve_boundary";
@@ -131,7 +132,7 @@ function MappingAssistant({
     <aside className="mapping-assistant" aria-labelledby="mapping-assistant-title">
       <header className="mapping-assistant__header">
         <div className="mapping-assistant__identity">
-          <img src="/assets/qidie-assistant-avatar-transparent.png" alt="" />
+          <QidieAvatar size={46} className="mapping-assistant__avatar" />
           <div>
           <p className="section-label">通过与栖蝶对话修改</p>
           <h2 id="mapping-assistant-title">栖蝶</h2>
@@ -166,7 +167,9 @@ function MappingAssistant({
       <div className="mapping-assistant__messages" aria-live="polite" aria-label="映照对话记录">
         {messages.map((message) => (
           <div key={message.id} className={`mapping-message mapping-message--${message.role}`}>
-            <span>{message.role === "assistant" ? "栖蝶" : "你"}</span>
+            <span className="mapping-message__author">
+              {message.role === "assistant" ? <><QidieAvatar size={24} className="mapping-message__avatar" />栖蝶</> : "你"}
+            </span>
             <p>{message.text}</p>
           </div>
         ))}

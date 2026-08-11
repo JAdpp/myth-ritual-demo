@@ -243,7 +243,7 @@
 .mapping-assistant__header { display: flex; gap: 0.8rem; align-items: start; justify-content: space-between; padding: 1rem; border-bottom: 1px solid var(--rule); }
 .mapping-assistant__header h2 { margin: 0; font-size: 1.35rem; }
 .mapping-assistant__identity { display: flex; gap: 0.7rem; align-items: center; }
-.mapping-assistant__identity > img { flex: 0 0 auto; width: 46px; height: 46px; object-fit: contain; }
+.mapping-assistant__avatar { flex: 0 0 auto; width: 46px; height: 46px; border: 1px solid var(--line); border-radius: 50%; object-fit: cover; }
 .mapping-assistant__identity .section-label { margin-bottom: 0.08rem; }
 .mapping-assistant__mode { color: var(--mapping-branch-ink); font-family: var(--sans); font-size: 0.66rem; }
 .mapping-assistant__disclosure { padding: 0.9rem 1rem; background: var(--paper-sunk); border-bottom: 1px solid var(--rule); }
@@ -266,6 +266,8 @@
 .mapping-message { max-width: 92%; }
 .mapping-message--user { justify-self: end; }
 .mapping-message > span { color: var(--ink-faint); font-family: var(--sans); font-size: 0.66rem; }
+.mapping-message__author { display: inline-flex; gap: 0.3rem; align-items: center; }
+.mapping-message__avatar { width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 50%; object-fit: cover; }
 .mapping-message p { margin: 0.2rem 0 0; padding: 0.55rem; background: var(--paper-sunk); }
 .mapping-message--user p { background: var(--paper-raised); }
 

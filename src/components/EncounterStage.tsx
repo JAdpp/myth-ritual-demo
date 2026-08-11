@@ -18,6 +18,7 @@ import {
   storySourceLabel,
 } from "../lib/story";
 import { createStoryCover } from "../api";
+import { QidieAvatar } from "./QidieAvatar";
 import { StatusMessage } from "./StoryLoom";
 import { StoryIllustration } from "./StoryIllustration";
 
@@ -26,8 +27,6 @@ const STORY_STARTERS = [
   { id: "turn", label: "原本……，后来……" },
   { id: "care", label: "当时我最在意的是……" },
 ] as const;
-
-const QIDIE_AVATAR_SRC = "/assets/qidie-assistant-avatar-transparent.png";
 
 /** Mirrors _MAX_GUIDANCE_TURNS in the API; only a fallback until a turn responds. */
 const MAX_GUIDANCE_TURNS = 4;
@@ -99,23 +98,6 @@ function responseFollowUpOptions(response: ConversationTurnResponse | null | und
     .map((option) => option.trim())
     .filter(Boolean))]
     .slice(0, 3);
-}
-
-function QidieAvatar({ size = 36, className }: { size?: number; className?: string }) {
-  const [imageMissing, setImageMissing] = useState(false);
-  if (imageMissing) {
-    return <span className={className} role="img" aria-label="栖蝶头像">栖蝶</span>;
-  }
-  return (
-    <img
-      className={className}
-      src={QIDIE_AVATAR_SRC}
-      alt="栖蝶头像"
-      width={size}
-      height={size}
-      onError={() => setImageMissing(true)}
-    />
-  );
 }
 
 function StorySource({ card }: { card: StoryCard }) {
@@ -403,7 +385,7 @@ export function EncounterStage({
                   && Boolean(message.followUpQuestion);
                 return (
                   <div key={message.id} className={`chat-bubble chat-${message.role}`}>
-                    <span>{message.role === "assistant" ? <><QidieAvatar size={20} /> 栖蝶</> : "你"}</span>
+                    <span>{message.role === "assistant" ? <><QidieAvatar size={24} /> 栖蝶</> : "你"}</span>
                     {completeAssistantTurn ? (
                       <div className="chat-assistant-turn">
                         <p className="chat-acknowledgement">{toSimplifiedDisplay(message.acknowledgement)}</p>
@@ -413,7 +395,7 @@ export function EncounterStage({
                   </div>
                 );
               })}
-              {busy && <div className="chat-bubble chat-assistant chat-thinking"><span><QidieAvatar size={20} /> 栖蝶</span><p>正在整理这段线索…</p></div>}
+              {busy && <div className="chat-bubble chat-assistant chat-thinking"><span><QidieAvatar size={24} /> 栖蝶</span><p>正在整理这段线索…</p></div>}
             </div>
             {userMessages.length === 0 && (
               <div className="conversation-starters" aria-label="讲述这件事的句式起点">

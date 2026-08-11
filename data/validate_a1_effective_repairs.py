@@ -3,11 +3,15 @@
 
 This validator never calls a provider and never writes to any SQLite file.  It
 opens all four ledgers with ``mode=ro`` and ``PRAGMA query_only=ON`` and then
-reconstructs every stored hash/provenance edge for effective repair rows.
+reconstructs every stored hash/provenance edge for effective repair rows,
+including iterative parents and archived lineage.  The repair job's stored
+review is the causal review that produced the repair; the current review row
+may instead be a later pass/revise re-review of the latest effective result.
 
 An empty repair sidecar is structurally valid by default.  Use
 ``--require-count`` and/or ``--require-all-reviewed-revisions`` when this is a
-coverage gate rather than a structural/integrity gate.
+coverage gate rather than a structural/integrity gate.  Add
+``--require-effective-rereview-pass`` for final semantic-loop closure.
 """
 
 from __future__ import annotations
@@ -20,6 +24,7 @@ import re
 import sqlite3
 import sys
 from collections import Counter
+from contextlib import closing
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -119,7 +124,12 @@ REVIEW_COLUMNS = {
 EFFECTIVE_COLUMNS = {
     "entry_id",
     "source_text_sha256",
+    "canonical_root_sha256",
     "base_candidate_sha256",
+    "parent_effective_sha256",
+    "repair_iteration",
+    "immediate_base_origin",
+    "lineage_json",
     "review_sha256",
     "review_verdict",
     "review_prompt_version",
@@ -133,14 +143,19 @@ EFFECTIVE_COLUMNS = {
     "status",
     "base_annotation_json",
     "review_json",
+    "raw_model_annotation_json",
     "normalized_annotation_json",
     "normalized_annotation_sha256",
     "effective_annotation_json",
     "effective_annotation_sha256",
     "effective_envelope_json",
+    "raw_response_json",
     "error_kind",
     "error_message",
     "provider_response_id",
+    "prompt_tokens",
+    "completion_tokens",
+    "total_tokens",
     "model",
     "provider_reported_model",
     "prompt_version",
@@ -148,6 +163,30 @@ EFFECTIVE_COLUMNS = {
     "canonical_schema_sha256",
     "effective_schema_sha256",
     "envelope_schema_sha256",
+}
+
+EFFECTIVE_HISTORY_COLUMNS = {
+    "entry_id",
+    "repair_iteration",
+    "canonical_root_sha256",
+    "base_candidate_sha256",
+    "parent_effective_sha256",
+    "review_sha256",
+    "review_prompt_version",
+    "review_prompt_sha256",
+    "normalized_annotation_sha256",
+    "effective_annotation_sha256",
+    "effective_envelope_json",
+    "lineage_json",
+    "raw_response_json",
+    "provider_response_id",
+    "model",
+    "provider_reported_model",
+    "prompt_version",
+    "prompt_sha256",
+    "prompt_tokens",
+    "completion_tokens",
+    "total_tokens",
 }
 
 
@@ -160,6 +199,7 @@ class ValidationReport:
     repair_count: int = 0
     checked_repairs: int = 0
     required_revision_count: int = 0
+    effective_rereview_pass_count: int = 0
     status_counts: Counter[str] = field(default_factory=Counter)
     verdict_counts: Counter[str] = field(default_factory=Counter)
     errors: list[str] = field(default_factory=list)
@@ -199,6 +239,16 @@ def parse_json_object(raw: Any, *, label: str) -> dict[str, Any]:
         raise ValueError(f"{label} is not valid JSON") from exc
     if not isinstance(value, dict):
         raise ValueError(f"{label} root is not an object")
+    return value
+
+
+def parse_json_array(raw: Any, *, label: str) -> list[Any]:
+    try:
+        value = json.loads(raw) if isinstance(raw, (str, bytes, bytearray)) else raw
+    except (TypeError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"{label} is not valid JSON") from exc
+    if not isinstance(value, list):
+        raise ValueError(f"{label} root is not an array")
     return value
 
 
@@ -297,7 +347,14 @@ def expected_repair_input(
     base_hash: str,
     review: Mapping[str, Any],
     review_hash: str,
-    review_row: sqlite3.Row,
+    review_prompt_version: str,
+    review_prompt_sha256: str,
+    review_schema_sha256: str,
+    review_verdict: str,
+    canonical_root_sha256: str,
+    parent_effective_sha256: str | None,
+    repair_iteration: int,
+    immediate_base_origin: str,
 ) -> dict[str, Any]:
     return {
         "entryId": str(source["entry_id"]),
@@ -307,15 +364,19 @@ def expected_repair_input(
         "title": str(source["title"]),
         "sourceTextSha256": source_hash,
         "baseCandidateSha256": base_hash,
+        "canonicalRootSha256": canonical_root_sha256,
+        "parentEffectiveSha256": parent_effective_sha256,
+        "repairIteration": repair_iteration,
+        "immediateBaseOrigin": immediate_base_origin,
         "reviewSha256": review_hash,
         "reviewProvenance": {
-            "promptVersion": str(review_row["prompt_version"]),
-            "promptSha256": str(review_row["prompt_sha256"]),
-            "schemaSha256": str(review_row["review_schema_sha256"]),
+            "promptVersion": review_prompt_version,
+            "promptSha256": review_prompt_sha256,
+            "schemaSha256": review_schema_sha256,
         },
         "sourceText": str(source["text"]),
         "candidate": base,
-        "reviewVerdict": str(review_row["verdict"]),
+        "reviewVerdict": review_verdict,
         "reviewIssues": review.get("issues"),
     }
 
@@ -412,6 +473,7 @@ def validate_databases(
     envelope_schema: Path = DEFAULT_ENVELOPE_SCHEMA,
     require_count: int | None = None,
     require_all_reviewed_revisions: bool = False,
+    require_effective_rereview_pass: bool = False,
     expected_review_model: str = EXPECTED_REVIEW_MODEL,
     expected_review_prompt_version: str | None = None,
     expected_review_prompt_sha256: str | None = None,
@@ -471,10 +533,10 @@ def validate_databases(
     repair_prompt_sha = sha256_text(repair_worker.SYSTEM_PROMPT)
 
     report = ValidationReport(max_errors=max_errors)
-    with readonly_connection(source_db) as source_conn, readonly_connection(
-        annotation_db
-    ) as annotation_conn, readonly_connection(review_db) as review_conn, readonly_connection(
-        effective_db
+    with closing(readonly_connection(source_db)) as source_conn, closing(
+        readonly_connection(annotation_db)
+    ) as annotation_conn, closing(readonly_connection(review_db)) as review_conn, closing(
+        readonly_connection(effective_db)
     ) as effective_conn:
         for conn, label in (
             (source_conn, "C1 source"),
@@ -491,6 +553,12 @@ def validate_databases(
             "effective_repair_jobs",
             EFFECTIVE_COLUMNS,
             "effective repair",
+        )
+        require_columns(
+            effective_conn,
+            "effective_repair_history",
+            EFFECTIVE_HISTORY_COLUMNS,
+            "effective repair history",
         )
 
         report.repair_count = int(
@@ -592,15 +660,25 @@ def validate_databases(
                 fail("effective repair source hash is stale")
 
             try:
-                base = parse_json_object(a1_row["annotation_json"], label="A1 annotation_json")
-                stored_base = parse_json_object(
+                canonical_base = parse_json_object(
+                    a1_row["annotation_json"], label="A1 annotation_json"
+                )
+                immediate_base = parse_json_object(
                     job["base_annotation_json"], label="base_annotation_json"
                 )
-                review = parse_json_object(review_row["review_json"], label="review_json")
-                stored_review = parse_json_object(
+                current_review = parse_json_object(
+                    review_row["review_json"], label="review_json"
+                )
+                repair_review = parse_json_object(
                     job["review_json"], label="repair review_json"
                 )
                 repair_input = parse_json_object(job["input_json"], label="input_json")
+                raw_model = parse_json_object(
+                    job["raw_model_annotation_json"], label="raw_model_annotation_json"
+                )
+                raw_response = parse_json_object(
+                    job["raw_response_json"], label="raw_response_json"
+                )
                 normalized = parse_json_object(
                     job["normalized_annotation_json"], label="normalized_annotation_json"
                 )
@@ -610,47 +688,84 @@ def validate_databases(
                 envelope = parse_json_object(
                     job["effective_envelope_json"], label="effective_envelope_json"
                 )
+                lineage = parse_json_array(job["lineage_json"], label="lineage_json")
             except ValueError as exc:
                 fail(str(exc))
                 continue
 
             for label, raw, value in (
-                ("A1 annotation_json", a1_row["annotation_json"], base),
-                ("base_annotation_json", job["base_annotation_json"], stored_base),
-                ("review row JSON", review_row["review_json"], review),
-                ("repair review_json", job["review_json"], stored_review),
+                ("A1 annotation_json", a1_row["annotation_json"], canonical_base),
+                ("base_annotation_json", job["base_annotation_json"], immediate_base),
+                ("review row JSON", review_row["review_json"], current_review),
+                ("repair review_json", job["review_json"], repair_review),
                 ("input_json", job["input_json"], repair_input),
+                ("raw_model_annotation_json", job["raw_model_annotation_json"], raw_model),
+                ("raw_response_json", job["raw_response_json"], raw_response),
                 ("normalized_annotation_json", job["normalized_annotation_json"], normalized),
                 ("effective_annotation_json", job["effective_annotation_json"], effective),
                 ("effective_envelope_json", job["effective_envelope_json"], envelope),
+                ("lineage_json", job["lineage_json"], lineage),
             ):
                 if raw != canonical_json(value):
                     fail(f"{label} is not canonical JSON")
 
-            base_hash = sha256_text(canonical_json(base))
-            review_hash = sha256_text(canonical_json(review))
+            canonical_hash = sha256_text(canonical_json(canonical_base))
+            immediate_hash = sha256_text(canonical_json(immediate_base))
+            current_review_hash = sha256_text(canonical_json(current_review))
+            repair_review_hash = sha256_text(canonical_json(repair_review))
             normalized_hash = sha256_text(canonical_json(normalized))
             effective_hash = sha256_text(canonical_json(effective))
-            if stored_base != base:
-                fail("stored base annotation is not current canonical A1")
-            if stored_review != review:
-                fail("stored review is not current semantic review JSON")
-            if job["base_candidate_sha256"] != base_hash:
+            try:
+                repair_iteration = int(job["repair_iteration"])
+            except (TypeError, ValueError):
+                fail("repair iteration is not an integer")
+                continue
+            parent_effective = (
+                str(job["parent_effective_sha256"])
+                if job["parent_effective_sha256"]
+                else None
+            )
+            immediate_origin = str(job["immediate_base_origin"])
+
+            if job["canonical_root_sha256"] != canonical_hash:
+                fail("canonical root hash closure failed")
+            if job["base_candidate_sha256"] != immediate_hash:
                 fail("base candidate hash closure failed")
-            if review_row["candidate_annotation_sha256"] != base_hash:
-                fail("semantic review is stale against current canonical A1")
-            if job["review_sha256"] != review_hash:
-                fail("current review JSON hash closure failed")
+            if job["review_sha256"] != repair_review_hash:
+                fail("repair review JSON hash closure failed")
             if job["normalized_annotation_sha256"] != normalized_hash:
                 fail("normalized annotation hash closure failed")
             if job["effective_annotation_sha256"] != effective_hash:
                 fail("effective annotation hash closure failed")
 
+            if repair_iteration < 1:
+                fail("repair iteration is less than one")
+            if repair_iteration == 1:
+                if immediate_origin != "canonical_a1" or parent_effective is not None:
+                    fail("first repair does not originate from canonical A1")
+                if immediate_base != canonical_base:
+                    fail("first repair immediate base is not current canonical A1")
+            else:
+                if immediate_origin != "effective_repair":
+                    fail("iterative repair does not originate from an effective repair")
+                if parent_effective != immediate_hash:
+                    fail("iterative repair parent hash does not equal immediate base hash")
+
             canonical_errors = sorted(
-                canonical_validator.iter_errors(base), key=lambda error: list(error.absolute_path)
+                canonical_validator.iter_errors(canonical_base),
+                key=lambda error: list(error.absolute_path),
             )
             if canonical_errors:
                 fail("canonical A1 schema failure at " + schema_paths(canonical_errors))
+            base_validator = (
+                canonical_validator if repair_iteration == 1 else effective_validator
+            )
+            immediate_schema_errors = sorted(
+                base_validator.iter_errors(immediate_base),
+                key=lambda error: list(error.absolute_path),
+            )
+            if immediate_schema_errors:
+                fail("immediate base schema failure at " + schema_paths(immediate_schema_errors))
             normalized_schema_errors = sorted(
                 canonical_validator.iter_errors(normalized),
                 key=lambda error: list(error.absolute_path),
@@ -665,12 +780,16 @@ def validate_databases(
                 fail("effective A1 schema failure at " + schema_paths(effective_schema_errors))
             if not list(canonical_validator.iter_errors(effective)):
                 fail("effective repair incorrectly passes fixed first-pass A1 schema")
-            review_schema_errors = sorted(
-                review_validator.iter_errors({"reviews": [review]}),
-                key=lambda error: list(error.absolute_path),
-            )
-            if review_schema_errors:
-                fail("current review schema failure at " + schema_paths(review_schema_errors))
+            for label, review_value in (
+                ("repair review", repair_review),
+                ("current review", current_review),
+            ):
+                review_schema_errors = sorted(
+                    review_validator.iter_errors({"reviews": [review_value]}),
+                    key=lambda error: list(error.absolute_path),
+                )
+                if review_schema_errors:
+                    fail(f"{label} schema failure at " + schema_paths(review_schema_errors))
             envelope_schema_errors = sorted(
                 envelope_validator.iter_errors(envelope),
                 key=lambda error: list(error.absolute_path),
@@ -679,16 +798,18 @@ def validate_databases(
                 fail("effective envelope schema failure at " + schema_paths(envelope_schema_errors))
 
             try:
-                base_profile = base["annotation_record"]["source_profile"]
+                canonical_profile = canonical_base["annotation_record"]["source_profile"]
             except (KeyError, TypeError):
-                base_profile = {}
-            for label, annotation in (
-                ("base", base),
-                ("normalized", normalized),
-                ("effective", effective),
-            ):
+                canonical_profile = {}
+            annotations_to_check = [("canonical base", canonical_base)]
+            if repair_iteration > 1:
+                annotations_to_check.append(("immediate effective base", immediate_base))
+            annotations_to_check.extend(
+                [("normalized", normalized), ("effective", effective)]
+            )
+            for label, annotation in annotations_to_check:
                 for issue in source_profile_errors(
-                    annotation, source=source, base_profile=base_profile
+                    annotation, source=source, base_profile=canonical_profile
                 ):
                     fail(f"{label}: {issue}")
                 gate_errors = annotation_gate_errors(
@@ -698,32 +819,68 @@ def validate_databases(
                     source_hash=source_hash,
                 )
                 if gate_errors:
-                    fail(f"{label} deterministic A1 gates failed: {','.join(sorted(set(gate_errors)))}")
+                    fail(
+                        f"{label} deterministic A1 gates failed: "
+                        + ",".join(sorted(set(gate_errors)))
+                    )
                 for issue in automatic_boundary_errors(annotation):
                     fail(f"{label}: {issue}")
 
-            review_verdict = str(review_row["verdict"])
-            if review_verdict not in {"revise", "uncertain"}:
+            repair_verdict = str(job["review_verdict"])
+            if repair_verdict not in {"revise", "uncertain"}:
                 fail("effective repair does not target revise/uncertain review")
-            if review_row["status"] != review_verdict:
-                fail("semantic-review status does not equal verdict")
-            if review.get("entryId") != entry_id or review.get("verdict") != review_verdict:
-                fail("review JSON identity/verdict does not match review row")
-            if job["review_verdict"] != review_verdict:
-                fail("repair review_verdict is stale")
-            try:
-                stored_issues = json.loads(review_row["issues_json"])
-            except (TypeError, json.JSONDecodeError):
-                fail("review issues_json is invalid")
-            else:
-                if stored_issues != review.get("issues"):
-                    fail("review issues_json does not match current review JSON")
-                if review_row["issues_json"] != canonical_json(stored_issues):
-                    fail("review issues_json is not canonical JSON")
-            for issue in review.get("issues", []):
+            if (
+                repair_review.get("entryId") != entry_id
+                or repair_review.get("verdict") != repair_verdict
+            ):
+                fail("stored repair review identity/verdict does not match repair job")
+            for issue in repair_review.get("issues", []):
                 excerpt = issue.get("sourceExcerpt") if isinstance(issue, Mapping) else None
                 if not isinstance(excerpt, str) or excerpt not in source_text:
-                    fail("review issue excerpt is not exact current source text")
+                    fail("repair review issue excerpt is not exact current source text")
+
+            current_verdict = str(review_row["verdict"] or "")
+            if current_verdict not in {"pass", "revise", "uncertain"}:
+                fail("current semantic review is not terminal")
+            if review_row["status"] != current_verdict:
+                fail("current semantic-review status does not equal verdict")
+            if (
+                current_review.get("entryId") != entry_id
+                or current_review.get("verdict") != current_verdict
+            ):
+                fail("current review JSON identity/verdict does not match review row")
+            try:
+                current_issues = json.loads(review_row["issues_json"])
+            except (TypeError, json.JSONDecodeError):
+                fail("current review issues_json is invalid")
+            else:
+                if current_issues != current_review.get("issues"):
+                    fail("current review issues_json does not match current review JSON")
+                if review_row["issues_json"] != canonical_json(current_issues):
+                    fail("current review issues_json is not canonical JSON")
+            for issue in current_review.get("issues", []):
+                excerpt = issue.get("sourceExcerpt") if isinstance(issue, Mapping) else None
+                if not isinstance(excerpt, str) or excerpt not in source_text:
+                    fail("current review issue excerpt is not exact current source text")
+
+            current_candidate_hash = str(review_row["candidate_annotation_sha256"])
+            current_is_causal_review = (
+                current_candidate_hash == immediate_hash
+                and current_review_hash == repair_review_hash
+                and current_verdict == repair_verdict
+            )
+            current_is_effective_rereview = current_candidate_hash == effective_hash
+            if not current_is_causal_review and not current_is_effective_rereview:
+                fail("current semantic review targets neither repair base nor latest effective")
+            if current_is_effective_rereview and current_verdict == "pass":
+                report.effective_rereview_pass_count += 1
+            if require_all_reviewed_revisions and current_verdict in {"revise", "uncertain"}:
+                if not current_is_causal_review:
+                    fail("current revise/uncertain review has not been repaired")
+            if require_effective_rereview_pass and not (
+                current_is_effective_rereview and current_verdict == "pass"
+            ):
+                fail("latest effective annotation lacks a current pass re-review")
 
             if review_row["model"] != expected_review_model:
                 fail("review model is not current")
@@ -735,12 +892,12 @@ def validate_databases(
                 fail("review prompt hash is not current")
             if review_row["review_schema_sha256"] != review_schema_sha:
                 fail("review schema hash is not current")
-            if job["review_prompt_version"] != review_row["prompt_version"]:
-                fail("repair review prompt_version does not match current review")
-            if job["review_prompt_sha256"] != review_row["prompt_sha256"]:
-                fail("repair review prompt hash does not match current review")
-            if job["review_schema_sha256"] != review_row["review_schema_sha256"]:
-                fail("repair review schema hash does not match current review")
+            if job["review_prompt_version"] != current_review_prompt_version:
+                fail("repair review prompt_version is not current")
+            if job["review_prompt_sha256"] != current_review_prompt_sha:
+                fail("repair review prompt hash is not current")
+            if job["review_schema_sha256"] != review_schema_sha:
+                fail("repair review schema hash is not current")
 
             if job["model"] != expected_repair_model:
                 fail("repair requested model is not current")
@@ -757,36 +914,61 @@ def validate_databases(
             if job["envelope_schema_sha256"] != envelope_schema_sha:
                 fail("effective envelope schema hash is not current")
 
+            try:
+                generated_at = effective["annotation_record"]["annotation_meta"][
+                    "generated_at"
+                ]
+            except (KeyError, TypeError):
+                fail("effective annotation generated_at is missing")
+                generated_at = None
+
             expected_input = expected_repair_input(
                 source=source,
                 source_hash=source_hash,
-                base=base,
-                base_hash=base_hash,
-                review=review,
-                review_hash=review_hash,
-                review_row=review_row,
+                base=immediate_base,
+                base_hash=immediate_hash,
+                review=repair_review,
+                review_hash=repair_review_hash,
+                review_prompt_version=str(job["review_prompt_version"]),
+                review_prompt_sha256=str(job["review_prompt_sha256"]),
+                review_schema_sha256=str(job["review_schema_sha256"]),
+                review_verdict=repair_verdict,
+                canonical_root_sha256=canonical_hash,
+                parent_effective_sha256=parent_effective,
+                repair_iteration=repair_iteration,
+                immediate_base_origin=immediate_origin,
             )
             if repair_input != expected_input:
-                fail("repair input_json does not match current C1/A1/review inputs")
+                fail("repair input_json does not match its immediate base/review inputs")
 
             if envelope.get("entry_id") != entry_id:
                 fail("envelope entry_id does not match job")
             if envelope.get("source_text_sha256") != source_hash:
                 fail("envelope source hash is stale")
-            if envelope.get("base_candidate_sha256") != base_hash:
+            if envelope.get("canonical_root_sha256") != canonical_hash:
+                fail("envelope canonical root hash closure failed")
+            if envelope.get("base_candidate_sha256") != immediate_hash:
                 fail("envelope base hash closure failed")
-            if envelope.get("review_sha256") != review_hash:
+            if envelope.get("parent_effective_sha256") != parent_effective:
+                fail("envelope parent effective hash is stale")
+            if envelope.get("repair_iteration") != repair_iteration:
+                fail("envelope repair iteration is stale")
+            if envelope.get("immediate_base_origin") != immediate_origin:
+                fail("envelope immediate base origin is stale")
+            if envelope.get("lineage") != lineage:
+                fail("envelope lineage does not match ledger lineage")
+            if envelope.get("review_sha256") != repair_review_hash:
                 fail("envelope review hash closure failed")
-            if envelope.get("review_verdict") != review_verdict:
+            if envelope.get("review_verdict") != repair_verdict:
                 fail("envelope review verdict is stale")
             if envelope.get("normalized_annotation_sha256") != normalized_hash:
                 fail("envelope normalized hash closure failed")
             if envelope.get("effective_annotation_sha256") != effective_hash:
                 fail("envelope effective hash closure failed")
-            if envelope.get("base_annotation") != base:
+            if envelope.get("base_annotation") != immediate_base:
                 fail("envelope base annotation is not current")
-            if envelope.get("review") != review:
-                fail("envelope review is not current")
+            if envelope.get("review") != repair_review:
+                fail("envelope repair review does not match ledger")
             if envelope.get("normalized_a1_annotation") != normalized:
                 fail("envelope normalized annotation does not match ledger")
             if envelope.get("effective_annotation") != effective:
@@ -810,14 +992,18 @@ def validate_databases(
                 "canonical_schema_sha256": canonical_schema_sha,
                 "effective_schema_sha256": effective_schema_sha,
                 "envelope_schema_sha256": envelope_schema_sha,
-                "base_candidate_sha256": base_hash,
-                "review_sha256": review_hash,
-                "review_verdict": review_verdict,
-                "review_prompt_version": review_row["prompt_version"],
-                "review_prompt_sha256": review_row["prompt_sha256"],
-                "review_schema_sha256": review_row["review_schema_sha256"],
+                "base_candidate_sha256": immediate_hash,
+                "canonical_root_sha256": canonical_hash,
+                "parent_effective_sha256": parent_effective,
+                "repair_iteration": repair_iteration,
+                "immediate_base_origin": immediate_origin,
+                "review_sha256": repair_review_hash,
+                "review_verdict": repair_verdict,
+                "review_prompt_version": job["review_prompt_version"],
+                "review_prompt_sha256": job["review_prompt_sha256"],
+                "review_schema_sha256": job["review_schema_sha256"],
                 "provider_response_id": job["provider_response_id"],
-                "generated_at": effective["annotation_record"]["annotation_meta"]["generated_at"],
+                "generated_at": generated_at,
                 "normalizer": "data.annotate_c1_retrieval.normalise_annotation",
                 "normalizer_local_repair_enabled": True,
                 "automatic_semantic_repair": True,
@@ -838,12 +1024,22 @@ def validate_databases(
                 "base_prompt_version": repair_worker.BASE_PROMPT_VERSION,
                 "repair_prompt_version": repair_worker.REPAIR_PROMPT_VERSION,
                 "repair_prompt_sha256": repair_prompt_sha,
-                "base_candidate_sha256": base_hash,
-                "review_sha256": review_hash,
-                "review_verdict": review_verdict,
-                "review_prompt_version": review_row["prompt_version"],
-                "review_prompt_sha256": review_row["prompt_sha256"],
-                "review_schema_sha256": review_row["review_schema_sha256"],
+                "base_candidate_sha256": immediate_hash,
+                "review_sha256": repair_review_hash,
+                "review_verdict": repair_verdict,
+                "review_prompt_version": job["review_prompt_version"],
+                "review_prompt_sha256": job["review_prompt_sha256"],
+                "review_schema_sha256": job["review_schema_sha256"],
+                "canonical_root_sha256": canonical_hash,
+                "immediate_base_sha256": immediate_hash,
+                "parent_effective_sha256": parent_effective,
+                "repair_iteration": repair_iteration,
+                "immediate_base_origin": immediate_origin,
+                "prior_effective_sha256": [
+                    item.get("effective_annotation_sha256")
+                    for item in lineage[:-1]
+                    if isinstance(item, Mapping)
+                ],
                 "automatic_semantic_repair": True,
                 "human_reviewed": False,
                 "canonical_schema_valid": False,
@@ -853,10 +1049,112 @@ def validate_databases(
             expected_effective = expected_effective_from_normalized(
                 normalized,
                 repair_provenance=expected_meta_repair,
-                verdict=review_verdict,
+                verdict=repair_verdict,
             )
             if effective != expected_effective:
                 fail("effective annotation is not the deterministic normalized-to-effective transform")
+
+            if len(lineage) != repair_iteration:
+                fail("lineage depth does not equal repair iteration")
+            previous_effective: str | None = None
+            seen_effective: set[str] = set()
+            for expected_iteration, item in enumerate(lineage, start=1):
+                if not isinstance(item, Mapping):
+                    fail("lineage contains a non-object item")
+                    continue
+                if item.get("repair_iteration") != expected_iteration:
+                    fail("lineage iteration sequence is not contiguous")
+                if item.get("canonical_root_sha256") != canonical_hash:
+                    fail("lineage canonical root is stale")
+                expected_parent = previous_effective
+                expected_base_hash = canonical_hash if expected_iteration == 1 else previous_effective
+                if item.get("parent_effective_sha256") != expected_parent:
+                    fail("lineage parent hash chain is broken")
+                if item.get("immediate_base_sha256") != expected_base_hash:
+                    fail("lineage immediate base hash chain is broken")
+                item_effective = item.get("effective_annotation_sha256")
+                if not isinstance(item_effective, str) or item_effective in seen_effective:
+                    fail("lineage effective hashes are missing or cyclic")
+                else:
+                    seen_effective.add(item_effective)
+                    previous_effective = item_effective
+            if previous_effective != effective_hash:
+                fail("lineage does not terminate at latest effective annotation")
+
+            if lineage and isinstance(lineage[-1], Mapping):
+                expected_current_lineage = {
+                    "repair_iteration": repair_iteration,
+                    "canonical_root_sha256": canonical_hash,
+                    "immediate_base_sha256": immediate_hash,
+                    "parent_effective_sha256": parent_effective,
+                    "review_sha256": repair_review_hash,
+                    "review_prompt_version": job["review_prompt_version"],
+                    "review_prompt_sha256": job["review_prompt_sha256"],
+                    "review_schema_sha256": job["review_schema_sha256"],
+                    "normalized_annotation_sha256": normalized_hash,
+                    "effective_annotation_sha256": effective_hash,
+                    "raw_model_annotation_sha256": sha256_text(canonical_json(raw_model)),
+                    "raw_response_sha256": sha256_text(canonical_json(raw_response)),
+                    "repair_prompt_version": repair_worker.REPAIR_PROMPT_VERSION,
+                    "repair_prompt_sha256": repair_prompt_sha,
+                    "requested_model": job["model"],
+                    "provider_reported_model": job["provider_reported_model"],
+                    "provider_response_id": job["provider_response_id"],
+                    "prompt_tokens": job["prompt_tokens"],
+                    "completion_tokens": job["completion_tokens"],
+                    "total_tokens": job["total_tokens"],
+                    "generated_at": generated_at,
+                }
+                if dict(lineage[-1]) != expected_current_lineage:
+                    fail("latest lineage entry does not close to current repair artifacts")
+
+            history_rows = effective_conn.execute(
+                "SELECT * FROM effective_repair_history WHERE entry_id=?",
+                (entry_id,),
+            ).fetchall()
+            history_by_hash = {
+                str(row["effective_annotation_sha256"]): row for row in history_rows
+            }
+            for prior in lineage[:-1]:
+                if not isinstance(prior, Mapping):
+                    continue
+                prior_hash = str(prior.get("effective_annotation_sha256") or "")
+                history = history_by_hash.get(prior_hash)
+                if history is None:
+                    fail("lineage predecessor is absent from repair history")
+                    continue
+                try:
+                    history_envelope = parse_json_object(
+                        history["effective_envelope_json"], label="history envelope"
+                    )
+                    history_lineage = parse_json_array(
+                        history["lineage_json"], label="history lineage"
+                    )
+                except ValueError as exc:
+                    fail(str(exc))
+                    continue
+                try:
+                    history_iteration = int(prior.get("repair_iteration"))
+                except (TypeError, ValueError):
+                    fail("history lineage repair iteration is invalid")
+                    continue
+                if history["repair_iteration"] != history_iteration:
+                    fail("history repair iteration does not match lineage")
+                if history_lineage != lineage[:history_iteration]:
+                    fail("history lineage is not the current lineage prefix")
+                if history_envelope.get("lineage") != history_lineage:
+                    fail("history envelope lineage does not match history ledger")
+                if history_envelope.get("effective_annotation_sha256") != prior_hash:
+                    fail("history envelope effective hash is stale")
+                history_schema_errors = sorted(
+                    envelope_validator.iter_errors(history_envelope),
+                    key=lambda error: list(error.absolute_path),
+                )
+                if history_schema_errors:
+                    fail(
+                        "history envelope schema failure at "
+                        + schema_paths(history_schema_errors)
+                    )
 
     return report
 
@@ -874,6 +1172,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--envelope-schema", type=Path, default=DEFAULT_ENVELOPE_SCHEMA)
     parser.add_argument("--require-count", type=int)
     parser.add_argument("--require-all-reviewed-revisions", action="store_true")
+    parser.add_argument(
+        "--require-effective-rereview-pass",
+        action="store_true",
+        help=(
+            "Require every latest effective annotation to be the candidate of a "
+            "current pass review. This is the semantic-loop closure gate."
+        ),
+    )
     parser.add_argument("--expected-review-model", default=EXPECTED_REVIEW_MODEL)
     parser.add_argument("--expected-review-prompt-version")
     parser.add_argument("--expected-review-prompt-sha256")
@@ -887,7 +1193,8 @@ def print_report(report: ValidationReport) -> None:
     print(
         "  counts: "
         f"repairs={report.repair_count}, checked={report.checked_repairs}, "
-        f"requiredReviewedRevisions={report.required_revision_count}"
+        f"requiredReviewedRevisions={report.required_revision_count}, "
+        f"effectiveRereviewPasses={report.effective_rereview_pass_count}"
     )
     print(f"  repair statuses: {dict(sorted(report.status_counts.items()))}")
     print(f"  review verdicts: {dict(sorted(report.verdict_counts.items()))}")
@@ -915,6 +1222,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             envelope_schema=args.envelope_schema,
             require_count=args.require_count,
             require_all_reviewed_revisions=args.require_all_reviewed_revisions,
+            require_effective_rereview_pass=args.require_effective_rereview_pass,
             expected_review_model=args.expected_review_model,
             expected_review_prompt_version=args.expected_review_prompt_version,
             expected_review_prompt_sha256=args.expected_review_prompt_sha256,
