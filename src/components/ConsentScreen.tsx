@@ -553,7 +553,7 @@ export function ConsentScreen({
       </section>
 
       <footer className="landing-footer">
-        <p><strong>梦蝶记</strong><span>中国古典故事与个人经历共谱</span></p>
+        <p><strong>梦蝶记</strong><span>中国古典叙事与个人经历共谱</span></p>
         <p>成年用户文化叙事体验 · 非诊疗产品</p>
       </footer>
 
