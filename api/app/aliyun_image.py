@@ -584,6 +584,38 @@ class AliyunImageAdapter:
         )
         return prompt[:790]
 
+    @staticmethod
+    def build_safe_cover_retry_prompt(
+        *,
+        story_title: str,
+        motifs: str,
+        source_title: str,
+    ) -> str:
+        """A conservative second pass for a rejected or malformed cover.
+
+        Some source summaries contain violence, death or supernatural body
+        detail even when the requested image is only a quiet title plate.  A
+        provider can reject that first prompt before drawing anything.  The
+        retry keeps the title/source grounding and bounded motifs, but asks for
+        one non-violent symbolic object or landscape instead of forwarding the
+        plot summary again.
+        """
+
+        title = _compact(story_title, limit=40) or "中国古典神话传说"
+        imagery = _compact(motifs, limit=60)
+        source = _compact(source_title, limit=50) or "所选古籍"
+        prompt = (
+            "横幅中国画白描题图，一幅完整画面。"
+            "纯水墨线描，宣纸本色，大面积留白；只画一件传统器物、植物、山水或自然意象，"
+            "构图清简含蓄，不画人物冲突、伤害、死亡、惊悚场景或连续情节。"
+            "线条取铁线描与高古游丝描，匀细流畅，不设色、不皴擦、不渲染。"
+            f"题材取意于《{title}》，出处《{source}》。"
+            + (f"可参考的象征意象：{imagery}。" if imagery else "")
+            + "画面不出现任何文字、题签、印章、水印、边框、界面或品牌标识；"
+            "避免彩色、照片写实、三维渲染、动漫、教科书插图、剪贴画与矢量扁平化。"
+        )
+        return prompt[:790]
+
     def generate_story_cover(
         self,
         *,
@@ -602,10 +634,28 @@ class AliyunImageAdapter:
                 reason=reason,
                 message="智能生成题图尚未开启，本卡继续使用线描图形。",
             )
-        return self._request_image(
+        result = self._request_image(
             prompt=self.build_cover_prompt(
                 story_title=story_title,
                 summary=summary,
+                motifs=motifs,
+                source_title=source_title,
+            ),
+            alt_text=alt_text,
+        )
+        if result.status == "ready" or result.failure_reason not in {
+            "provider_rejected",
+            "invalid_response",
+        }:
+            return result
+
+        # Card covers are fetched independently after the recommendation has
+        # rendered, so one bounded retry does not hold up the recommendation
+        # response.  Keep the retry provider-agnostic and never expose either
+        # prompt or failure reason to the browser.
+        return self._request_image(
+            prompt=self.build_safe_cover_retry_prompt(
+                story_title=story_title,
                 motifs=motifs,
                 source_title=source_title,
             ),

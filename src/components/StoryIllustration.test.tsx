@@ -19,7 +19,7 @@ describe("StoryIllustration", () => {
     expect(container.querySelector(".story-illustration-ground")).toBeNull();
     expect(container.querySelector(".story-illustration-seal")).toBeNull();
     expect(container.textContent).toContain("精卫填海象征插画");
-    expect(container.textContent).toContain("编辑性叙事线描 · 非古籍原图");
+    expect(container.textContent).toContain("叙事线描");
   });
 
   it("uses an honest title leaf instead of a generic SVG for an unknown corpus family", () => {
@@ -42,5 +42,18 @@ describe("StoryIllustration", () => {
 
     expect(container.querySelector("svg")).toBeNull();
     expect(container.textContent).toContain("无题");
+  });
+
+  it("keeps a distinct, labelled plate while the z-image white drawing is being prepared", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToStaticMarkup(
+      <StoryIllustration family="jingwei_fills_sea" title="精卫填海" isLoading />,
+    );
+
+    const plate = container.querySelector<HTMLElement>('[data-illustration-state="loading"]');
+    expect(plate).not.toBeNull();
+    expect(plate?.getAttribute("aria-busy")).toBe("true");
+    expect(container.querySelector("img")).toBeNull();
+    expect(container.textContent).toContain("正在绘制白描题图");
   });
 });

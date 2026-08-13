@@ -198,7 +198,7 @@ function StoryExplanation({
           <h3>原典情节线</h3>
           <ol>{(explanation?.plotBeats ?? [card.summary]).map((beat, index) => <li key={`${beat}-${index}`}><span>{index + 1}</span><p>{toSimplifiedDisplay(beat)}</p></li>)}</ol>
         </div>
-        <aside className="recommendation-explained"><strong>为什么推荐</strong><p>{toSimplifiedDisplay(card.recommendationReason ?? card.possibleResonance)}</p><small>你的线索：{toSimplifiedDisplay(card.recommendationBasis?.userSignal ?? "你确认的摘要")}；故事线索：{toSimplifiedDisplay(card.recommendationBasis?.storySignal ?? "故事中的相关情节")}</small></aside>
+        <aside className="recommendation-explained"><strong>推荐理由</strong><p>{toSimplifiedDisplay(card.recommendationReason ?? card.possibleResonance)}</p><small>你的线索：{toSimplifiedDisplay(card.recommendationBasis?.userSignal ?? "你确认的摘要")}；故事线索：{toSimplifiedDisplay(card.recommendationBasis?.storySignal ?? "故事中的相关情节")}</small></aside>
         <StorySource card={card} />
         <div className="story-explanation-actions">
           <button className="secondary-action" type="button" onClick={onClose}>返回比较其他故事</button>
@@ -258,6 +258,7 @@ export function EncounterStage({
   const [turnBudget, setTurnBudget] = useState({ used: 0, total: MAX_GUIDANCE_TURNS });
   const [modelSummary, setModelSummary] = useState<string | null>(null);
   const [covers, setCovers] = useState<Record<string, string | null>>({});
+  const [coverStates, setCoverStates] = useState<Record<string, "loading" | "settled">>({});
 
   useEffect(() => {
     // The brief created earlier in the same send only carries the user's own
@@ -283,34 +284,37 @@ export function EncounterStage({
   const safetyStop = getSafetyStopRoute(brief);
   const userMessages = messages.filter((message) => message.role === "user");
 
-  // Generated card headers, keyed by story. `null` means asked-and-unavailable,
-  // which is not an error: the local line-drawing is a complete fallback.
+  // Generated card headers belong to one offer.  Fetch them in sequence: three
+  // simultaneous image requests can trip the provider's short burst limit,
+  // while the first finished drawing already gives the reader useful feedback.
   useEffect(() => {
-    if (!sessionId) return;
-    const pending = preparedCards
-      .map((card) => card.storyVersionId)
-      .filter((storyVersionId) => covers[storyVersionId] === undefined);
-    if (pending.length === 0) return;
+    const storyVersionIds = preparedCards.map((card) => card.storyVersionId);
+    if (!sessionId || storyVersionIds.length === 0) return;
     let cancelled = false;
-    // Claim them up front so a re-render cannot queue a second request for a
-    // card whose first one is still in flight.
-    setCovers((current) => {
-      const next = { ...current };
-      for (const storyVersionId of pending) next[storyVersionId] = null;
-      return next;
-    });
-    void Promise.all(pending.map(async (storyVersionId) => {
-      try {
-        const cover = await createStoryCover(sessionId, storyVersionId);
-        if (!cancelled && cover.status === "ready" && cover.imageUrl) {
-          setCovers((current) => ({ ...current, [storyVersionId]: cover.imageUrl }));
+    setCovers({});
+    setCoverStates(Object.fromEntries(
+      storyVersionIds.map((storyVersionId) => [storyVersionId, "loading"]),
+    ) as Record<string, "loading" | "settled">);
+
+    void (async () => {
+      for (const storyVersionId of storyVersionIds) {
+        if (cancelled) return;
+        try {
+          const cover = await createStoryCover(sessionId, storyVersionId);
+          if (!cancelled && cover.status === "ready" && cover.imageUrl) {
+            setCovers((current) => ({ ...current, [storyVersionId]: cover.imageUrl }));
+          }
+        } catch {
+          // Keep the local drawing; a missing header must never block the offer.
+        } finally {
+          if (!cancelled) {
+            setCoverStates((current) => ({ ...current, [storyVersionId]: "settled" }));
+          }
         }
-      } catch {
-        // Keep the local drawing; a missing header must never block the offer.
       }
-    }));
+    })();
     return () => { cancelled = true; };
-  }, [covers, preparedCards, sessionId]);
+  }, [offer?.id, sessionId]);
 
   function dropCover(storyVersionId: string) {
     setCovers((current) => ({ ...current, [storyVersionId]: null }));
@@ -501,12 +505,13 @@ export function EncounterStage({
                     family={card.illustrationKey ?? card.storyFamilyId}
                     title={toSimplifiedDisplay(card.title)}
                     imageUrl={covers[card.storyVersionId]}
+                    isLoading={coverStates[card.storyVersionId] === "loading"}
                     onImageError={() => dropCover(card.storyVersionId)}
                   />
                   <div className="illustrated-story-copy">
                     <h3>{toSimplifiedDisplay(card.title)}</h3>
                     <p className="story-card-origin"><span>原典出处</span><strong>{toSimplifiedDisplay(storySourceLabel(card))}</strong></p>
-                    <div className="recommendation-reason"><span>为什么推荐</span><p>{toSimplifiedDisplay(storyRecommendationText(card))}</p></div>
+                    <div className="recommendation-reason"><span>推荐理由</span><p>{toSimplifiedDisplay(storyRecommendationText(card))}</p></div>
                     <details className="source-details story-card-source">
                       <summary>查看梗概与出处</summary>
                       <p className="story-card-summary">{toSimplifiedDisplay(card.summary)}</p>

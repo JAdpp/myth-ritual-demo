@@ -53,6 +53,10 @@ class SessionState:
     expires_at: str
     experience_briefs: list[dict[str, Any]] = field(default_factory=list)
     story_offers: list[dict[str, Any]] = field(default_factory=list)
+    # Ready cover URLs are cached only inside the short-lived private session.
+    # Failed attempts are deliberately not cached so an explicit retry can
+    # recover after a transient provider outage.
+    story_covers: dict[str, dict[str, Any]] = field(default_factory=dict)
     selection: dict[str, Any] | None = None
     source_snapshot: dict[str, Any] | None = None
     source_canon_hash: str | None = None
@@ -2530,6 +2534,9 @@ class SessionService:
             card = offered.get(story_version_id)
             if card is None:
                 raise ServiceError(422, "story_not_offered", "The story was not offered in this session")
+            cached = session.story_covers.get(story_version_id)
+            if cached is not None:
+                return copy.deepcopy(cached)
             record = self.corpus.get(story_version_id)
             if record is None:
                 raise ServiceError(404, "story_not_found", "The story is not in the corpus")
@@ -2581,6 +2588,8 @@ class SessionService:
         with self._lock:
             current_session = self._sessions.get(session_id)
             if current_session is not None:
+                if payload["status"] == "ready" and payload["imageUrl"]:
+                    current_session.story_covers[story_version_id] = copy.deepcopy(payload)
                 self._event(
                     current_session,
                     "story_cover_returned",

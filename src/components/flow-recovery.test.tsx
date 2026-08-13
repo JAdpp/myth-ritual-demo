@@ -31,6 +31,7 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
+  vi.unstubAllGlobals();
 });
 
 function render(element: React.ReactNode) {
@@ -201,7 +202,7 @@ describe("landing and conversational encounter", () => {
       const heading = container.querySelector<HTMLHeadingElement>("#welcome-title");
       const slot = container.querySelector<HTMLElement>(".hero-word-slot");
       const word = container.querySelector<HTMLElement>(".hero-rotating-word");
-      expect(heading?.getAttribute("aria-label")).toBe("古典神话、传奇、志怪与小说，在你的此刻生出一条新支线。");
+      expect(heading?.getAttribute("aria-label")).toBe("古典神话、传奇、志怪与小说，在你的此刻生出一条新支线");
       expect(slot?.classList.contains("is-myth")).toBe(true);
       expect(word?.textContent).toBe("");
 
@@ -306,14 +307,14 @@ describe("landing and conversational encounter", () => {
     expect(container.textContent).toContain("梦蝶记");
     expect(container.textContent).not.toContain("梦蝶录");
     expect(container.textContent).toContain("12,353 条可推荐候选");
-    expect(container.textContent).toContain("目前汇集 6 部开放古籍");
+    expect(container.textContent).toContain("目前汇集 6 部古籍");
     expect(container.textContent).toContain("《太平广记》6,995 条");
     expect(container.textContent).toContain("《夷坚志》2,646 条");
     expect(container.textContent).toContain("《阅微草堂笔记》1,198 条");
     expect(container.textContent).toContain("《子不语》745 条");
     expect(container.textContent).toContain("《续子不语》277 条");
     expect(container.textContent).toContain("《聊斋志异》492 条");
-    expect(container.textContent).toContain("不等同于同等数量的独立故事或专家标注语料");
+    expect(container.textContent).toContain("不等同于同等数量的独立故事");
     expect(container.textContent).toContain("栖蝶沿着你分享的那件事整理时间、人物与转折");
     expect(container.querySelector(".assistant-role-list")).toBeNull();
     expect(container.textContent).toContain("栖蝶——梦蝶记中的故事向导 AI");
@@ -321,7 +322,14 @@ describe("landing and conversational encounter", () => {
     expect(container.querySelector("#case-showcase")).not.toBeNull();
     expect(container.querySelector("#how-it-works")).not.toBeNull();
     expect(container.querySelector("#technology")).not.toBeNull();
-    expect(container.textContent).toContain("30 则编辑深标主文本");
+    expect(container.textContent).toContain("30 则重点整理主文本");
+    expect(container.querySelectorAll(".corpus-story-card")).toHaveLength(12);
+    expect(container.querySelectorAll(".corpus-story-card img")).toHaveLength(12);
+    expect(container.textContent).not.toContain("z-image");
+    expect(container.textContent).not.toContain("DeepSeek");
+    expect(container.textContent).not.toContain("SQLite");
+    expect(container.textContent).not.toContain("BM25");
+    expect(container.textContent).not.toContain("不想继续？");
     expect(container.textContent).not.toContain("已备讲解");
     expect(container.textContent).not.toContain("预制");
     expect(container.textContent).not.toContain("60条后台来源见证");
@@ -488,7 +496,7 @@ describe("landing and conversational encounter", () => {
     );
 
     expect(container.textContent).toContain("大禹治水");
-    expect(container.textContent).toContain("为什么推荐");
+    expect(container.textContent).toContain("推荐理由");
     const sourceDetails = container.querySelector<HTMLDetailsElement>(".story-card-source");
     expect(sourceDetails?.open).toBe(false);
     expect(sourceDetails?.querySelector("summary")?.textContent).toContain("查看梗概与出处");
@@ -505,6 +513,58 @@ describe("landing and conversational encounter", () => {
     expect(container.textContent).toContain("依据原文整理");
     expect(container.textContent).not.toContain("已备讲解");
     expect(container.textContent).not.toContain("异文选择");
+  });
+
+  it("loads a new offer's white-drawing covers in sequence without cancelling itself", async () => {
+    let activeRequests = 0;
+    let maximumConcurrentRequests = 0;
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      activeRequests += 1;
+      maximumConcurrentRequests = Math.max(maximumConcurrentRequests, activeRequests);
+      await new Promise((resolve) => setTimeout(resolve, 8));
+      activeRequests -= 1;
+      const storyVersionId = decodeURIComponent(
+        String(input).split("/stories/")[1]?.split("/cover")[0] ?? "unknown",
+      );
+      return new Response(JSON.stringify({
+        storyVersionId,
+        status: "ready",
+        imageUrl: `https://example.invalid/${storyVersionId}.png`,
+        altText: `${storyVersionId}白描题图`,
+        message: null,
+        retryable: true,
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const cards = ["one", "two", "three"].map((suffix) => ({
+      ...story,
+      storyVersionId: `story-${suffix}`,
+      storyFamilyId: `family-${suffix}`,
+      title: `测试故事${suffix}`,
+      sourceCanon: {
+        ...story.sourceCanon,
+        storyVersionId: `story-${suffix}`,
+        title: `测试故事${suffix}`,
+      },
+    }));
+
+    render(
+      <EncounterStage
+        {...encounterProps({
+          sessionId: "session-cover-sequence",
+          brief: brief({ confirmed: true, safetyRoute: "standard" }),
+          offer: { id: "offer-cover-sequence", corpusVersion: "corpus-test", cards },
+        })}
+      />,
+    );
+
+    expect(container.querySelectorAll('[data-illustration-state="loading"]')).toHaveLength(3);
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 80)); });
+
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(maximumConcurrentRequests).toBe(1);
+    expect(container.querySelectorAll('[data-illustration-state="ready"]')).toHaveLength(3);
+    expect(container.querySelectorAll(".story-illustration-generated img")).toHaveLength(3);
   });
 
   it("keeps a lightweight source-library story selectable without exposing its preparation mode", async () => {
@@ -536,7 +596,7 @@ describe("landing and conversational encounter", () => {
     expect(container.textContent).toContain("狼军师");
     expect(container.querySelector(".story-card-origin")?.textContent).toBe("原典出处《续子不语》");
     expect(container.querySelector(".story-card-source")?.textContent).toContain("卷一 · 狼军师");
-    expect(container.textContent).toContain("为什么推荐");
+    expect(container.textContent).toContain("推荐理由");
     expect(container.textContent).not.toContain("选择后自动整理");
     expect(container.textContent).not.toContain("已备讲解");
 

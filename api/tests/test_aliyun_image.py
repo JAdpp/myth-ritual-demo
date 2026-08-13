@@ -84,6 +84,15 @@ def successful_body() -> dict[str, object]:
     }
 
 
+def cover_kwargs() -> dict[str, str]:
+    return {
+        "story_title": "柳毅传书",
+        "summary": "柳毅为龙女传书，往返洞庭与泾水。",
+        "motifs": "书信、洞庭、龙女",
+        "source_title": "柳毅传",
+    }
+
+
 def test_disabled_generation_fails_closed_without_calling_provider() -> None:
     client = RecordingClient(FakeResponse(successful_body()))
     adapter = AliyunImageAdapter(config(enabled=False), client=client)
@@ -128,6 +137,56 @@ def test_z_image_uses_sync_multimodal_route_and_horizontal_payload() -> None:
     assert "《精卫填海》" in prompt
     assert "《山海经》" in prompt
     assert len(prompt) <= 790
+
+
+def test_story_cover_uses_baimiao_prompt_and_browser_safe_payload() -> None:
+    client = RecordingClient(FakeResponse(successful_body()))
+    adapter = AliyunImageAdapter(config(), client=client)
+
+    result = adapter.generate_story_cover(**cover_kwargs())
+
+    assert result.status == "ready"
+    assert result.cover_payload(story_version_id="liuyi-v1") == {
+        "storyVersionId": "liuyi-v1",
+        "status": "ready",
+        "imageUrl": "https://example-oss.aliyuncs.com/scene.png?Expires=1",
+        "altText": "《柳毅传书》的白描题图",
+        "message": None,
+        "retryable": True,
+    }
+    prompt = client.calls[0]["json"]["input"]["messages"][0]["content"][0]["text"]
+    assert "纯水墨白描" in prompt
+    assert "不设色" in prompt
+    assert "画面不出现任何文字" in prompt
+    assert "z-image" not in str(result.cover_payload(story_version_id="liuyi-v1"))
+
+
+def test_story_cover_retries_once_with_safe_symbolic_prompt_after_rejection() -> None:
+    class SequenceClient:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, Any]] = []
+            self.responses = [
+                FakeResponse({"code": "DataInspectionFailed"}, status_code=400),
+                FakeResponse(successful_body()),
+            ]
+
+        def post(self, url: str, **kwargs: Any) -> FakeResponse:
+            self.calls.append({"url": url, **kwargs})
+            return self.responses.pop(0)
+
+    client = SequenceClient()
+    adapter = AliyunImageAdapter(config(), client=client)
+
+    result = adapter.generate_story_cover(**cover_kwargs())
+
+    assert result.status == "ready"
+    assert len(client.calls) == 2
+    first_prompt = client.calls[0]["json"]["input"]["messages"][0]["content"][0]["text"]
+    retry_prompt = client.calls[1]["json"]["input"]["messages"][0]["content"][0]["text"]
+    assert "柳毅为龙女传书" in first_prompt
+    assert "柳毅为龙女传书" not in retry_prompt
+    assert "不画人物冲突、伤害、死亡、惊悚场景" in retry_prompt
+    assert "《柳毅传书》" in retry_prompt
 
 
 def test_wan_uses_one_watermark_free_horizontal_image_and_negative_prompt() -> None:

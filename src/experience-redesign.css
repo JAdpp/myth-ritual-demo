@@ -862,6 +862,7 @@ summary:focus-visible {
 
 .chat-transcript {
   display: grid;
+  align-content: start;
   gap: 0.85rem;
   min-height: 260px;
   max-height: 440px;
@@ -872,7 +873,10 @@ summary:focus-visible {
 }
 
 .chat-bubble {
+  width: fit-content;
   max-width: 82%;
+  align-self: start;
+  justify-self: start;
   padding: 0.75rem 0.9rem;
   border: 1px solid rgb(93 130 122 / 23%);
   border-radius: 7px 17px 17px;
@@ -1277,6 +1281,309 @@ summary:focus-visible {
 .story-card-hit:focus-visible {
   outline: 2px solid var(--seal);
   outline-offset: -4px;
+}
+
+/* ============================================================
+   推荐笺牌
+   The source field, white-drawing plate and recommendation are intentionally
+   treated as three leaves of one butterfly-bound booklet.  The ornament is
+   structural: inner rules hold the plate, the outer "thread" edge identifies
+   a selectable folio, and the seal only appears after a reader chooses it.
+   ============================================================ */
+.redesigned-story-offer .illustrated-story-grid {
+  --fan-angle: 1.55deg;
+  --fan-drop: 10px;
+  gap: clamp(1rem, 2vw, 1.8rem);
+  padding: 1.1rem clamp(0.4rem, 1vw, 1rem) 1.55rem;
+}
+
+.redesigned-story-offer .illustrated-story-card {
+  isolation: isolate;
+  overflow: visible;
+  border: 1px solid rgb(68 99 94 / 43%);
+  border-radius: 19px 23px 21px 18px;
+  background:
+    linear-gradient(90deg, transparent 0 0.75rem, rgb(72 102 97 / 13%) 0.75rem 0.81rem, transparent 0.81rem),
+    linear-gradient(160deg, rgb(255 255 253 / 96%), rgb(241 247 244 / 94%));
+  box-shadow: 0 14px 31px rgb(26 59 56 / 11%), 0 1px 0 rgb(255 255 255 / 82%) inset;
+}
+
+.redesigned-story-offer .illustrated-story-card::before,
+.redesigned-story-offer .illustrated-story-card::after {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+}
+
+/* An inset rule reads as a printed frame, not a generic double-border. */
+.redesigned-story-offer .illustrated-story-card::before {
+  inset: 0.42rem;
+  border: 1px solid rgb(68 99 94 / 24%);
+  border-radius: 14px 18px 16px 13px;
+}
+
+/* Four stitch points are the butterfly binding: they visually justify why the
+   source and recommendation live on a shared leaf. */
+.redesigned-story-offer .illustrated-story-card::after {
+  top: 1.1rem;
+  bottom: 1.1rem;
+  left: 0.46rem;
+  width: 0.42rem;
+  background:
+    radial-gradient(circle, rgb(53 86 82 / 72%) 0 1.25px, transparent 1.5px) center top / 0.42rem 1.55rem repeat-y;
+  opacity: 0.78;
+}
+
+.redesigned-story-offer .illustrated-story-card.selected {
+  border-color: var(--seal);
+  background:
+    linear-gradient(90deg, transparent 0 0.75rem, rgb(161 61 49 / 19%) 0.75rem 0.81rem, transparent 0.81rem),
+    linear-gradient(160deg, #fffefd, #f8f5ef);
+  box-shadow: 0 0 0 2px rgb(161 61 49 / 16%), 0 18px 42px rgb(67 44 36 / 15%), 0 1px 0 #fff inset;
+}
+
+.redesigned-story-offer .story-card-choice {
+  position: absolute;
+  z-index: 3;
+  top: 0.66rem;
+  right: 0.68rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+}
+
+.redesigned-story-offer .story-card-selected-mark {
+  z-index: 4;
+  top: 1rem;
+  right: 1rem;
+  min-width: 2.55rem;
+  padding: 0.38rem 0.27rem 0.31rem;
+  border: 1px solid var(--seal);
+  border-radius: 3px 4px 3px 5px;
+  background: rgb(255 251 245 / 90%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 84%) inset;
+  color: var(--seal-ink);
+  font-family: var(--seal-script);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.redesigned-story-offer .story-illustration {
+  position: relative;
+  z-index: 1;
+  margin: 0.72rem 0.72rem 0;
+  overflow: hidden;
+  border: 1px solid rgb(68 99 94 / 34%);
+  border-radius: 12px 14px 8px 10px;
+  background-color: #e7efec;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 90%) inset;
+}
+
+.redesigned-story-offer .story-illustration::after {
+  position: absolute;
+  inset: 0.36rem;
+  z-index: 1;
+  border: 1px solid rgb(54 86 82 / 17%);
+  border-radius: 8px 10px 5px 7px;
+  content: "";
+  pointer-events: none;
+}
+
+.redesigned-story-offer .story-illustration-generated img,
+.redesigned-story-offer .story-illustration svg,
+.redesigned-story-offer .story-title-leaf__body,
+.redesigned-story-offer .story-illustration-pending__plate {
+  min-height: 10.8rem;
+  aspect-ratio: 5 / 3;
+}
+
+.redesigned-story-offer .story-illustration-generated img {
+  object-fit: cover;
+  filter: saturate(0.42) contrast(1.05);
+}
+
+.redesigned-story-offer .story-illustration figcaption {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  min-height: 1.65rem;
+  padding: 0.32rem 0.7rem 0.34rem;
+  border-top: 1px solid rgb(68 99 94 / 25%);
+  background: rgb(248 251 249 / 85%);
+  color: var(--ink-faint);
+  font-size: 0.63rem;
+  letter-spacing: 0.09em;
+}
+
+.redesigned-story-offer .story-illustration figcaption::before {
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-right: 0.4rem;
+  border: 1px solid rgb(54 86 82 / 52%);
+  border-radius: 50% 45% 50% 45%;
+  content: "";
+}
+
+/* The async state is a deliberately unfinished rice-paper plate.  It gives a
+   cover request a legible place without pretending a local SVG is z-image. */
+.story-illustration-pending__plate {
+  position: relative;
+  display: grid;
+  place-items: end start;
+  box-sizing: border-box;
+  padding: 1.05rem 1.15rem;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, transparent 0 49%, rgb(52 83 78 / 11%) 49.2% 49.8%, transparent 50%),
+    linear-gradient(30deg, transparent 0 52%, rgb(52 83 78 / 8%) 52.2% 52.75%, transparent 53%),
+    #e6efeb;
+}
+
+.story-illustration-pending__brush {
+  position: absolute;
+  display: block;
+  height: 1px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, transparent, rgb(35 77 83 / 68%), transparent);
+}
+.story-illustration-pending__brush--one { top: 37%; left: 15%; width: 62%; transform: rotate(-16deg); }
+.story-illustration-pending__brush--two { top: 57%; left: 22%; width: 54%; transform: rotate(12deg); opacity: 0.68; }
+.story-illustration-pending__butterfly {
+  position: absolute;
+  top: 24%;
+  right: 17%;
+  width: 1.05rem;
+  height: 0.65rem;
+  border: 1px solid rgb(35 77 83 / 70%);
+  border-radius: 100% 20% 100% 20%;
+  transform: rotate(-25deg);
+}
+.story-illustration-pending__butterfly::after {
+  position: absolute;
+  top: -0.3rem;
+  right: -0.5rem;
+  width: 0.78rem;
+  height: 0.55rem;
+  border: 1px solid rgb(35 77 83 / 70%);
+  border-radius: 20% 100% 20% 100%;
+  content: "";
+}
+.story-illustration-pending__plate p {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding-left: 0.62rem;
+  border-left: 1px solid rgb(35 77 83 / 45%);
+  color: var(--mineral-ink);
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.redesigned-story-offer .illustrated-story-copy {
+  position: relative;
+  z-index: 2;
+  padding: 1rem 1.15rem 1.05rem 1.5rem;
+}
+.redesigned-story-offer .illustrated-story-copy h3 {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: 0.07em;
+}
+.redesigned-story-offer .story-card-origin {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.9rem minmax(0, 1fr);
+  gap: 0.1rem 0.55rem;
+  margin: 0;
+  padding: 0 0 0.85rem;
+  border-bottom: 1px solid rgb(68 99 94 / 27%);
+}
+.redesigned-story-offer .story-card-origin span {
+  grid-row: span 2;
+  align-self: start;
+  padding-top: 0.12rem;
+  color: var(--ink-faint);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+}
+.redesigned-story-offer .story-card-origin strong {
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 0.93rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.redesigned-story-offer .recommendation-reason {
+  position: relative;
+  padding: 0.9rem 0 0.1rem;
+  border: 0;
+}
+.redesigned-story-offer .recommendation-reason > span {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  color: var(--seal-ink);
+  font-size: 0.69rem;
+  letter-spacing: 0.09em;
+}
+.redesigned-story-offer .recommendation-reason > span::before {
+  width: 1.2rem;
+  height: 1px;
+  background: var(--seal);
+  content: "";
+}
+.redesigned-story-offer .recommendation-reason p {
+  margin: 0.52rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.78;
+}
+.redesigned-story-offer .story-card-source {
+  margin-top: 0.75rem;
+  border-top-color: rgb(68 99 94 / 27%);
+}
+.redesigned-story-offer .story-card-source summary {
+  padding: 0.67rem 0 0.08rem;
+  color: var(--mineral-ink);
+  font-size: 0.78rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .redesigned-story-offer .story-card-tilt:hover {
+    box-shadow: 0 23px 46px rgb(26 59 56 / 18%), 0 1px 0 rgb(255 255 255 / 82%) inset;
+  }
+}
+
+@media (max-width: 960px) {
+  /* Two columns leave a lone third card, so the hand no longer has a real
+     centre to fan around.  Keep every stacked card level. */
+  .redesigned-story-offer .illustrated-story-grid {
+    --fan-angle: 0deg;
+    --fan-drop: 0px;
+  }
+}
+
+@media (max-width: 640px) {
+  .redesigned-story-offer .illustrated-story-card { border-radius: 17px 20px 18px 16px; }
+  .redesigned-story-offer .story-illustration { margin: 0.62rem 0.62rem 0; }
+  .redesigned-story-offer .illustrated-story-copy { padding: 0.9rem 1rem 1rem 1.35rem; }
+  .redesigned-story-offer .story-illustration-generated img,
+  .redesigned-story-offer .story-illustration svg,
+  .redesigned-story-offer .story-title-leaf__body,
+  .redesigned-story-offer .story-illustration-pending__plate { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .redesigned-story-offer .illustrated-story-card,
+  .redesigned-story-offer .story-card-tilt:hover { transition: none; }
 }
 
 @media (hover: hover) and (pointer: fine) {

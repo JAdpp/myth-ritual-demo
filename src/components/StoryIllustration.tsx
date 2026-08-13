@@ -78,7 +78,7 @@ function sceneGlyph(family: string) {
 
 function StoryTitleLeaf({ id, title }: { id: string; title: string }) {
   return (
-    <figure className="story-illustration story-title-leaf">
+    <figure className="story-illustration story-title-leaf" data-illustration-state="fallback">
       <div
         className="story-title-leaf__body"
         data-illustration-kind="title-leaf"
@@ -102,6 +102,7 @@ export function StoryIllustration({
   title,
   imageUrl,
   imageAlt,
+  isLoading = false,
   onImageError,
 }: {
   family: string;
@@ -109,6 +110,9 @@ export function StoryIllustration({
   /** Generated ink line-drawing. The local glyph stands in until it arrives. */
   imageUrl?: string | null;
   imageAlt?: string;
+  /** The cover request is in flight.  This has its own quiet plate so the
+      local fallback never masquerades as the generated white drawing. */
+  isLoading?: boolean;
   onImageError?: () => void;
 }) {
   const id = useId().replace(/:/g, "");
@@ -117,7 +121,7 @@ export function StoryIllustration({
 
   if (imageUrl) {
     return (
-      <figure className={`story-illustration story-illustration-generated illustration-${family}`}>
+      <figure className={`story-illustration story-illustration-generated illustration-${family}`} data-illustration-state="ready">
         <img
           src={imageUrl}
           alt={toSimplifiedDisplay(imageAlt ?? `${displayTitle}白描题图`)}
@@ -126,7 +130,21 @@ export function StoryIllustration({
           referrerPolicy="no-referrer"
           onError={onImageError}
         />
-        <figcaption>生成白描题图 · 非古籍原图</figcaption>
+        <figcaption>白描题图</figcaption>
+      </figure>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <figure className="story-illustration story-illustration-pending" data-illustration-state="loading" aria-busy="true">
+        <div className="story-illustration-pending__plate" role="img" aria-label={`正在绘制《${displayTitle}》的白描题图`}>
+          <span className="story-illustration-pending__brush story-illustration-pending__brush--one" aria-hidden="true" />
+          <span className="story-illustration-pending__brush story-illustration-pending__brush--two" aria-hidden="true" />
+          <span className="story-illustration-pending__butterfly" aria-hidden="true" />
+          <p>正在绘制白描题图</p>
+        </div>
+        <figcaption>题图准备中</figcaption>
       </figure>
     );
   }
@@ -134,14 +152,14 @@ export function StoryIllustration({
   if (!glyph) return <StoryTitleLeaf id={id} title={displayTitle} />;
 
   return (
-    <figure className={`story-illustration illustration-${family}`}>
+    <figure className={`story-illustration illustration-${family}`} data-illustration-state="fallback">
       <svg viewBox="0 0 300 180" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
         <title id={`${id}-title`}>{`${displayTitle}象征插画`}</title>
         <desc id={`${id}-desc`}>依据故事核心意象绘制的编辑性叙事线描，不是古籍原图。</desc>
         <rect width="300" height="180" rx="2" fill="var(--illustration-paper, #dfe9e6)" />
         <g className="story-illustration-glyph">{glyph}</g>
       </svg>
-      <figcaption>编辑性叙事线描 · 非古籍原图</figcaption>
+      <figcaption>叙事线描</figcaption>
     </figure>
   );
 }

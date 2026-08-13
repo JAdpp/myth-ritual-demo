@@ -6,37 +6,41 @@ import { toSimplifiedDisplay } from "../lib/display-text";
 import { QidieAvatar } from "./QidieAvatar";
 import { StatusMessage } from "./StoryLoom";
 
-const FAMILY_TITLES: Record<string, string> = {
-  pangu_cosmogony: "盘古开天",
-  kuafu_sun_chase: "夸父逐日",
-  gun_yu_flood_control: "大禹治水",
-  change_flight_to_moon: "嫦娥奔月",
-  mulan_substitution: "花木兰从军",
-  white_snake_legend: "白蛇传",
-  nvwa_mends_sky: "女娲补天",
-  jingwei_fills_sea: "精卫填海",
-  yugong_moves_mountains: "愚公移山",
-  zhuangzhou_butterfly_dream: "庄周梦蝶",
-  houyi_shoots_suns: "后羿射日",
-  cowherd_weaver_girl: "牛郎织女",
-  mengjiangnu_great_wall: "孟姜女哭长城",
-  butterfly_lovers: "梁山伯与祝英台",
-  peach_blossom_spring: "桃花源",
-  painted_skin: "画皮",
-  boya_breaks_strings: "伯牙绝弦",
-  nanke_dream: "南柯一梦",
+type FamiliarStoryCard = { title: string; cover: string };
+
+const FAMILIAR_STORY_CARDS: Record<string, FamiliarStoryCard> = {
+  boya_breaks_strings: { title: "伯牙绝弦", cover: "/assets/landing/corpus-boya-v1.webp" },
+  butterfly_lovers: { title: "梁山伯与祝英台", cover: "/assets/landing/corpus-butterfly-lovers-v1.webp" },
+  change_flight_to_moon: { title: "嫦娥奔月", cover: "/assets/landing/corpus-change-v1.webp" },
+  cowherd_weaver_girl: { title: "牛郎织女", cover: "/assets/landing/corpus-cowherd-v1.webp" },
+  gun_yu_flood_control: { title: "大禹治水", cover: "/assets/landing/card-dayu.webp" },
+  houyi_shoots_suns: { title: "后羿射日", cover: "/assets/landing/corpus-houyi-v1.webp" },
+  jingwei_fills_sea: { title: "精卫填海", cover: "/assets/landing/card-jingwei.webp" },
+  kuafu_sun_chase: { title: "夸父逐日", cover: "/assets/landing/corpus-kuafu-v1.webp" },
+  mengjiangnu_great_wall: { title: "孟姜女哭长城", cover: "/assets/landing/corpus-mengjiangnu-v1.webp" },
+  mulan_substitution: { title: "花木兰从军", cover: "/assets/landing/corpus-mulan-v1.webp" },
+  nanke_dream: { title: "南柯一梦", cover: "/assets/landing/corpus-nanke-v1.webp" },
+  nvwa_mends_sky: { title: "女娲补天", cover: "/assets/landing/corpus-nvwa-v1.webp" },
+  pangu_cosmogony: { title: "盘古开天", cover: "/assets/landing/corpus-pangu-v1.webp" },
+  white_snake_legend: { title: "白蛇传", cover: "/assets/landing/corpus-white-snake-v1.webp" },
+  yugong_moves_mountains: { title: "愚公移山", cover: "/assets/landing/corpus-yugong-v1.webp" },
+  zhuangzhou_butterfly_dream: { title: "庄周梦蝶", cover: "/assets/landing/card-zhuangzhou.webp" },
 };
 
-const FALLBACK_FAMILIES = [
-  "大禹治水",
-  "嫦娥奔月",
-  "盘古开天",
-  "夸父逐日",
-  "女娲补天",
-  "精卫填海",
-  "庄周梦蝶",
-  "白蛇传",
-];
+const FALLBACK_FAMILY_IDS = [
+  "boya_breaks_strings",
+  "butterfly_lovers",
+  "change_flight_to_moon",
+  "cowherd_weaver_girl",
+  "gun_yu_flood_control",
+  "houyi_shoots_suns",
+  "jingwei_fills_sea",
+  "kuafu_sun_chase",
+  "mengjiangnu_great_wall",
+  "mulan_substitution",
+  "nanke_dream",
+  "nvwa_mends_sky",
+] as const;
 
 const DEMO_CASES = [
   {
@@ -198,14 +202,16 @@ export function ConsentScreen({
     || undefined;
   const deepAnnotatedCount = overview?.deepAnnotatedStories ?? 30;
   const featuredWorks = overview?.catalogWorks?.slice(0, 6) ?? [];
-  const familyTitles = useMemo(() => {
+  const familyCards = useMemo(() => {
     const resolved = (overview?.familyIds ?? [])
-      .map((familyId) => FAMILY_TITLES[familyId])
-      .filter((title): title is string => Boolean(title));
-    return [...new Set(resolved.length ? resolved : FALLBACK_FAMILIES)].slice(0, 12);
+      .map((familyId) => FAMILIAR_STORY_CARDS[familyId])
+      .filter((card): card is FamiliarStoryCard => Boolean(card));
+    const fallback = FALLBACK_FAMILY_IDS.map((familyId) => FAMILIAR_STORY_CARDS[familyId]);
+    return [...resolved, ...fallback]
+      .filter((card, index, cards) => cards.findIndex((item) => item.title === card.title) === index)
+      .slice(0, 12);
   }, [overview?.familyIds]);
   const activeCase = DEMO_CASES.find((item) => item.id === activeCaseId) ?? DEMO_CASES[0];
-  const snapshotDate = overview?.catalogSnapshotDate ?? "2026-08-09";
 
   useEffect(() => {
     if (!modalOpen) return;
@@ -277,11 +283,11 @@ export function ConsentScreen({
         <div className="landing-hero-copy">
           <p className="hero-edition"><span>中国古典故事</span><i aria-hidden="true" /><span>个人经历</span><i aria-hidden="true" /><span>AI 共谱</span></p>
           <p className="hero-wordmark">梦蝶记</p>
-          <h1 id="welcome-title" aria-label="古典神话、传奇、志怪与小说，在你的此刻生出一条新支线。">
+          <h1 id="welcome-title" aria-label="古典神话、传奇、志怪与小说，在你的此刻生出一条新支线">
             <span aria-hidden="true">
               古典<span className={`hero-word-slot is-${heroStoryWord.tone}`}><span className="hero-rotating-word">{heroStoryWord.text}</span><i className="hero-type-caret" /></span>，
             </span>
-            <br /><em>在你的此刻<br />生出一条新支线。</em>
+            <br /><em>在你的此刻<br />生出一条新支线</em>
           </h1>
           <p className="welcome-lead">
             <strong>栖蝶——梦蝶记中的故事向导 AI。</strong>把一件最近发生、你愿意讲的小事告诉它；它会先整理并请你确认，再从可追溯的古籍候选中寻找一则可供比较的故事。原典留在原典，你的选择写成新的现代支线。
@@ -295,7 +301,7 @@ export function ConsentScreen({
           <div className="hero-trust" aria-label="体验边界">
             <span>来源可追溯</span><span>映照可修改</span><span>会话可删除</span>
           </div>
-          <p className="landing-meta">约 12–15 分钟 · 面向成年用户 · 当前为技术演示</p>
+          <p className="landing-meta">约 12–15 分钟 · 面向成年用户</p>
         </div>
 
         <aside className="hero-signal-card" aria-label="栖蝶工作示意">
@@ -378,7 +384,7 @@ export function ConsentScreen({
 
       <section id="how-it-works" className="landing-section journey-section feature-section" aria-labelledby="journey-title" data-reveal>
         <div className="section-heading-block landing-section-heading">
-          <h2 id="journey-title">从相遇到再演，决定权始终在你。</h2>
+          <h2 id="journey-title">从相遇到再演，决定权始终在你</h2>
           <p>栖蝶沿着你分享的那件事整理时间、人物与转折，说明推荐并起草映照；故事选择、修改与最终表达仍由你确认。</p>
         </div>
         <ol className="journey-list feature-chapters">
@@ -401,17 +407,11 @@ export function ConsentScreen({
             <div className="feature-tags"><span>逐幕场景</span><span>声音控制</span><span>终幕落款</span></div>
           </li>
         </ol>
-        <div className="choice-strip" aria-label="体验中的退出与控制选项">
-          <span>不想继续？</span><p>可以拒绝推荐、跳过节点、关闭声音、不保存作品，或删除整次会话。</p>
-        </div>
       </section>
 
-      {/* The three screens the product is actually made of. The card art below
-          is not a mock-up: it comes from the same z-image call and the same
-          白描 prompt that generates a real recommendation card's header. */}
       <section id="interface" className="landing-section interface-showcase" aria-labelledby="interface-title" data-reveal>
         <div className="section-heading-block landing-section-heading">
-          <h2 id="interface-title">你会看到的三块界面。</h2>
+          <h2 id="interface-title">你会看到的三块界面</h2>
           <p>推荐卡牌、五节点共谱画布、逐幕再演剧场——下面是它们在体验中的样子。</p>
         </div>
 
@@ -419,7 +419,7 @@ export function ConsentScreen({
           <figcaption>
             <span className="section-label">相遇 · 故事推荐</span>
             <h3>三则候选摊开在你面前</h3>
-            <p>每张卡牌带白描题图、真实题名与采用出处，以及“为什么推荐”。你可以整批换掉，也可以一则都不选。</p>
+            <p>每张卡牌带白描题图、真实题名与采用出处，以及“推荐理由”。你可以整批换掉，也可以一则都不选。</p>
           </figcaption>
           <div className="showcase-card-fan" aria-label="推荐卡牌示意">
             {SHOWCASE_CARDS.map((card, index) => (
@@ -438,7 +438,6 @@ export function ConsentScreen({
               </article>
             ))}
           </div>
-          <small className="showcase-note">题图由 z-image 按白描提示词生成，与产品内生成卡牌走同一条链路。</small>
         </figure>
 
         <div className="showcase-pair">
@@ -485,25 +484,22 @@ export function ConsentScreen({
       <section id="technology" className="technology-section" aria-labelledby="technology-title" data-reveal>
         <div className="technology-inner">
           <header className="technology-heading">
-            <h2 id="technology-title">一条有来源、有边界、<br />也有退路的生成链路。</h2>
-            <p>模型不是故事库，也不拥有最后决定权。检索、生成、验证与本地回退各自承担清楚的职责。</p>
+            <h2 id="technology-title">一条有来源、有边界、<br />也有退路的生成链路</h2>
+            <p>故事从可追溯的出处中被找到，你确认的现代支线独立保存；即使生成暂时不可用，体验也能继续。</p>
           </header>
 
           <ol className="technology-pipeline" aria-label="梦蝶记技术链路">
-            <li><span>01</span><strong>确认摘要</strong><p>只使用你明确确认的这次经历。</p></li>
-            <li><span>02</span><strong>受限召回</strong><p>SQLite FTS5 / BM25 从古籍来源池取回候选。</p></li>
-            <li><span>03</span><strong>证据内重排</strong><p>DeepSeek 规划检索表达、重排并说明理由。</p></li>
-            <li><span>04</span><strong>四类校验</strong><p>结构、长度、来源边界与安全检查同时通过。</p></li>
-            <li><span>05</span><strong>确定性回退</strong><p>模型或生图不可用，流程仍能继续完成。</p></li>
+            <li><span>01</span><strong>先确认你说的</strong><p>只使用你确认过的经历摘要。</p></li>
+            <li><span>02</span><strong>在古籍中寻找</strong><p>只从可追溯的候选里寻找相近故事。</p></li>
+            <li><span>03</span><strong>说明为何推荐</strong><p>比较情节与处境，并把理由写给你看。</p></li>
+            <li><span>04</span><strong>检查来源边界</strong><p>确认题名、出处与改写没有混在一起。</p></li>
+            <li><span>05</span><strong>保留继续路径</strong><p>暂时无法生成时，仍可完成这次体验。</p></li>
           </ol>
 
           <div className="technology-proof-grid">
-            {/* The colour is shown, not named: telling a visitor the green is
-                called 矿物绿 is a palette entry, not information. What the
-                colour marks is the part worth reading. */}
-            <article className="proof-source"><span><i aria-hidden="true" />SOURCE CANON</span><h3>原典保持只读</h3><p><code>source_canon</code> 锁定来源与采用文本；AI 改写不会冒充原典。</p></article>
-            <article className="proof-branch"><span><i aria-hidden="true" />USER BRANCH</span><h3>现代支线独立版本化</h3><p><code>user_branch</code> 记录你的选择；只有批准版本才会进入剧场。</p></article>
-            <article className="proof-seal"><span><i aria-hidden="true" />HUMAN DECISION</span><h3>印章只代表你的确认</h3><p>它标记批准、来源揭示或警示，不代表“AI 一定正确”。</p></article>
+            <article className="proof-source"><span><i aria-hidden="true" />原典</span><h3>来源与采用文本保持只读</h3><p>AI 的讲解与改写不会冒充原典。</p></article>
+            <article className="proof-branch"><span><i aria-hidden="true" />你的支线</span><h3>每次修改独立保留</h3><p>只有你确认的版本才会进入剧场。</p></article>
+            <article className="proof-seal"><span><i aria-hidden="true" />最终确认</span><h3>决定权始终在你</h3><p>印章只表示你的选择，不代表 AI 一定正确。</p></article>
           </div>
 
           <div className="technology-stats" aria-label="当前实现数字">
@@ -512,7 +508,7 @@ export function ConsentScreen({
             {/* Was hard-coded at 30 while /api/health already reported it, which
                 is a number that goes stale silently the next time the corpus is
                 rebuilt. The literal stays only as the offline fallback. */}
-            <p><strong>{deepAnnotatedCount}</strong>{" "}<span>则编辑深标主文本</span></p>
+            <p><strong>{deepAnnotatedCount}</strong>{" "}<span>则重点整理主文本</span></p>
             <p><strong>4–7</strong>{" "}<span>幕动态再演</span></p>
           </div>
         </div>
@@ -520,10 +516,10 @@ export function ConsentScreen({
 
       <section id="corpus" className="landing-section corpus-section" aria-labelledby="corpus-title" data-reveal>
         <div className="corpus-stat-panel">
-          <p className="section-label">故事来源 · {snapshotDate} 数据快照</p>
-          <h2 id="corpus-title"><strong>{recommendationCount.toLocaleString("zh-CN")}</strong> 条候选，<br />从出处开始。</h2>
+          <p className="section-label">故事来源</p>
+          <h2 id="corpus-title"><strong>{recommendationCount.toLocaleString("zh-CN")}</strong> 条候选，<br />从出处开始</h2>
           <p className="corpus-status">
-            当前候选包含规范化古籍来源分段与编辑深标主文本，不等同于同等数量的独立故事或专家标注语料。选中后会依据采用原文整理讲解与映照，再交给你核对；推荐卡显示真实题名与出处{sourceWorkCount ? `，目前汇集 ${sourceWorkCount} 部开放古籍` : ""}。
+            这里的数字指可推荐候选，不等同于同等数量的独立故事。候选来自可追溯的开放古籍；推荐卡会显示真实题名与出处，每次体验只采用一份明确主文本{sourceWorkCount ? `。目前汇集 ${sourceWorkCount} 部古籍` : ""}。
           </p>
           {featuredWorks.length ? (
             <ul className="corpus-group-list" aria-label="部分来源古籍">
@@ -536,17 +532,21 @@ export function ConsentScreen({
           ) : null}
         </div>
         <div className="corpus-shelf-wrap">
-          <p className="shelf-title">其中也有你熟悉的名字</p>
-          <div className="corpus-shelf" aria-label="部分熟悉故事">
-            {familyTitles.map((title) => <span key={title}>{title}</span>)}
+          <h3 className="shelf-title">十二则熟悉故事</h3>
+          <div className="corpus-story-grid" aria-label="十二则熟悉故事的卡牌封面">
+            {familyCards.map((card) => (
+              <article className="corpus-story-card" key={card.title}>
+                <img src={card.cover} alt={`《${card.title}》白描封面`} loading="lazy" decoding="async" />
+                <h4>{card.title}</h4>
+              </article>
+            ))}
           </div>
-          <p className="shelf-footnote">题名熟悉，不代表版本混写；每次体验只采用一份明确主文本。</p>
         </div>
       </section>
 
       <section className="landing-final-cta" data-reveal>
         <div>
-          <h2>你不必先懂神话，<br />只要带来一件愿意讲的小事。</h2>
+          <h2>你不必先懂神话，<br />只要带来一件愿意讲的小事</h2>
           <p>栖蝶会陪你走完相遇、共谱与再演；原典不会被改写，最终留下什么由你决定。</p>
           <button className="primary-action" type="button" onClick={() => setModalOpen(true)}>和栖蝶开始 <span aria-hidden="true">↗</span></button>
         </div>
@@ -554,7 +554,7 @@ export function ConsentScreen({
 
       <footer className="landing-footer">
         <p><strong>梦蝶记</strong><span>中国古典故事与个人经历共谱</span></p>
-        <p>成年用户文化叙事体验 · 非诊疗产品 · 本地技术演示</p>
+        <p>成年用户文化叙事体验 · 非诊疗产品</p>
       </footer>
 
       {modalOpen && (

@@ -52,7 +52,7 @@
 }
 
 .stage-welcome .site-header-landing {
-  position: absolute;
+  position: fixed;
   z-index: 60;
   top: 0;
   right: 0;
@@ -60,11 +60,15 @@
   min-height: 78px;
   padding: 0.85rem max(1.25rem, calc((100vw - 1320px) / 2));
   color: var(--md-moon);
-  border-color: rgb(234 244 238 / 16%);
-  background: linear-gradient(180deg, rgb(3 17 20 / 68%), transparent);
-  box-shadow: none;
+  border-color: rgb(234 244 238 / 14%);
+  background: #071d20;
+  box-shadow: 0 0.75rem 2.5rem rgb(0 0 0 / 14%);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+
+.landing-page-v2 section[id] {
+  scroll-margin-top: 88px;
 }
 
 .site-header-landing .brand {
@@ -946,6 +950,7 @@
 
 .feature-section {
   padding-top: clamp(3rem, 7vw, 6rem);
+  padding-bottom: clamp(2.5rem, 5vw, 4rem);
 }
 
 /* The narrow first column belongs to .section-label, which spans both rows.
@@ -1082,27 +1087,6 @@
   border: 1px solid #b8c6c1;
   font-family: var(--md-utility);
   font-size: 0.61rem;
-}
-
-.choice-strip {
-  display: grid;
-  grid-template-columns: minmax(10rem, 0.35fr) 1fr;
-  gap: 2rem;
-  padding: 1.4rem 0;
-  border-bottom: 1px solid #aebfba;
-}
-
-.choice-strip span {
-  color: var(--md-seal);
-  font-family: var(--md-utility);
-  font-size: 0.75rem;
-  font-weight: 650;
-}
-
-.choice-strip p {
-  margin: 0;
-  color: #5c6f6a;
-  font-size: 0.84rem;
 }
 
 .technology-section {
@@ -1320,7 +1304,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(20rem, 0.7fr);
   gap: clamp(3rem, 8vw, 8rem);
-  align-items: end;
+  align-items: start;
   margin: 0 auto;
   overflow: visible;
   border: 0;
@@ -1385,49 +1369,46 @@
 }
 
 .landing-page-v2 .shelf-title {
-  margin-bottom: 0.9rem;
-  color: #4b6760;
-  letter-spacing: 0.08em;
+  margin: 0 0 1rem;
+  color: #284a43;
+  font-family: var(--md-display);
+  font-size: clamp(1.2rem, 2vw, 1.65rem);
+  font-weight: 500;
 }
 
-.landing-page-v2 .corpus-shelf {
-  border-color: #91a7a1;
-  border-radius: 2px 20px 2px 20px;
-  background: #e5ebe5;
-  box-shadow: 0 1.5rem 4rem rgb(40 77 69 / 11%);
+.corpus-story-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.55rem, 1vw, 0.85rem);
 }
 
-.landing-page-v2 .corpus-shelf span {
-  min-height: 7.2rem;
-  color: #203d36;
-  border-color: #aebfba;
-  background: linear-gradient(90deg, rgb(109 158 145 / 6%), transparent);
-  font-size: 0.9rem;
-  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+.corpus-story-card {
+  overflow: hidden;
+  border: 1px solid #b8c7c1;
+  border-radius: 2px 14px 2px 14px;
+  background: #f8faf5;
+  box-shadow: 0 0.65rem 1.8rem rgb(36 70 63 / 7%);
 }
 
-/* The three-way rhythm across the shelf used to be coloured left edges. It now
-   lives in how far each slip is washed, which reads as paper rather than tabs. */
-.landing-page-v2 .corpus-shelf span:nth-child(3n + 2) {
-  background: linear-gradient(90deg, rgb(158 122 109 / 7%), transparent);
+.corpus-story-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-bottom: 1px solid #d2ddd8;
+  background: #f7f5ed;
+  filter: saturate(0.78) contrast(1.03);
 }
 
-.landing-page-v2 .corpus-shelf span:nth-child(3n) {
-  background: linear-gradient(90deg, rgb(161 61 49 / 6%), transparent);
-}
-
-.landing-page-v2 .corpus-shelf span:hover {
-  color: #0d2520;
-  background: rgb(255 255 255 / 55%);
-  transform: translateY(-0.35rem);
-}
-
-.shelf-footnote {
-  margin-top: 0.9rem;
-  color: #70817d;
-  font-family: var(--md-utility);
-  font-size: 0.64rem;
-  line-height: 1.7;
+.corpus-story-card h4 {
+  min-height: 2.7rem;
+  padding: 0.62rem 0.7rem;
+  margin: 0;
+  color: #203b35;
+  font-family: var(--md-display);
+  font-size: clamp(0.74rem, 1vw, 0.9rem);
+  font-weight: 500;
+  line-height: 1.45;
 }
 
 .landing-page-v2 .landing-final-cta {
@@ -1835,11 +1816,6 @@
     font-size: 1.45rem;
   }
 
-  .choice-strip {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-
   .technology-pipeline {
     grid-template-columns: 1fr;
   }
@@ -1886,8 +1862,8 @@
     border-left: 0;
   }
 
-  .landing-page-v2 .corpus-shelf span {
-    min-height: 6.3rem;
+  .corpus-story-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .landing-page-v2 .landing-final-cta {
@@ -1917,8 +1893,7 @@
 }
 
 @media (hover: none) {
-  .landing-page-v2 .feature-chapters > li:hover,
-  .landing-page-v2 .corpus-shelf span:hover {
+  .landing-page-v2 .feature-chapters > li:hover {
     transform: none;
   }
 }
@@ -1976,7 +1951,12 @@
 
 .interface-showcase {
   display: grid;
-  gap: clamp(2.5rem, 5vw, 4rem);
+  gap: clamp(2rem, 3vw, 2.75rem);
+  padding-top: clamp(2.5rem, 5vw, 4rem);
+}
+
+.landing-page-v2 .interface-showcase > .landing-section-heading {
+  margin-bottom: 0;
 }
 
 .showcase-cards {
@@ -2083,13 +2063,6 @@
   font-family: var(--md-utility);
   font-size: 0.64rem;
   letter-spacing: 0.08em;
-}
-
-.showcase-note {
-  color: #6a807a;
-  font-family: var(--md-utility);
-  font-size: 0.7rem;
-  line-height: 1.8;
 }
 
 .showcase-pair {
