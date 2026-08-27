@@ -1315,6 +1315,11 @@
   backdrop-filter: none;
 }
 
+.landing-page-v2 .corpus-stat-panel,
+.landing-page-v2 .corpus-shelf-wrap {
+  min-width: 0;
+}
+
 .landing-page-v2 .corpus-stat-panel h2 {
   margin-bottom: 1.5rem;
   color: #172d29;
@@ -1517,13 +1522,23 @@
 }
 
 .landing-page-v2 .modal-close {
-  border-radius: 0;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
   background: transparent;
 }
 
 .landing-page-v2 .consent-row {
+  min-height: 56px;
   border-radius: 0 14px 0 14px;
   background: rgb(109 158 145 / 8%);
+}
+
+.landing-page-v2 .consent-processing {
+  padding-left: 0.9rem;
+  border-left: 2px solid rgb(74 109 101 / 38%);
+  font-size: 0.86rem;
+  line-height: 1.75;
 }
 
 .landing-page-v2 .consent-submit {
@@ -1690,7 +1705,7 @@
   }
 
   .landing-page-v2 .corpus-section {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 3.5rem;
   }
 }
@@ -1748,8 +1763,12 @@
 
   .landing-page-v2 .landing-hero-copy h1 {
     max-width: 9em;
-    font-size: clamp(2.7rem, 13.5vw, 4rem);
+    font-size: clamp(2.45rem, 11.2vw, 3.2rem);
     letter-spacing: -0.035em;
+  }
+
+  .hero-branch-line {
+    white-space: nowrap;
   }
 
   .landing-hero-cinematic .welcome-lead {
@@ -2236,5 +2255,92 @@
   .canvas-nodes li {
     grid-template-columns: minmax(0, 1fr) 4.4rem minmax(0, 1fr);
     font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-section {
+    padding: 3.1rem 0;
+  }
+
+  .landing-page-v2 .feature-chapters,
+  .technology-pipeline,
+  .technology-proof-grid,
+  .showcase-card-fan,
+  .showcase-pair,
+  .corpus-story-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+
+  .landing-page-v2 .feature-chapters {
+    grid-auto-columns: minmax(17rem, 84vw);
+  }
+
+  .landing-page-v2 .feature-chapters > li {
+    min-height: 24rem;
+    border-right: 1px solid #c3cfcb;
+    border-bottom: 0;
+    scroll-snap-align: start;
+  }
+
+  .technology-pipeline {
+    grid-auto-columns: minmax(15rem, 74vw);
+  }
+
+  .technology-pipeline li,
+  .technology-pipeline li:nth-child(3) {
+    min-height: 15rem;
+    border-right: 1px solid rgb(225 239 232 / 13%);
+    border-bottom: 0;
+    scroll-snap-align: start;
+  }
+
+  .technology-proof-grid {
+    grid-auto-columns: minmax(16rem, 78vw);
+  }
+
+  .technology-proof-grid article {
+    min-height: 13rem;
+    scroll-snap-align: start;
+  }
+
+  .showcase-card-fan {
+    grid-auto-columns: minmax(17rem, 84vw);
+  }
+
+  .showcase-card {
+    scroll-snap-align: center;
+  }
+
+  .showcase-pair {
+    grid-auto-columns: minmax(18rem, 88vw);
+  }
+
+  .showcase-pair > * {
+    scroll-snap-align: start;
+  }
+
+  .corpus-story-grid {
+    width: 100%;
+    max-width: 100%;
+    grid-auto-columns: minmax(9rem, 42vw);
+  }
+
+  .corpus-story-card {
+    scroll-snap-align: start;
+  }
+
+  .landing-page-v2 .landing-final-cta {
+    min-height: 30rem;
+  }
+
+  .landing-page-v2 .consent-modal {
+    max-height: calc(100svh - 1rem);
+    padding: 3.6rem 1.1rem 1.2rem;
   }
 }

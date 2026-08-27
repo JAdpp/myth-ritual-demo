@@ -49,7 +49,7 @@ export function SiteHeader({
     <header className={`site-header${isLanding ? " site-header-landing" : ""}`} data-variant={isLanding ? "landing" : "experience"}>
       <a className="brand" href="#main" aria-label="梦蝶记体验首页">
         <img className="brand-mark" src="/assets/mengdie-logo-mark-side-v5-transparent.png" alt="" />
-        <span><strong className="brand-wordmark">梦蝶记</strong><small>中国古典叙事与个人经历共谱</small></span>
+        <span><strong className="brand-wordmark">梦蝶记</strong><small>中国古典神话传说与个人经历共谱</small></span>
       </a>
       {isLanding && !isGuide ? (
         <nav className="landing-nav" aria-label="首页导航">
@@ -61,11 +61,11 @@ export function SiteHeader({
         </nav>
       ) : null}
       {onLanguageChange && (
-        // EN opens the reader's guide, not an English build of the experience:
+        // The second button opens a reader's guide, not an English build of the experience:
         // the flow itself stays in Chinese by design.
-        <div className="language-switch" role="group" aria-label="语言 / Language">
+        <div className="language-switch" role="group" aria-label="导览语言">
           <button type="button" aria-pressed={!isGuide} onClick={() => onLanguageChange("zh")}>中文</button>
-          <button type="button" aria-pressed={isGuide} onClick={() => onLanguageChange("en")}>EN</button>
+          <button type="button" aria-pressed={isGuide} onClick={() => onLanguageChange("en")}>英文说明</button>
         </div>
       )}
     </header>

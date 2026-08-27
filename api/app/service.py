@@ -132,6 +132,45 @@ _NODE_DEFINITIONS: tuple[tuple[str, str, str], ...] = (
 
 _NODE_NUMBER = {node_id: index for index, (node_id, _, _) in enumerate(_NODE_DEFINITIONS, 1)}
 
+_NODE_EDIT_TERMS: dict[str, tuple[str, ...]] = {
+    "world_crack": ("第一", "开头", "裂缝", "发生了什么", "原来的世界"),
+    "cross_threshold": ("第二", "门槛", "尝试", "拒绝", "暂缓", "选择"),
+    "allies_resources": ("第三", "盟友", "资源", "帮助", "求助", "支持"),
+    "new_understanding": ("第四", "理解", "行动方式", "怎么看", "处理方式"),
+    "bring_back": ("第五", "最后", "结尾", "带回", "下一步", "收束"),
+}
+
+_NODE_EXPLICIT_TERMS: dict[str, tuple[str, ...]] = {
+    "world_crack": ("原来的世界与裂缝", "世界与裂缝", "裂缝"),
+    "cross_threshold": ("跨过门槛", "门槛"),
+    "allies_resources": ("考验、盟友与资源", "盟友与资源", "盟友"),
+    "new_understanding": ("新的理解或行动方式", "理解或行动方式", "行动方式"),
+    "bring_back": ("带着什么回来", "带回现实", "带回"),
+}
+
+
+def _mapping_edit_targets(message: str, explicit_node_id: str | None = None) -> list[str]:
+    text = _clean_chinese_copy(message)
+    # The UI sends the currently open node as context.  A node name written in
+    # the user's instruction is more explicit and must take precedence over
+    # that incidental focus, otherwise “改跨过门槛” can silently edit the open
+    # first node instead.
+    named_targets = [
+        node_id
+        for node_id, terms in _NODE_EXPLICIT_TERMS.items()
+        if any(term in text for term in terms)
+    ]
+    if named_targets:
+        return named_targets[:2]
+    if explicit_node_id in _NODE_NUMBER:
+        return [explicit_node_id]
+    targets = [
+        node_id
+        for node_id, terms in _NODE_EDIT_TERMS.items()
+        if any(term in text for term in terms)
+    ]
+    return targets[:2]
+
 
 # Story cards use familiar family-level names.  The exact fixed source version
 # remains visible in the subtitle and source panel, so a readable title never
@@ -222,6 +261,137 @@ _USER_THEME_SIGNALS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("目标与限度", ("目标", "理想", "梦想", "追逐", "想要", "极限", "资源")),
 )
 
+_GENERIC_USER_SIGNALS = frozenset(
+    {
+        "事情",
+        "生活",
+        "工作",
+        "关系",
+        "变化",
+        "改变",
+        "选择",
+        "决定",
+        "行动",
+        "责任",
+        "自己",
+        "希望",
+        "困难",
+        "压力",
+    }
+)
+
+# A facet is counted only when the user's wording and the fixed story record
+# each contain a concrete member.  This is deliberately smaller than an
+# embedding ontology: it is inspectable, stable, and prevents "工作" from
+# matching any story that happens to mention an official post.
+_SEMANTIC_FACETS: tuple[tuple[str, tuple[str, ...], tuple[str, ...]], ...] = (
+    (
+        "承诺与托付",
+        ("答应", "承诺", "托付", "委托", "拜托", "兑现", "失信", "可靠", "反悔", "推脱"),
+        ("托付", "传信", "受命", "不负", "代父", "救援", "承诺", "答应", "委托"),
+    ),
+    (
+        "边界与拒绝",
+        ("边界", "拒绝", "越界", "勉强", "不好意思拒绝", "隐私", "窥视", "控制"),
+        ("边界", "拒婚", "拒绝", "窥视", "隐私", "追捕", "镇压", "不可侵犯"),
+    ),
+    (
+        "负担与分工",
+        ("任务", "分工", "加班", "忙不过来", "承担", "负担", "同事", "领导", "期限", "求助"),
+        ("劳作", "繁重", "任务", "受命", "期限", "资源", "集体", "过门不入", "无尽", "求援"),
+    ),
+    (
+        "仓促与犹豫",
+        ("太快", "仓促", "冲动", "犹豫", "后悔", "两难", "拿不定", "来不及想", "重新考虑"),
+        ("判断", "取舍", "误认", "方法", "得失", "后悔", "结局", "不可挽回"),
+    ),
+    (
+        "信任与评价",
+        ("信任", "不可靠", "失望", "评价", "看法", "误解", "证明自己", "面子"),
+        ("信任", "猜疑", "误认", "表象", "理解", "知音", "权力来源"),
+    ),
+    (
+        "离开与失去",
+        ("离开", "告别", "搬家", "失去", "分开", "分手", "辞职", "远行", "陌生环境"),
+        ("离开", "失去", "分离", "远行", "死亡", "不可复得", "不可复寻", "归家"),
+    ),
+    (
+        "身份与角色",
+        ("身份", "角色", "家庭期待", "别人期待", "做自己", "归属", "职责"),
+        ("身份", "角色", "从军", "出家", "异类", "仕宦", "归属", "自称"),
+    ),
+    (
+        "坚持与限度",
+        ("坚持", "放弃", "撑不住", "极限", "耗尽", "长期", "反复", "没有尽头"),
+        ("坚持", "限度", "资源", "反复", "未完成", "逐日", "填海", "移山", "伐桂"),
+    ),
+    (
+        "修复与方法",
+        ("修复", "补救", "重来", "调整方法", "换个办法", "解决", "弥补", "收拾残局"),
+        ("修复", "补天", "治水", "方法", "秩序", "重建", "改以", "恢复"),
+    ),
+    (
+        "关系与求助",
+        ("家人", "朋友", "伴侣", "同事", "求助", "支持", "陪伴", "沟通", "相处"),
+        ("家人", "朋友", "夫妻", "同窗", "求援", "救援", "盟友", "照料", "知音"),
+    ),
+)
+
+_GENERIC_DEEP_AFFINITIES: dict[str, frozenset[str]] = {
+    "工作": frozenset({"gun_yu_flood_control", "wu_gang_cuts_osmanthus", "nvwa_creates_humans"}),
+    "责任": frozenset({"gun_yu_flood_control", "mulan_substitution", "liu_yi_delivers_letter", "nuwa_mends_sky"}),
+    "决定": frozenset({"mulan_substitution", "yellow_millet_dream", "old_man_lost_horse", "change_flight_to_moon"}),
+    "选择": frozenset({"mulan_substitution", "yellow_millet_dream", "old_man_lost_horse", "change_flight_to_moon"}),
+    "变化": frozenset({"marking_boat_for_sword", "old_man_lost_horse", "pangu_cosmogony"}),
+    "改变": frozenset({"marking_boat_for_sword", "old_man_lost_horse", "gun_yu_flood_control"}),
+    "行动": frozenset({"farmer_waits_for_rabbit", "marking_boat_for_sword", "jingwei_fills_sea", "yugong_moves_mountains"}),
+    "关系": frozenset({"white_snake_legend", "snail_maiden", "liu_yi_delivers_letter", "boya_breaks_strings"}),
+}
+
+
+def _clean_chinese_copy(value: object) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    while "《《" in text or "》》" in text:
+        text = text.replace("《《", "《").replace("》》", "》")
+    text = re.sub(r"([。！？；，、])\1+", r"\1", text)
+    return text
+
+
+def _short_clause(value: str, *, limit: int = 64) -> str:
+    text = _clean_chinese_copy(value).strip("。！？；，、 ")
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1].rstrip("，、；： ") + "…"
+
+
+def _user_clauses(summary: str) -> list[str]:
+    clauses: list[str] = []
+    for raw in re.split(r"[。！？!?；;，,\n]+", _clean_chinese_copy(summary)):
+        clause = re.sub(r"^(?:用户|我)(?:确认|提到|写到|说到)?[：:]?", "", raw).strip(
+            "，、；： "
+        )
+        if len(clause) >= 3 and clause not in clauses:
+            clauses.append(_short_clause(clause))
+    return clauses or ["还没有补充更具体的事件细节"]
+
+
+def _story_searchable(record: dict[str, Any]) -> str:
+    card = record.get("storyCard") or {}
+    source = record.get("sourceCanon") or {}
+    return " ".join(
+        str(value)
+        for value in (
+            record.get("title"),
+            _canonical_story_title(record),
+            _mapping_value(card, "summary", default=""),
+            _mapping_value(card, "conflict", default=""),
+            " ".join(str(item) for item in _as_list(_mapping_value(card, "motifs", default=[]))),
+            " ".join(_FAMILY_THEMES.get(record["familyId"], ())),
+            _mapping_value(source, "summary", default=""),
+            _mapping_value(source, "original_excerpt", "originalExcerpt", "excerpt", default=""),
+        )
+    )
+
 
 def _canonical_story_title(record: dict[str, Any]) -> str:
     return _CANONICAL_STORY_TITLES.get(record["familyId"], str(record["title"]))
@@ -232,7 +402,12 @@ def _detect_user_theme(summary: str) -> tuple[str, str | None, set[str]]:
     for order, (label, keywords) in enumerate(_USER_THEME_SIGNALS):
         present = {keyword for keyword in keywords if keyword in summary}
         if present:
-            matches.append((len(present), -order, label, sorted(present)[0], present))
+            specific = sorted(
+                present,
+                key=lambda item: (item in _GENERIC_USER_SIGNALS, -len(item), item),
+            )[0]
+            weighted = sum(1 if item in _GENERIC_USER_SIGNALS else 3 for item in present)
+            matches.append((weighted, -order, label, specific, present))
     if not matches:
         return "尚未归类的变化", None, set()
     _, _, label, evidence, present = max(matches)
@@ -243,44 +418,135 @@ def _story_relevance(record: dict[str, Any], summary: str) -> tuple[int, str, st
     label, evidence, user_signals = _detect_user_theme(summary)
     family_themes = _FAMILY_THEMES.get(record["familyId"], ())
     card = record.get("storyCard", {})
-    searchable = " ".join(
-        str(value)
-        for value in (
-            record.get("title"),
-            _mapping_value(card, "summary", default=""),
-            _mapping_value(card, "conflict", default=""),
-            " ".join(str(item) for item in _as_list(_mapping_value(card, "motifs", default=[]))),
-            " ".join(family_themes),
-        )
-    )
-    direct_hits = sum(3 for signal in user_signals if signal in searchable)
-    theme_hits = sum(1 for theme in family_themes if theme in summary or theme in user_signals)
-    # A stable tie breaker is added by the caller; this score is explainable,
-    # intentionally small, and never presented as a psychological assessment.
-    score = direct_hits + theme_hits
-    story_signal = family_themes[0] if family_themes else str(
+    searchable = _story_searchable(record)
+    score = 0
+    facet_labels: list[str] = []
+    facet_story_signals: list[str] = []
+    specific_user_signals: set[str] = set()
+    for facet_label, user_terms, story_terms in _SEMANTIC_FACETS:
+        user_hits = [term for term in user_terms if term in summary]
+        story_hits = [term for term in story_terms if term in searchable]
+        if not user_hits or not story_hits:
+            continue
+        score += 4 + min(len(user_hits) - 1, 2)
+        facet_labels.append(facet_label)
+        facet_story_signals.append(story_hits[0])
+        specific_user_signals.update(user_hits)
+
+    affinity_hit = False
+    for signal, families in _GENERIC_DEEP_AFFINITIES.items():
+        if signal in summary and record["familyId"] in families:
+            score += 3
+            affinity_hit = True
+            if signal not in facet_story_signals:
+                facet_story_signals.append(signal)
+
+    direct_specific = {
+        signal
+        for signal in user_signals
+        if signal not in _GENERIC_USER_SIGNALS and signal in searchable
+    }
+    score += 2 * len(direct_specific)
+    specific_user_signals.update(direct_specific)
+
+    matched_retrieval_terms = [
+        str(term)
+        for term in _as_list(record.get("retrievalTermsMatched"))
+        if str(term).strip()
+    ]
+    if matched_retrieval_terms:
+        score += min(6, len(matched_retrieval_terms) * 3)
+        facet_story_signals.extend(matched_retrieval_terms)
+
+    broad_hits = [signal for signal in user_signals if signal in searchable]
+    if score == 0 and broad_hits and not str(record.get("corpusTier") or "").startswith("c1"):
+        # Broad onboarding summaries may still reach the small deep set, but a
+        # single broad overlap never legitimises an unannotated 12k row.
+        score = 1
+
+    story_signal = (facet_story_signals[0] if facet_story_signals else None) or (
+        family_themes[0] if family_themes else str(
         _mapping_value(card, "motifs", default=["叙事变化"])[0]
         if _as_list(_mapping_value(card, "motifs", default=[]))
         else "叙事变化"
+        )
     )
+    record["_matchMeta"] = {
+        "facetLabels": facet_labels,
+        "specificUserSignals": sorted(specific_user_signals),
+        "matchedRetrievalTerms": matched_retrieval_terms,
+        "affinityHit": affinity_hit,
+    }
     return score, label, evidence, story_signal
+
+
+def _summary_has_specific_signal(summary: str) -> bool:
+    return any(
+        term in summary
+        for _, user_terms, _ in _SEMANTIC_FACETS
+        for term in user_terms
+    )
+
+
+def _confident_story_candidate(
+    record: dict[str, Any],
+    summary: str,
+    rerank: dict[str, Any] | None,
+) -> bool:
+    score, _, _, _ = _story_relevance(record, summary)
+    try:
+        model_score = float(rerank["score"]) if rerank and rerank.get("score") is not None else None
+    except (TypeError, ValueError):
+        model_score = None
+    # A model explicitly calling a candidate weak is never overruled merely to
+    # fill the third card slot.
+    if model_score is not None and model_score < 0.55:
+        return False
+    is_c1 = str(record.get("corpusTier") or "").startswith("c1")
+    if is_c1:
+        # Unannotated rows require a real full-text hit plus deterministic
+        # grounding.  Stable samples are still reachable for corpus browsing,
+        # but they are not silently promoted into personalised recommendations.
+        return bool(record.get("retrievalTermsMatched")) and score >= 3
+    if score >= 3 or (model_score is not None and model_score >= 0.72):
+        return True
+    # A broad preset may use the 30 deep records as an exploratory fallback.
+    # Concrete user stories do not receive this relaxation.
+    return not _summary_has_specific_signal(summary) and score >= 1
 
 
 def _recommendation_reason(record: dict[str, Any], summary: str) -> dict[str, Any]:
     _, label, evidence, story_signal = _story_relevance(record, summary)
-    lead = f"你确认的摘要里出现了“{evidence}”" if evidence else "你正在尝试把当下的变化说清楚"
+    match_meta = record.get("_matchMeta") or {}
+    clauses = _user_clauses(summary)
+    specific_signals = [str(item) for item in match_meta.get("specificUserSignals", [])]
+    user_clause = max(
+        clauses,
+        key=lambda clause: (
+            sum(1 for signal in specific_signals if signal in clause),
+            min(len(clause), 48),
+        ),
+    )
+    card = record.get("storyCard") or {}
+    story_summary = _clean_chinese_copy(
+        _mapping_value(card, "summary", default=_mapping_value(record.get("sourceCanon") or {}, "summary", default=""))
+    )
+    story_detail = _short_clause(
+        next(
+            (part for part in re.split(r"[。！？；]", story_summary) if part.strip()),
+            str(record.get("title") or "原典人物作出回应"),
+        ),
+        limit=68,
+    )
+    conflict = _short_clause(
+        str(_mapping_value(card, "conflict", default="原典有自身的处境与结局")),
+        limit=54,
+    )
     is_c1_demo = str(record.get("corpusTier") or "").startswith("c1")
     return {
-        "text": (
-            (
-                f"{lead}；《{_canonical_story_title(record)}》的来源片段中有“{story_signal}”相关线索，"
-                "可以先作为一份比较材料，再由你决定是否继续。"
-            )
-            if is_c1_demo
-            else (
-                f"{lead}；《{_canonical_story_title(record)}》把“{story_signal}”放进一个有结局、也有代价的叙事中，"
-                "可以作为一面比较用的镜子。它不是诊断，也不预设你应该照着故事行动。"
-            )
+        "text": _clean_chinese_copy(
+            f"用户线索：“{user_clause}”；原典情节：《{_canonical_story_title(record)}》中，{story_detail}；"
+            f"关键差异：原典围绕“{conflict}”展开，不能替代你对现实处境的判断。"
         ),
         "userSignal": label,
         "storySignal": story_signal,
@@ -525,6 +791,9 @@ class SessionService:
         self._sessions: dict[str, SessionState] = {}
         self._tombstones: dict[str, dict[str, Any]] = {}
         self._idempotency: dict[tuple[str, str], IdempotencyRecord] = {}
+        self._idempotency_inflight: dict[
+            tuple[str, str], tuple[str, threading.Event]
+        ] = {}
         self._invalidated_idempotency: set[str] = set()
         self._lock = threading.RLock()
 
@@ -588,44 +857,75 @@ class SessionService:
 
         fingerprint = stable_hash(request_payload)
         cache_key = (scope, key)
-        with self._lock:
-            scoped_session_id = self._session_id_from_scope(scope)
-            if scoped_session_id is not None:
-                self._session(scoped_session_id)
-            if self._idempotency_digest(cache_key) in self._invalidated_idempotency:
-                raise ServiceError(
-                    409,
-                    "idempotency_replay_unavailable",
-                    "The original response for this idempotency key was securely invalidated",
-                )
-            existing = self._idempotency.get(cache_key)
-            if existing is not None:
-                if scope == "sessions:create":
-                    replay_session_id = existing.response.get("sessionId") or existing.response.get("id")
-                    if replay_session_id:
-                        try:
-                            self._session(str(replay_session_id))
-                        except ServiceError:
-                            self._idempotency.pop(cache_key, None)
-                            raise ServiceError(
-                                409,
-                                "idempotency_replay_unavailable",
-                                "The session created by this idempotency key is no longer available",
-                            )
-                if existing.fingerprint != fingerprint:
+        owner_event: threading.Event | None = None
+        while owner_event is None:
+            wait_event: threading.Event | None = None
+            with self._lock:
+                scoped_session_id = self._session_id_from_scope(scope)
+                if scoped_session_id is not None:
+                    self._session(scoped_session_id)
+                if self._idempotency_digest(cache_key) in self._invalidated_idempotency:
                     raise ServiceError(
                         409,
-                        "idempotency_key_reused",
-                        "Idempotency-Key was already used with a different request",
+                        "idempotency_replay_unavailable",
+                        "The original response for this idempotency key was securely invalidated",
                     )
-                return copy.deepcopy(existing.response), True
+                existing = self._idempotency.get(cache_key)
+                if existing is not None:
+                    if scope == "sessions:create":
+                        replay_session_id = existing.response.get("sessionId") or existing.response.get("id")
+                        if replay_session_id:
+                            try:
+                                self._session(str(replay_session_id))
+                            except ServiceError:
+                                self._idempotency.pop(cache_key, None)
+                                raise ServiceError(
+                                    409,
+                                    "idempotency_replay_unavailable",
+                                    "The session created by this idempotency key is no longer available",
+                                )
+                    if existing.fingerprint != fingerprint:
+                        raise ServiceError(
+                            409,
+                            "idempotency_key_reused",
+                            "Idempotency-Key was already used with a different request",
+                        )
+                    return copy.deepcopy(existing.response), True
+                inflight = self._idempotency_inflight.get(cache_key)
+                if inflight is None:
+                    owner_event = threading.Event()
+                    self._idempotency_inflight[cache_key] = (fingerprint, owner_event)
+                else:
+                    inflight_fingerprint, wait_event = inflight
+                    if inflight_fingerprint != fingerprint:
+                        raise ServiceError(
+                            409,
+                            "idempotency_key_reused",
+                            "Idempotency-Key is in progress with a different request",
+                        )
+            if wait_event is not None:
+                # Wait outside the global state lock.  The owner can now call a
+                # model or image provider without freezing unrelated sessions.
+                wait_event.wait(timeout=120)
+
+        try:
             result = operation()
+        except Exception:
+            with self._lock:
+                inflight = self._idempotency_inflight.pop(cache_key, None)
+                if inflight is not None:
+                    inflight[1].set()
+            raise
+        with self._lock:
             if not scope.endswith(":delete"):
                 self._idempotency[cache_key] = IdempotencyRecord(
                     fingerprint=fingerprint,
                     response=copy.deepcopy(result),
                 )
-            return result, False
+            inflight = self._idempotency_inflight.pop(cache_key, None)
+            if inflight is not None:
+                inflight[1].set()
+        return result, False
 
     def _session(self, session_id: str) -> SessionState:
         session = self._sessions.get(session_id)
@@ -636,6 +936,68 @@ class SessionService:
             self._expire_session(session)
             raise ServiceError(404, "session_not_found", "Session does not exist or was deleted")
         return session
+
+    @staticmethod
+    def _session_mutation_token(session: SessionState) -> str:
+        """Fingerprint state that can change the meaning of a model result."""
+
+        return stable_hash(
+            {
+                "consent": session.consent,
+                "safety": session.safety_route,
+                "briefs": [
+                    (item.get("id"), item.get("version"), item.get("confirmedSummary"))
+                    for item in session.experience_briefs
+                ],
+                "offers": [item.get("offerId") for item in session.story_offers],
+                "selection": session.selection,
+                "sourceCanonHash": session.source_canon_hash,
+                "branches": [
+                    (item.get("id"), item.get("etag"), item.get("status"))
+                    for item in session.branches
+                ],
+                "approvedBranchVersion": session.approved_branch_version,
+                "theatreScripts": [item.get("id") for item in session.theatre_scripts],
+            }
+        )
+
+    def _call_external(
+        self,
+        session: SessionState,
+        operation: Callable[[], Any],
+    ) -> Any:
+        """Run provider I/O without holding the process-wide state lock.
+
+        ``threading.RLock`` exposes the same save/restore hooks used by
+        ``threading.Condition``.  They release every recursive acquisition, so
+        this remains safe when a refresh is reached through another locked
+        service method.  On return, an optimistic token rejects a stale model
+        result if the same session changed while the provider was running.
+        """
+
+        expected_token = self._session_mutation_token(session)
+        release_save = getattr(self._lock, "_release_save", None)
+        acquire_restore = getattr(self._lock, "_acquire_restore", None)
+        is_owned = getattr(self._lock, "_is_owned", None)
+        if not callable(release_save) or not callable(acquire_restore) or not (
+            callable(is_owned) and is_owned()
+        ):
+            # Defensive portability fallback. Current supported CPython builds
+            # always take the branch above.
+            return operation()
+        lock_state = release_save()
+        try:
+            result = operation()
+        finally:
+            acquire_restore(lock_state)
+        current = self._session(session.session_id)
+        if current is not session or self._session_mutation_token(current) != expected_token:
+            raise ServiceError(
+                409,
+                "session_changed_during_generation",
+                "The session changed while generation was running; retry with the latest state",
+            )
+        return result
 
     @staticmethod
     def _event(session: SessionState, event_type: str, **details: Any) -> None:
@@ -837,9 +1199,12 @@ class SessionService:
                     ]
                     conversation_turn = getattr(self.model_adapter, "conversation_turn", None)
                     if callable(conversation_turn):
-                        generated = conversation_turn(
-                            user_message=request.message,
-                            history=history,
+                        generated = self._call_external(
+                            session,
+                            lambda: conversation_turn(
+                                user_message=request.message,
+                                history=history,
+                            ),
                         )
                         if not isinstance(generated, dict):
                             raise ModelUnavailable("Conversation model must return a structured turn")
@@ -890,9 +1255,12 @@ class SessionService:
                             else deterministic_options
                         )
                     else:
-                        legacy_reply = self.model_adapter.chat(
-                            user_message=request.message,
-                            history=history,
+                        legacy_reply = self._call_external(
+                            session,
+                            lambda: self.model_adapter.chat(
+                                user_message=request.message,
+                                history=history,
+                            ),
                         )
                         acknowledgement, follow_up_question, reply = (
                             _conversation_beats_from_legacy_reply(
@@ -977,7 +1345,12 @@ class SessionService:
             summarize = getattr(self.model_adapter, "summarize_experience", None)
             if callable(summarize):
                 try:
-                    generated = str(summarize(history=full_history)).strip()
+                    generated = str(
+                        self._call_external(
+                            session,
+                            lambda: summarize(history=full_history),
+                        )
+                    ).strip()
                     if 10 <= len(generated) <= 240:
                         is_live_deepseek = (
                             type(self.model_adapter) is DeepSeekAdapter
@@ -1199,10 +1572,9 @@ class SessionService:
         if recommendation_override is not None:
             recommendation = {
                 **recommendation,
-                "text": str(recommendation_override.get("reason") or recommendation["text"]),
-                "storySignal": str(
-                    recommendation_override.get("storySignal") or recommendation["storySignal"]
-                ),
+                # The model may alter order and confidence, but the displayed
+                # reason is rebuilt from fixed fields so a generic or invented
+                # rationale can never reach the card.
                 "mode": "hybrid_rag_rerank",
             }
         model_generated = recommendation_override is not None
@@ -1250,6 +1622,7 @@ class SessionService:
                 "retrievalTerms": list(retrieval_terms or []),
                 "retrievalPlanSource": retrieval_plan_source,
                 "rerankSource": rerank_source,
+                "reasonSource": "deterministic_source_grounded",
                 "evidence": retrieval_evidence,
                 "rerankScore": (
                     float(recommendation_override["score"])
@@ -1269,9 +1642,9 @@ class SessionService:
                 ),
                 "sourceVersion": " · ".join(version_label_parts),
                 "editorialStatus": (
-                    "来源库演示候选 · 自动生成基础卡"
+                    "机器整理的演示候选 · 未经人工审核"
                     if is_c1_demo
-                    else "产品主文本 · 待专家与双人文化复核"
+                    else "深度标注演示稿 · 未经人工审核"
                 ),
             },
             "sourceCanon": source_canon,
@@ -1292,7 +1665,12 @@ class SessionService:
         if session.consent.get("cloudProcessingAccepted") is not True:
             return fallback, "deterministic_fallback"
         try:
-            plan = self.model_adapter.retrieval_plan(user_summary=confirmed_summary)
+            plan = self._call_external(
+                session,
+                lambda: self.model_adapter.retrieval_plan(
+                    user_summary=confirmed_summary
+                ),
+            )
             terms = [str(value) for value in plan.get("terms", [])][:8]
             themes = [str(value) for value in plan.get("themes", [])][:4]
             if not terms:
@@ -1367,12 +1745,23 @@ class SessionService:
                         ),
                         limit=500,
                     ),
+                    "storySummary": _compact_evidence_text(
+                        str(_mapping_value(item.get("storyCard") or {}, "summary", default="")),
+                        limit=360,
+                    ),
+                    "conflict": _compact_evidence_text(
+                        str(_mapping_value(item.get("storyCard") or {}, "conflict", default="")),
+                        limit=240,
+                    ),
                 }
             )
         try:
-            rankings = self.model_adapter.rerank_candidates(
-                user_summary=confirmed_summary,
-                candidates=payload,
+            rankings = self._call_external(
+                session,
+                lambda: self.model_adapter.rerank_candidates(
+                    user_summary=confirmed_summary,
+                    candidates=payload,
+                ),
             )
         except (ModelUnavailable, AttributeError, TypeError, ValueError):
             return {}, "deterministic_fallback"
@@ -1408,13 +1797,12 @@ class SessionService:
             candidate_count = self.corpus.recommendation_candidate_count(
                 adult_content_opt_in=adult_content_enabled
             )
-            if candidate_count < 2:
+            if candidate_count == 0:
                 raise ServiceError(
                     503,
                     "c3_corpus_unavailable",
-                    "At least two eligible recommendation stories are required",
+                    "No recommendation stories are available",
                 )
-
             excluded: set[str] = set(request.excluded_story_version_ids)
             refreshing_existing_offer = request.refresh and bool(session.story_offers)
             if refreshing_existing_offer:
@@ -1475,44 +1863,15 @@ class SessionService:
                     continue
                 if refreshing_existing_offer and item["familyId"] in previously_seen_families:
                     continue
+                if not _confident_story_candidate(
+                    item,
+                    confirmed_summary,
+                    rerank_by_id.get(item["storyVersionId"]),
+                ):
+                    continue
                 family_unique.append(item)
                 seen_in_offer.add(item["familyId"])
-            # Keep the familiar, deep-annotated cards compatible while making
-            # the source catalog visibly real: when both tiers are available,
-            # every offer reserves at least one slot for each tier.
-            if request.limit >= 2:
-                best_c3 = next(
-                    (
-                        item
-                        for item in family_unique
-                        if not str(item.get("corpusTier") or "").startswith("c1")
-                    ),
-                    None,
-                )
-                best_c1 = next(
-                    (
-                        item
-                        for item in family_unique
-                        if str(item.get("corpusTier") or "").startswith("c1")
-                    ),
-                    None,
-                )
-                if best_c3 is not None and best_c1 is not None:
-                    mixed = [best_c3, best_c1]
-                    mixed_ids = {item["storyVersionId"] for item in mixed}
-                    mixed.extend(
-                        item
-                        for item in family_unique
-                        if item["storyVersionId"] not in mixed_ids
-                    )
-                    family_unique = mixed
             corpus_candidates = family_unique[: request.limit]
-            if len(corpus_candidates) < 2 and not refreshing_existing_offer:
-                raise ServiceError(
-                    503,
-                    "c3_corpus_unavailable",
-                    "Not enough eligible recommendation stories",
-                )
             candidates = [
                 self._public_story_card(
                     item,
@@ -1545,8 +1904,22 @@ class SessionService:
                 "rerankSource": rerank_source,
                 "ragCandidateLimit": 8,
                 "exhausted": exhausted,
+                "matchStatus": (
+                    "no_confident_match"
+                    if not candidates
+                    else "partial_match"
+                    if len(candidates) < request.limit
+                    else "matched"
+                ),
+                "matchMessage": (
+                    "这次没有找到足够具体的对应故事；可以补充事件、关系或顾虑后再试。"
+                    if not candidates
+                    else "只展示通过具体线索门槛的故事，因此数量可能少于三则。"
+                    if len(candidates) < request.limit
+                    else None
+                ),
                 "canRejectAll": True,
-                "canRefresh": not exhausted,
+                "canRefresh": bool(candidates) and not exhausted,
                 "createdAt": utc_now(),
             }
             session.story_offers.append(offer)
@@ -1722,6 +2095,14 @@ class SessionService:
                     str(value)
                     for value in _as_list(_mapping_value(card, "motifs", default=[]))[:8]
                 ]
+            context.setdefault("conflict", str(_mapping_value(card, "conflict", default="")))
+            context.setdefault(
+                "characters",
+                [
+                    str(value)
+                    for value in _as_list(_mapping_value(card, "characters", default=[]))[:8]
+                ],
+            )
         if not str(
             _mapping_value(context, "originalEnding", "original_ending", default="")
         ).strip():
@@ -1739,29 +2120,54 @@ class SessionService:
             brief.get("confirmedSummary") or brief.get("neutralSummary") or "用户正在面对一次变化。"
         )
         source = self._selected_story_context(session)
-        source_title = str(
+        source_title = _clean_chinese_copy(
             _mapping_value(source, "work", "sourceTitle", "title", default="所选故事")
         )
-        source_summary = _compact_evidence_text(
-            str(
-                _mapping_value(
-                    source,
-                    "summary",
-                    "excerpt",
-                    "originalExcerpt",
-                    "original_excerpt",
-                    default="",
-                )
-            ),
-            limit=180,
-        )
-        values = [
-            f"用户确认的处境是：{user_summary}。在《{source_title}》中，可以先从“原有秩序如何被打破”这一处开始比较。",
-            f"映照的第二步不是照搬原典，而是辨认用户愿意尝试、拒绝或暂缓的选择；原典线索是：{source_summary}",
-            "可把现实中的人、已有经验和可调用资源放在这里，与故事中的助力或阻力分别对应，并保留不确定之处。",
-            "新的理解暂定为：变化不只要求得出结论，也可能要求调整路径、边界或行动顺序；这仍由用户修改确认。",
-            "带回现实的内容先写成一个小而可改的可能性：保留自己的判断，并选择下一步能够承受的行动。",
+        user_clauses = _user_clauses(user_summary)
+        source_passages: list[str] = []
+        for raw in (
+            _mapping_value(source, "summary", default=""),
+            _mapping_value(source, "conflict", default=""),
+            _mapping_value(source, "originalEnding", "original_ending", "ending", default=""),
+            _mapping_value(source, "excerpt", "originalExcerpt", "original_excerpt", default=""),
+        ):
+            cleaned = re.sub(
+                r"^本项目编辑草稿（非原典引文）：",
+                "",
+                _clean_chinese_copy(raw),
+            )
+            for part in re.split(r"[。！？；]", cleaned):
+                beat = _short_clause(part, limit=74)
+                if len(beat) >= 4 and beat not in source_passages:
+                    source_passages.append(beat)
+        motifs = [
+            _short_clause(str(value), limit=24)
+            for value in _as_list(_mapping_value(source, "motifs", default=[]))
+            if str(value).strip()
         ]
+        if not source_passages:
+            source_passages.append(f"《{source_title}》保留了固定的原典情节与结局")
+        while len(source_passages) < len(_NODE_DEFINITIONS):
+            motif = motifs[len(source_passages) % len(motifs)] if motifs else source_title
+            source_passages.append(f"原典以“{motif}”推进这一段情节")
+
+        focus = _short_clause(user_clauses[0], limit=34)
+        differences = (
+            "原典的开端由上述事件触发，现实中的变化只以用户已经写下的内容为准",
+            "原典人物已经作出行动，现实里尚未确认的接受、拒绝或暂缓不会被初稿补写",
+            "原典有明确人物或力量介入；现实中若未写明可求助对象，就保留这项空白",
+            "原典由固定情节走向结局，现实可以调整方法，不必复制原典的行动顺序",
+            f"原典已经抵达文本结尾；现实预览是围绕“{focus}”先写清已确认部分、待协商部分与回复时间，再由用户修改",
+        )
+        values: list[str] = []
+        for index in range(len(_NODE_DEFINITIONS)):
+            user_clause = user_clauses[index % len(user_clauses)]
+            values.append(
+                _clean_chinese_copy(
+                    f"现实线索：{user_clause}；原典线索：《{source_title}》中，"
+                    f"{source_passages[index]}；映照差异：{differences[index]}。"
+                )
+            )
         nodes = []
         for (node_id, title, prompt), value in zip(_NODE_DEFINITIONS, values):
             nodes.append(
@@ -1777,8 +2183,8 @@ class SessionService:
             )
         return nodes, {
             "type": "action",
-            "detail": "先保留自己的判断，再完成一个能够承受、可以修改的小步骤。",
-            "text": "先保留自己的判断，再完成一个能够承受、可以修改的小步骤。",
+            "detail": f"先围绕“{_short_clause(user_clauses[0], limit=36)}”确认一个可撤回、可修改的小步骤。",
+            "text": f"先围绕“{_short_clause(user_clauses[0], limit=36)}”确认一个可撤回、可修改的小步骤。",
         }
 
     def _auto_mapping_draft(
@@ -1793,9 +2199,13 @@ class SessionService:
             brief.get("confirmedSummary") or brief.get("neutralSummary") or ""
         )
         try:
-            generated = self.model_adapter.generate_mapping_draft(
-                user_summary=user_summary,
-                source_canon=self._selected_story_context(session),
+            source_context = self._selected_story_context(session)
+            generated = self._call_external(
+                session,
+                lambda: self.model_adapter.generate_mapping_draft(
+                    user_summary=user_summary,
+                    source_canon=source_context,
+                ),
             )
             raw_nodes = generated.get("nodes", [])
             raw_anchor = generated.get("hopeAnchor", {})
@@ -1808,9 +2218,13 @@ class SessionService:
                 raise ModelUnavailable("Incomplete mapping draft")
             nodes = []
             for node_id, title, prompt in _NODE_DEFINITIONS:
-                value = by_id[node_id]
-                if not value:
-                    raise ModelUnavailable("Empty mapping node")
+                value = _clean_chinese_copy(by_id[node_id])
+                if not self._mapping_value_is_specific(
+                    value,
+                    user_summary=user_summary,
+                    source=self._selected_story_context(session),
+                ):
+                    raise ModelUnavailable("Generic or ungrounded mapping node")
                 nodes.append(
                     {
                         "id": node_id,
@@ -1840,6 +2254,96 @@ class SessionService:
             )
         except (ModelUnavailable, AttributeError, TypeError, ValueError):
             return fallback_nodes, fallback_anchor, "deterministic_mapping_draft", False
+
+    @staticmethod
+    def _mapping_value_is_specific(
+        value: str,
+        *,
+        user_summary: str,
+        source: dict[str, Any],
+    ) -> bool:
+        text = _clean_chinese_copy(value)
+        if not all(label in text for label in ("现实线索：", "原典线索：", "映照差异：")):
+            return False
+        if any(
+            filler in text
+            for filler in (
+                "可把现实中的人",
+                "与故事中的助力或阻力分别对应",
+                "这仍由用户修改确认",
+                "选择下一步能够承受的行动",
+            )
+        ):
+            return False
+        reality = text.split("现实线索：", 1)[1].split("原典线索：", 1)[0]
+        canon = text.split("原典线索：", 1)[1].split("映照差异：", 1)[0]
+        difference = text.split("映照差异：", 1)[1]
+        if min(len(reality.strip("；，。 ")), len(canon.strip("；，。 ")), len(difference.strip("；，。 "))) < 4:
+            return False
+
+        def shared_phrase(left: str, right: str) -> bool:
+            left_text = re.sub(r"[^\u3400-\u9fff]", "", left)
+            right_text = re.sub(r"[^\u3400-\u9fff]", "", right)
+            ignored = {"用户", "现实", "线索", "原典", "故事", "事情", "可以", "没有"}
+            for width in (6, 5, 4, 3, 2):
+                for index in range(max(0, len(left_text) - width + 1)):
+                    phrase = left_text[index : index + width]
+                    if phrase not in ignored and phrase in right_text:
+                        return True
+            return False
+
+        story_text = " ".join(
+            str(value)
+            for value in (
+                _mapping_value(source, "title", "work", "sourceTitle", default=""),
+                _mapping_value(source, "summary", default=""),
+                _mapping_value(source, "excerpt", "originalExcerpt", "original_excerpt", default=""),
+                " ".join(str(item) for item in _as_list(_mapping_value(source, "motifs", default=[]))),
+            )
+        )
+        return shared_phrase(user_summary, reality) and shared_phrase(story_text, canon)
+
+    def _deterministic_mapping_revision(
+        self,
+        session: SessionState,
+        latest: dict[str, Any],
+        message: str,
+        *,
+        explicit_node_id: str | None = None,
+    ) -> list[dict[str, Any]]:
+        targets = _mapping_edit_targets(message, explicit_node_id)
+        if not targets:
+            return []
+        fallback_nodes, _ = self._deterministic_mapping_draft(session)
+        fallback_by_id = {str(item["id"]): item for item in fallback_nodes}
+        title_by_id = {node_id: title for node_id, title, _ in _NODE_DEFINITIONS}
+        desired_match = re.search(
+            r"(?:改成|改为|写成|换成|调整为|强调|突出)[“\"：:]?(.{2,120}?)[”\"]?(?:[。！？]|$)",
+            _clean_chinese_copy(message),
+        )
+        desired = _short_clause(desired_match.group(1), limit=100) if desired_match else ""
+        updates: list[dict[str, Any]] = []
+        for node_id in targets:
+            value = str(fallback_by_id[node_id]["value"])
+            if desired:
+                reality, remainder = value.split("；原典线索：", 1)
+                existing_reality = reality.removeprefix("现实线索：").rstrip("；，。 ")
+                value = _clean_chinese_copy(
+                    f"现实线索：{existing_reality}；按你的修改补充：{desired}；原典线索：{remainder}"
+                )
+            node_title = title_by_id[node_id]
+            updates.append(
+                {
+                    "nodeId": node_id,
+                    "value": value,
+                    "rationale": _short_clause(
+                        f"按“{_short_clause(message, limit=54)}”具体修改“{node_title}”，未改动其他节点",
+                        limit=150,
+                    ),
+                    "contribution": "model_expression",
+                }
+            )
+        return updates
 
     @staticmethod
     def _should_auto_draft(latest: dict[str, Any] | None, request: BranchWrite) -> bool:
@@ -1892,13 +2396,25 @@ class SessionService:
                 user_summary = str(
                     brief.get("confirmedSummary") or brief.get("neutralSummary") or ""
                 )
-            suggestions = self.model_adapter.suggest(
-                node_number=node_number,
-                node_title=node_title,
-                node_prompt=node_prompt,
-                story_context=story_context,
-                user_summary=user_summary,
-            )
+            if session is None:
+                suggestions = self.model_adapter.suggest(
+                    node_number=node_number,
+                    node_title=node_title,
+                    node_prompt=node_prompt,
+                    story_context=story_context,
+                    user_summary=user_summary,
+                )
+            else:
+                suggestions = self._call_external(
+                    session,
+                    lambda: self.model_adapter.suggest(
+                        node_number=node_number,
+                        node_title=node_title,
+                        node_prompt=node_prompt,
+                        story_context=story_context,
+                        user_summary=user_summary,
+                    ),
+                )
             is_live_deepseek = (
                 type(self.model_adapter) is DeepSeekAdapter
                 and getattr(getattr(self.model_adapter, "config", None), "available", False) is True
@@ -2017,28 +2533,53 @@ class SessionService:
 
                 updates: list[dict[str, Any]] = []
                 source = "deterministic_fallback"
+                expected_targets = _mapping_edit_targets(
+                    assistant_message,
+                    request.node_id,
+                )
                 if session.consent.get("cloudProcessingAccepted") is True:
                     brief = self._confirmed_brief(session)
                     try:
-                        raw_updates = self.model_adapter.revise_mapping(
-                            user_message=assistant_message,
-                            user_summary=str(
-                                brief.get("confirmedSummary")
-                                or brief.get("neutralSummary")
-                                or ""
+                        revision_summary = str(
+                            brief.get("confirmedSummary")
+                            or brief.get("neutralSummary")
+                            or ""
+                        )
+                        revision_source = self._selected_story_context(session)
+                        revision_nodes = copy.deepcopy(latest["nodes"])
+                        raw_updates = self._call_external(
+                            session,
+                            lambda: self.model_adapter.revise_mapping(
+                                user_message=assistant_message,
+                                user_summary=revision_summary,
+                                source_canon=revision_source,
+                                nodes=revision_nodes,
                             ),
-                            source_canon=self._selected_story_context(session),
-                            nodes=copy.deepcopy(latest["nodes"]),
                         )
                         for item in raw_updates:
                             node_id = str(item.get("nodeId") or "")
-                            value = str(item.get("value") or "").strip()
-                            if node_id in _NODE_NUMBER and value:
+                            value = _clean_chinese_copy(item.get("value"))
+                            if expected_targets and node_id not in expected_targets:
+                                continue
+                            if (
+                                node_id in _NODE_NUMBER
+                                and self._mapping_value_is_specific(
+                                    value,
+                                    user_summary=str(
+                                        brief.get("confirmedSummary")
+                                        or brief.get("neutralSummary")
+                                        or ""
+                                    ),
+                                    source=self._selected_story_context(session),
+                                )
+                            ):
                                 updates.append(
                                     {
                                         "nodeId": node_id,
                                         "value": value,
-                                        "rationale": str(item.get("rationale") or ""),
+                                        "rationale": _clean_chinese_copy(
+                                            item.get("rationale")
+                                        ),
                                         "contribution": "model_expression",
                                     }
                                 )
@@ -2055,6 +2596,14 @@ class SessionService:
                             source = "deepseek" if is_live_deepseek else "model_adapter"
                     except (ModelUnavailable, AttributeError, TypeError, ValueError):
                         updates = []
+                if not updates:
+                    updates = self._deterministic_mapping_revision(
+                        session,
+                        latest,
+                        assistant_message,
+                        explicit_node_id=request.node_id,
+                    )
+                    source = "deterministic_fallback"
                 self._event(
                     session,
                     "mapping_assistant_returned",
@@ -2066,14 +2615,19 @@ class SessionService:
                 return {
                     "branch": copy.deepcopy(latest),
                     "assistantMessage": (
-                        "已根据你的说明整理出可预览的节点修改；保存前仍可逐项确认。"
+                        "已把你点名的“"
+                        + "、".join(
+                            next(title for candidate_id, title, _ in _NODE_DEFINITIONS if candidate_id == item["nodeId"])
+                            for item in updates
+                        )
+                        + "”整理成具体预览；保存前仍可逐项确认。"
                         if updates
-                        else "当前未调用外部模型；你仍可选择节点并使用本地建议，或直接手动修改。"
+                        else "我还无法确定你想改哪一处；请直接说节点名和希望改成的内容。"
                     ),
                     "nodeUpdates": updates,
                     "suggestions": [],
                     "suggestionSource": source,
-                    "modelGenerated": bool(updates),
+                    "modelGenerated": bool(updates) and source != "deterministic_fallback",
                 }
             node_id = request.node_id
             node_number = _NODE_NUMBER.get(node_id) if node_id else request.request_suggestions_for
@@ -2326,15 +2880,22 @@ class SessionService:
                 compose = getattr(self.model_adapter, "compose_theatre", None)
                 if callable(compose):
                     try:
-                        woven = compose(
-                            story_context=self._suggestion_story_context(session),
-                            user_summary=str(
-                                self._confirmed_brief(session).get("confirmedSummary")
-                                or self._confirmed_brief(session).get("neutralSummary")
-                                or ""
+                        theatre_story_context = self._suggestion_story_context(session)
+                        theatre_brief = self._confirmed_brief(session)
+                        theatre_summary = str(
+                            theatre_brief.get("confirmedSummary")
+                            or theatre_brief.get("neutralSummary")
+                            or ""
+                        )
+                        theatre_nodes = copy.deepcopy(active_nodes)
+                        woven = self._call_external(
+                            session,
+                            lambda: compose(
+                                story_context=theatre_story_context,
+                                user_summary=theatre_summary,
+                                nodes=theatre_nodes,
+                                hope_text=hope_text,
                             ),
-                            nodes=copy.deepcopy(active_nodes),
-                            hope_text=hope_text,
                         )
                         node_ids = [str(node.get("id")) for node in active_nodes]
                         for position, act in enumerate(woven):
@@ -2406,7 +2967,7 @@ class SessionService:
                 "totalDurationSeconds": sum(act["durationSeconds"] for act in acts),
                 "finalLineSuggestions": list(_FALLBACK_SUGGESTIONS[5]),
                 "renderMode": "canvas_svg_css",
-                "mediaMode": "reviewed_assets",
+                "mediaMode": "generated_or_local_fallback",
                 "generationMode": (
                     "model_woven_narrative"
                     if composition_source != "deterministic_fallback"
@@ -2458,6 +3019,16 @@ class SessionService:
             if act is None:
                 raise ServiceError(404, "theatre_act_not_found", "Theatre act does not exist")
             source = session.source_snapshot or {}
+            story_context = self._suggestion_story_context(session)
+            continuity_parts = [
+                f"同一剧目《{str(script.get('title') or '现代支线剧场')}》",
+                (
+                    f"主要人物：{story_context.get('characters')}"
+                    if story_context.get("characters")
+                    else "主要人物沿用上一幕造型"
+                ),
+                "全剧使用同一服装主色与随身物件",
+            ]
             scene_fields = {
                 "scene_title": str(act.get("title") or "这一幕"),
                 "narration": str(act.get("narration") or ""),
@@ -2472,6 +3043,7 @@ class SessionService:
                         default="所选古籍",
                     )
                 ),
+                "continuity_context": "；".join(continuity_parts),
             }
             cloud_allowed = session.consent.get("cloudProcessingAccepted") is True
 

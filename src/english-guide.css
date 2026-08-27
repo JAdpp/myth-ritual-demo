@@ -310,6 +310,7 @@
 }
 
 .language-switch button {
+  min-height: 44px;
   padding: 0.3rem 0.8rem;
   color: var(--ink-soft);
   border: 0;

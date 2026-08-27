@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+from threading import Event, Thread
 
 from fastapi.testclient import TestClient
 
 from app.config import DeepSeekAdapter, DeepSeekConfig
 from app.main import create_app
+from app.models import SessionConsent, SessionCreate, StoryOfferCreate
+from app.service import _mapping_edit_targets
 
 
 NODE_IDS = [
@@ -15,6 +18,17 @@ NODE_IDS = [
     "new_understanding",
     "bring_back",
 ]
+
+
+def test_named_mapping_node_overrides_incidental_active_canvas_context() -> None:
+    assert _mapping_edit_targets(
+        "把‘跨过门槛’改成先把分工写入共享文档。",
+        "world_crack",
+    ) == ["cross_threshold"]
+    assert _mapping_edit_targets(
+        "这里的选择改成先写进共享文档。",
+        "world_crack",
+    ) == ["world_crack"]
 
 
 def _session_ready_for_offer(client: TestClient, *, cloud: bool) -> str:
@@ -53,7 +67,10 @@ def test_deepseek_structured_rag_and_mapping_payloads_are_bounded() -> None:
                 {
                     "storyVersionId": f"story-{index}",
                     "score": 0.95 - index / 20,
-                    "reason": "候选中的边界变化与已确认摘要可以形成具体比较。",
+                    "reason": (
+                        "用户线索：一段关系正在变化；原典情节：候选原文写有边界变化；"
+                        "关键差异：原典结局不能替代现实判断。"
+                    ),
                     "storySignal": "边界变化",
                 }
                 for index in range(12)
@@ -61,7 +78,13 @@ def test_deepseek_structured_rag_and_mapping_payloads_are_bounded() -> None:
         },
         {
             "nodes": [
-                {"nodeId": node_id, "value": f"{node_id}的简体中文映照初稿。"}
+                {
+                    "nodeId": node_id,
+                    "value": (
+                        "现实线索：一段关系正在变化；原典线索：原文写到边界与选择；"
+                        "映照差异：原典已有结局，现实仍由用户确认。"
+                    ),
+                }
                 for node_id in NODE_IDS
             ],
             "hopeAnchor": {"type": "action", "detail": "先完成一个可修改的小步骤。"},
@@ -70,7 +93,10 @@ def test_deepseek_structured_rag_and_mapping_payloads_are_bounded() -> None:
             "nodeUpdates": [
                 {
                     "nodeId": "bring_back",
-                    "value": "把最后一步改成更具体、仍可调整的行动。",
+                    "value": (
+                        "现实线索：一段关系正在变化；原典线索：原文写到边界与选择；"
+                        "映照差异：先写下可调整的一步，不照搬原典结局。"
+                    ),
                     "rationale": "回应用户希望结尾更具体的要求。",
                 }
             ]
@@ -198,9 +224,16 @@ def test_consented_hybrid_rag_auto_mapping_and_freeform_revision() -> None:
             assert source_canon["summary"]
             assert source_canon["motifs"]
             assert source_canon["originalEnding"]
+            canon_beat = str(source_canon["summary"]).split("。", 1)[0]
             return {
                 "nodes": [
-                    {"nodeId": node_id, "value": f"{node_id}的完整自动映照初稿。"}
+                    {
+                        "nodeId": node_id,
+                        "value": (
+                            f"现实线索：{user_summary}；原典线索：{canon_beat}；"
+                            "映照差异：原典已有固定情节，现实仍由用户确认。"
+                        ),
+                    }
                     for node_id in NODE_IDS
                 ],
                 "hopeAnchor": {"type": "action", "detail": "先确认边界，再尝试一次具体表达。"},
@@ -210,10 +243,14 @@ def test_consented_hybrid_rag_auto_mapping_and_freeform_revision() -> None:
             assert kwargs["user_message"] == "把带回现实这一节点改得更具体。"
             assert kwargs["source_canon"]["summary"]
             assert kwargs["source_canon"]["motifs"]
+            canon_beat = str(kwargs["source_canon"]["summary"]).split("。", 1)[0]
             return [
                 {
                     "nodeId": "bring_back",
-                    "value": "先写下一句要表达的边界，再选择合适的时间说出来。",
+                    "value": (
+                        f"现实线索：{kwargs['user_summary']}；原典线索：{canon_beat}；"
+                        "映照差异：现实先写下一句边界并选择表达时间，不复制原典结局。"
+                    ),
                     "rationale": "把抽象愿望改成可修改的小步骤。",
                 }
             ]
@@ -303,6 +340,17 @@ def test_no_cloud_auto_mapping_old_empty_nodes_and_dynamic_theatre_fallback() ->
         assert branch["modelGenerated"] is False
         assert branch["readyForApproval"] is True
         assert all(node["value"] for node in branch["nodes"])
+        mapping_values = [node["value"] for node in branch["nodes"]]
+        assert len(set(mapping_values)) == 5
+        assert all(
+            all(label in value for label in ("现实线索：", "原典线索：", "映照差异："))
+            for value in mapping_values
+        )
+        assert not any(
+            token in value
+            for value in mapping_values
+            for token in ("。。", "；；", "《《", "》》")
+        )
         assert branch["hopeAnchor"]["detail"]
 
         approved = client.post(
@@ -331,3 +379,77 @@ def test_no_cloud_auto_mapping_old_empty_nodes_and_dynamic_theatre_fallback() ->
             f"/api/sessions/{session_id}/theatre-scripts/{theatre['id']}/acts/missing/scene-image"
         )
         assert missing_act.status_code == 404
+
+
+def test_slow_model_call_does_not_block_an_unrelated_session() -> None:
+    """Provider latency must not turn the process-wide state lock into a queue."""
+
+    model_started = Event()
+    release_model = Event()
+
+    class FakeConfig:
+        available = True
+        model = "blocking-test-model"
+
+    class BlockingAdapter:
+        config = FakeConfig()
+
+        def retrieval_plan(self, *, user_summary: str) -> dict:
+            assert user_summary
+            model_started.set()
+            release_model.wait(timeout=5)
+            return {"terms": ["关系边界"], "themes": ["关系与边界"]}
+
+        def rerank_candidates(self, **_: object) -> list[dict]:
+            return []
+
+    with TestClient(create_app()) as client:
+        session_id = _session_ready_for_offer(client, cloud=True)
+        service = client.app.state.service
+        service.model_adapter = BlockingAdapter()
+        results: dict[str, object] = {}
+
+        def request_offer() -> None:
+            try:
+                results["offer"] = service.create_story_offer(
+                    session_id,
+                    StoryOfferCreate(),
+                )
+            except Exception as exc:  # pragma: no cover - asserted below
+                results["offer_error"] = exc
+
+        def create_unrelated_session() -> None:
+            try:
+                results["other_session"] = service.create_session(
+                    SessionCreate(
+                        consent=SessionConsent(
+                            adult_confirmed=True,
+                            non_clinical_acknowledged=True,
+                            cloud_processing_accepted=False,
+                        )
+                    )
+                )
+            except Exception as exc:  # pragma: no cover - asserted below
+                results["session_error"] = exc
+
+        offer_thread = Thread(target=request_offer, daemon=True)
+        offer_thread.start()
+        assert model_started.wait(timeout=2), "the provider call never started"
+
+        session_thread = Thread(target=create_unrelated_session, daemon=True)
+        session_thread.start()
+        session_finished_before_release = session_thread.join(timeout=1) is None and not session_thread.is_alive()
+
+        release_model.set()
+        offer_thread.join(timeout=5)
+        session_thread.join(timeout=5)
+
+        assert session_finished_before_release, (
+            "an unrelated session waited behind a blocked model provider call"
+        )
+        assert not offer_thread.is_alive()
+        assert not session_thread.is_alive()
+        assert "offer_error" not in results
+        assert "session_error" not in results
+        assert results["offer"]
+        assert results["other_session"]

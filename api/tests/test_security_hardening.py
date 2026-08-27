@@ -330,6 +330,7 @@ def test_runtime_rejects_every_record_in_a_duplicate_story_family(
 
 def test_expanded_corpus_is_reachable_in_offer_ranking_not_only_counted() -> None:
     reached: set[str] = set()
+    by_preset: dict[str, set[str]] = {}
     with TestClient(create_app()) as client:
         for preset_id in ("new-beginning", "relationship-boundary", "plan-changed"):
             session_id = client.post(
@@ -355,14 +356,22 @@ def test_expanded_corpus_is_reachable_in_offer_ranking_not_only_counted() -> Non
                 json={"excludedStoryVersionIds": []},
             )
             assert offer.status_code == 200
-            reached.update(card["storyFamilyId"] for card in offer.json()["cards"])
+            cards = offer.json()["cards"]
+            families = {card["storyFamilyId"] for card in cards}
+            by_preset[preset_id] = families
+            reached.update(families)
+            assert all("用户线索：" in card["recommendationReason"] for card in cards)
+            assert all("原典情节：" in card["recommendationReason"] for card in cards)
+            assert all("关键差异：" in card["recommendationReason"] for card in cards)
 
-    assert {
-        "peach_blossom_spring",
-        "cowherd_weaver_girl",
-        "liu_yi_delivers_letter",
-        "nanke_dream",
-    }.issubset(reached)
+    assert len(reached) >= 6
+    assert "peach_blossom_spring" in by_preset["new-beginning"]
+    assert by_preset["relationship-boundary"].intersection(
+        {"liu_yi_delivers_letter", "snail_maiden", "white_snake_legend"}
+    )
+    assert by_preset["plan-changed"].intersection(
+        {"marking_boat_for_sword", "old_man_lost_horse", "farmer_waits_for_rabbit"}
+    )
 
 
 def test_deleted_session_cannot_replay_cached_mutations(client: TestClient) -> None:

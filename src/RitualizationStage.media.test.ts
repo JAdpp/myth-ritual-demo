@@ -73,7 +73,7 @@ describe("third-stage media interaction contract", () => {
   it("converts every act-facing text boundary to simplified Chinese", () => {
     expect(componentSource).toContain("toSimplifiedDisplay(act.sceneTitle ?? act.title)");
     expect(componentSource).toContain("toSimplifiedDisplay(act.narration)");
-    expect(componentSource).toContain("toSimplifiedDisplay(act.dialogue)");
+    expect(componentSource).toContain("toSimplifiedDisplay(displayedDialogue)");
     expect(componentSource).toContain("toSimplifiedDisplay(act.stageDirection)");
     expect(componentSource).toContain("return toSimplifiedDisplay(");
     expect(componentSource).not.toContain("RITUALIZATION / 剧场再演");

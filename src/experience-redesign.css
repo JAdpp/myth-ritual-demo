@@ -835,7 +835,6 @@ summary:focus-visible {
 .chat-composer > div,
 .offer-actions,
 .offer-actions > div,
-.story-card-choice,
 .story-explanation-actions {
   display: flex;
   gap: 0.75rem;
@@ -1025,6 +1024,13 @@ summary:focus-visible {
   padding-block: 0.9rem;
 }
 
+.story-card-fieldset {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 .illustrated-story-grid > * {
   --card-angle: 0deg;
   --card-drop: 0px;
@@ -1056,8 +1062,6 @@ summary:focus-visible {
 .illustrated-story-card { transform: rotate(var(--card-angle)) translateY(var(--card-drop)); }
 .illustrated-story-card:hover { border-color: rgb(59 125 128 / 58%); box-shadow: var(--shadow-md); }
 .illustrated-story-card.selected { border: 2px solid var(--mineral-ink); box-shadow: 0 18px 42px rgb(36 78 85 / 18%); }
-.story-card-choice { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); font-family: var(--sans); font-size: 0.76rem; }
-.story-card-choice input { accent-color: var(--seal); }
 .illustrated-story-copy { padding: 1rem; }
 .illustrated-story-copy h3 { font-size: 1.45rem; }
 .story-card-origin { padding-bottom: 0.7rem; border-bottom: 1px solid var(--line); }
@@ -1189,7 +1193,21 @@ summary:focus-visible {
   .illustrated-story-grid { grid-template-columns: 1fr; --fan-angle: 0deg; --fan-drop: 0px; }
   .offer-actions,
   .story-explanation-actions { align-items: stretch; flex-direction: column; }
+  .offer-actions {
+    position: static;
+    z-index: auto;
+    margin-top: 1rem;
+  }
   .offer-actions > div { flex-wrap: wrap; }
+  .offer-actions button,
+  .story-explanation-actions button,
+  .conversation-starters button,
+  .chat-composer button,
+  .story-card-source summary {
+    min-block-size: 44px;
+  }
+  .offer-actions > .primary-action { width: 100%; }
+  .offer-actions > div > button { flex: 1 1 8rem; }
   .source-detail-grid,
   .support-path { grid-template-columns: 1fr; }
   .support-path section { border-right: 0; border-bottom: 1px solid var(--rule); }
@@ -1211,48 +1229,52 @@ summary:focus-visible {
 }
 
 /* ============================================================
-   Story cards as cards
-   The card face is a single click target; the radio remains for
-   keyboard/AT. Tilt follows the pointer only on devices that
-   actually hover, and is dropped under reduced-motion.
+   Story cards as one native choice
+   The radio is the only selection control in the tab order. Pointer clicks
+   bubble from the title, drawing and recommendation to the card, while the
+   disclosure below remains its own independent control.
    ============================================================ */
 
 .illustrated-story-card {
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  touch-action: manipulation;
   transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 }
 
-/* Full-bleed invisible hit area; sits under the copy so links and
-   the <details> disclosure inside the card still work. */
-.story-card-hit {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  padding: 0;
-  cursor: pointer;
-  border: 0;
-  background: transparent;
-}
-
-.illustrated-story-copy,
-.story-card-choice,
-.story-card-selected-mark {
-  position: relative;
-  z-index: 2;
-}
-
-.illustrated-story-copy .source-details {
-  pointer-events: auto;
-}
-
-.story-card-choice input {
+.story-card-radio {
   position: absolute;
   width: 1px;
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.story-card-focus-ring {
+  position: absolute;
+  z-index: 6;
+  inset: 0.28rem;
+  pointer-events: none;
+  border: 2px solid var(--seal);
+  border-radius: 16px 19px 17px 15px;
+  opacity: 0;
+}
+
+.story-card-radio:focus-visible + .story-card-focus-ring {
+  opacity: 1;
+}
+
+.story-card-disclosure {
+  position: relative;
+  z-index: 4;
+  padding: 0 1rem 1rem;
+  cursor: auto;
+}
+
+.story-card-disclosure .source-details {
+  margin-top: 0;
 }
 
 /* Corner seal-ish marker rather than a checkbox row */
@@ -1276,11 +1298,6 @@ summary:focus-visible {
 .illustrated-story-card.selected {
   border-color: var(--seal);
   box-shadow: 0 0 0 2px rgb(150 50 34 / 22%), var(--shadow-md);
-}
-
-.story-card-hit:focus-visible {
-  outline: 2px solid var(--seal);
-  outline-offset: -4px;
 }
 
 /* ============================================================
@@ -1341,17 +1358,6 @@ summary:focus-visible {
     linear-gradient(90deg, transparent 0 0.75rem, rgb(161 61 49 / 19%) 0.75rem 0.81rem, transparent 0.81rem),
     linear-gradient(160deg, #fffefd, #f8f5ef);
   box-shadow: 0 0 0 2px rgb(161 61 49 / 16%), 0 18px 42px rgb(67 44 36 / 15%), 0 1px 0 #fff inset;
-}
-
-.redesigned-story-offer .story-card-choice {
-  position: absolute;
-  z-index: 3;
-  top: 0.66rem;
-  right: 0.68rem;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: 0;
 }
 
 .redesigned-story-offer .story-card-selected-mark {
@@ -1550,6 +1556,33 @@ summary:focus-visible {
   margin-top: 0.75rem;
   border-top-color: rgb(68 99 94 / 27%);
 }
+
+.redesigned-story-offer .story-card-disclosure {
+  padding: 0 1.15rem 1.05rem 1.5rem;
+}
+
+.redesigned-story-offer .story-card-disclosure .story-card-source {
+  margin-top: 0;
+}
+
+.story-card-source-boundary {
+  margin-top: 0.75rem;
+  padding: 0.72rem 0.8rem;
+  border-inline-start: 2px solid rgb(68 99 94 / 34%);
+  background: rgb(231 240 237 / 52%);
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  line-height: 1.65;
+}
+
+.story-card-source-boundary strong {
+  display: block;
+  margin-bottom: 0.18rem;
+  color: var(--mineral-ink);
+}
+
+.story-card-source-boundary p { margin: 0.18rem 0; }
 .redesigned-story-offer .story-card-source summary {
   padding: 0.67rem 0 0.08rem;
   color: var(--mineral-ink);
@@ -1575,6 +1608,7 @@ summary:focus-visible {
   .redesigned-story-offer .illustrated-story-card { border-radius: 17px 20px 18px 16px; }
   .redesigned-story-offer .story-illustration { margin: 0.62rem 0.62rem 0; }
   .redesigned-story-offer .illustrated-story-copy { padding: 0.9rem 1rem 1rem 1.35rem; }
+  .redesigned-story-offer .story-card-disclosure { padding: 0 1rem 1rem 1.35rem; }
   .redesigned-story-offer .story-illustration-generated img,
   .redesigned-story-offer .story-illustration svg,
   .redesigned-story-offer .story-title-leaf__body,

@@ -92,7 +92,9 @@ describe("source-backed narrative mapping", () => {
         activeNodeId="world_crack"
         disabled={false}
         suggestingNode={null}
+        reviewedNodeIds={new Set()}
         onActivate={vi.fn()}
+        onReview={vi.fn()}
         onChange={onChange}
         onMoveContent={onMoveContent}
         onRequestSuggestion={onRequestSuggestion}
@@ -134,6 +136,146 @@ describe("semi-structured mapping assistant", () => {
         rationale: "按用户补充改正变化类型",
       }],
     }));
+    const onApprove = vi.fn(async () => undefined);
+
+    act(() => root.render(
+      <ArticulationStage
+        story={story}
+        branch={branch}
+        busy={false}
+        error={null}
+        notice={null}
+        onSuggest={onSuggest}
+        onSave={vi.fn(async () => undefined)}
+        onApprove={onApprove}
+      />,
+    ));
+
+    expect(container.textContent).toContain("栖蝶已起草五处映照");
+    expect(container.textContent).toContain("指出哪一处不准确");
+    expect(container.textContent).toContain("应用到画布");
+    expect(container.querySelector(".mapping-assistant__mode")).toBeNull();
+    expect(container.textContent).not.toContain("自由对话模型尚未接入");
+    expect(container.querySelector<HTMLImageElement>('.mapping-assistant__avatar')?.src).toContain("/assets/qidie-guide-avatar-chibi-v1.webp");
+    expect(container.querySelector<HTMLImageElement>('.mapping-message--assistant .mapping-message__avatar')?.src).toContain("/assets/qidie-guide-avatar-chibi-v1.webp");
+    expect(container.querySelector('.mapping-message--user .mapping-message__avatar')).toBeNull();
+    expect(container.querySelector(".mapping-stage__main > .mapping-approval-dock")).not.toBeNull();
+    expect(container.querySelector(".mapping-assistant .mapping-approval-dock")).toBeNull();
+
+    const composer = container.querySelector<HTMLTextAreaElement>("#mapping-chat-input");
+    expect(composer).toBeInstanceOf(HTMLTextAreaElement);
+    act(() => typeInto(composer!, "第一处不是长期任务，是突然转学。"));
+    await act(async () => {
+      buttonNamed("发送修改说明").click();
+      await Promise.resolve();
+      await new Promise((resolve) => window.setTimeout(resolve, 0));
+    });
+
+    expect(onSuggest).toHaveBeenCalledWith(
+      "world_crack",
+      expect.any(Array),
+      undefined,
+      "第一处不是长期任务，是突然转学。",
+    );
+    expect(onApprove).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("按用户补充改正变化类型");
+    expect(container.textContent).toContain("修改预览 · 尚未写入画布");
+    expect(buttonNamed("确认共谱并进入再演").disabled).toBe(true);
+    expect(buttonNamed("保存这版修改").disabled).toBe(true);
+    expect(container.querySelector<HTMLTextAreaElement>('#mapping-node-world_crack textarea')?.value).toBe("");
+
+    act(() => buttonNamed("应用到画布").click());
+    expect(container.querySelector<HTMLTextAreaElement>('#mapping-node-world_crack textarea')?.value)
+      .toBe("我面对的是一次突然转学，而不是长期任务。");
+  });
+
+  it("keeps confirmation disabled while assistant generation is in flight", async () => {
+    const nodes: BranchNodeDraft[] = makeEmptyBranchNodes().map((node, index) => ({
+      ...node,
+      value: index < 2 ? `用户叙事 ${index + 1}` : "",
+      skipped: index >= 2,
+    }));
+    const branch: UserBranchVersion = {
+      id: "branch-generating",
+      version: 1,
+      selectedStoryVersionId: story.storyVersionId,
+      nodes,
+      hopeAnchor: { type: "open", detail: "先保留一种可能。" },
+      preview: "用户叙事",
+      status: "draft",
+    };
+    let finishSuggestion!: (response: {
+      nodeId: "world_crack";
+      suggestions: string[];
+      nodeUpdates: Array<{ nodeId: "world_crack"; value: string }>;
+    }) => void;
+    const onSuggest = vi.fn(() => new Promise<{
+      nodeId: "world_crack";
+      suggestions: string[];
+      nodeUpdates: Array<{ nodeId: "world_crack"; value: string }>;
+    }>((resolve) => { finishSuggestion = resolve; }));
+    const onApprove = vi.fn(async () => undefined);
+
+    act(() => root.render(
+      <ArticulationStage
+        story={story}
+        branch={branch}
+        busy={false}
+        error={null}
+        notice={null}
+        onSuggest={onSuggest}
+        onSave={vi.fn(async () => undefined)}
+        onApprove={onApprove}
+      />,
+    ));
+
+    act(() => buttonNamed("这处没问题").click());
+    for (const node of nodes.slice(1)) act(() => buttonNamed(node.title).click());
+    expect(buttonNamed("确认共谱并进入再演").disabled).toBe(false);
+
+    const composer = container.querySelector<HTMLTextAreaElement>("#mapping-chat-input")!;
+    act(() => typeInto(composer, "把第一处改成一次突然变化。"));
+    await act(async () => {
+      buttonNamed("发送修改说明").click();
+      await Promise.resolve();
+    });
+
+    expect(onSuggest).toHaveBeenCalledTimes(1);
+    expect(onApprove).not.toHaveBeenCalled();
+    expect(buttonNamed("确认共谱并进入再演").disabled).toBe(true);
+    expect(buttonNamed("保存这版修改").disabled).toBe(true);
+    expect(composer.value).toBe("把第一处改成一次突然变化。");
+
+    await act(async () => {
+      finishSuggestion({
+        nodeId: "world_crack",
+        suggestions: [],
+        nodeUpdates: [{ nodeId: "world_crack", value: "一次突然变化打断了原来的安排。" }],
+      });
+      await Promise.resolve();
+      await new Promise((resolve) => window.setTimeout(resolve, 0));
+    });
+
+    expect(container.textContent).toContain("修改预览 · 尚未写入画布");
+    expect(buttonNamed("确认共谱并进入再演").disabled).toBe(true);
+  });
+
+  it("keeps a failed instruction in the composer and offers a direct retry", async () => {
+    const branch: UserBranchVersion = {
+      id: "branch-retry",
+      version: 1,
+      selectedStoryVersionId: story.storyVersionId,
+      nodes: makeEmptyBranchNodes(),
+      preview: "",
+      status: "draft",
+    };
+    const onSuggest = vi.fn()
+      .mockRejectedValueOnce(new Error("服务暂时不可用"))
+      .mockResolvedValueOnce({
+        nodeId: "world_crack" as const,
+        suggestions: [],
+        nodeUpdates: [{ nodeId: "world_crack" as const, value: "重试后得到的修改。" }],
+      });
 
     act(() => root.render(
       <ArticulationStage
@@ -148,36 +290,28 @@ describe("semi-structured mapping assistant", () => {
       />,
     ));
 
-    expect(container.textContent).toContain("画布已按对话自动生成");
-    expect(container.textContent).toContain("告诉栖蝶想改哪一处");
-    expect(container.textContent).toContain("由你决定是否应用");
-    expect(container.querySelector(".mapping-assistant__mode")).toBeNull();
-    expect(container.textContent).not.toContain("自由对话模型尚未接入");
-    expect(container.querySelector<HTMLImageElement>('.mapping-assistant__avatar')?.src).toContain("/assets/qidie-guide-avatar-chibi-v1.webp");
-    expect(container.querySelector<HTMLImageElement>('.mapping-message--assistant .mapping-message__avatar')?.src).toContain("/assets/qidie-guide-avatar-chibi-v1.webp");
-    expect(container.querySelector('.mapping-message--user .mapping-message__avatar')).toBeNull();
-
-    const composer = container.querySelector<HTMLTextAreaElement>("#mapping-chat-input");
-    expect(composer).toBeInstanceOf(HTMLTextAreaElement);
-    act(() => typeInto(composer!, "第一处不是长期任务，是突然转学。"));
+    const composer = container.querySelector<HTMLTextAreaElement>("#mapping-chat-input")!;
+    act(() => typeInto(composer, "这里写的是同事，不是家人。"));
     await act(async () => {
-      buttonNamed("发送").click();
+      buttonNamed("发送修改说明").click();
       await Promise.resolve();
       await new Promise((resolve) => window.setTimeout(resolve, 0));
     });
 
-    expect(onSuggest).toHaveBeenCalledWith(
-      "world_crack",
-      expect.any(Array),
-      undefined,
-      "第一处不是长期任务，是突然转学。",
-    );
-    expect(container.textContent).toContain("按用户补充改正变化类型");
-    expect(container.textContent).toContain("待确认的修改");
+    expect(composer.value).toBe("这里写的是同事，不是家人。");
+    expect(container.textContent).toContain("刚才的说明已保留，可以直接重试");
+    expect(buttonNamed("重试生成预览").disabled).toBe(false);
+    expect(document.activeElement).toBe(composer);
 
-    act(() => buttonNamed("应用到画布").click());
-    expect(container.querySelector<HTMLTextAreaElement>('#mapping-node-world_crack textarea')?.value)
-      .toBe("我面对的是一次突然转学，而不是长期任务。");
+    await act(async () => {
+      buttonNamed("重试生成预览").click();
+      await Promise.resolve();
+      await new Promise((resolve) => window.setTimeout(resolve, 0));
+    });
+
+    expect(onSuggest).toHaveBeenCalledTimes(2);
+    expect(container.querySelectorAll(".mapping-message--user")).toHaveLength(1);
+    expect(container.textContent).toContain("重试后得到的修改");
   });
 
   it("preserves approval readiness with two written nodes, explicit skips and a hope anchor", async () => {
@@ -211,6 +345,16 @@ describe("semi-structured mapping assistant", () => {
     ));
 
     const approve = buttonNamed("确认共谱并进入再演");
+    expect(approve.disabled).toBe(true);
+    expect(container.textContent).toContain("0 / 5 处已查看");
+
+    act(() => buttonNamed("这处没问题").click());
+
+    for (const node of nodes.slice(1)) {
+      act(() => buttonNamed(node.title).click());
+    }
+
+    expect(container.textContent).toContain("5 / 5 处已查看");
     expect(approve.disabled).toBe(false);
     await act(async () => approve.click());
     expect(onApprove).toHaveBeenCalledWith(nodes, branch.hopeAnchor);

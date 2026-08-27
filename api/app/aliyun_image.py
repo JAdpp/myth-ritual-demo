@@ -235,6 +235,10 @@ class SceneImageResult:
             "altText": self.alt_text,
             "message": self.message,
             "retryable": self.retryable,
+            "generationSource": (
+                "aliyun_image_model" if self.status == "ready" else "local_stage_fallback"
+            ),
+            "fallbackReason": self.failure_reason if self.status == "fallback" else None,
         }
 
     def cover_payload(self, *, story_version_id: str) -> dict[str, object]:
@@ -247,6 +251,10 @@ class SceneImageResult:
             "altText": self.alt_text,
             "message": self.message,
             "retryable": self.retryable,
+            "generationSource": (
+                "aliyun_image_model" if self.status == "ready" else "local_card_fallback"
+            ),
+            "fallbackReason": self.failure_reason if self.status == "fallback" else None,
         }
 
 
@@ -274,11 +282,13 @@ class AliyunImageAdapter:
         stage_direction: str,
         story_title: str,
         source_title: str,
+        continuity_context: str = "",
     ) -> str:
         # The per-field limits are deliberately tight.  The style clause and the
         # exclusion clause are what keep the picture out of textbook-illustration
         # territory, and they sit at the two ends of the prompt -- if the act text
         # is allowed to grow the tail gets truncated away and the style drifts.
+        continuity = _compact(continuity_context, limit=100)
         scene = _compact(scene_title, limit=40) or "未题名的一幕"
         narration_text = _compact(narration, limit=170) or "人物在留白中停驻，准备迈向下一步。"
         direction = _compact(stage_direction, limit=80) or "以留白、构图与人物动作呈现。"
@@ -298,9 +308,20 @@ class AliyunImageAdapter:
             "避免教科书插图与儿童读物风、平涂色块、粗黑均匀描边、矢量扁平化、"
             "照片写实、三维塑料感、过度饱和、日式动漫脸、肢体畸形、血腥与惊悚特写。"
         )
-        # z-image-turbo accepts at most 800 characters.  Keeping one shared
-        # bound makes switching models an environment-only operation.
-        return prompt[:790]
+        continuity_clause = (
+            f"连续性设定：{continuity}；同一人物在各幕保持脸型、发式、服装主色、年龄与随身物件一致。"
+            if continuity
+            else "同一剧目各幕保持主要人物的脸型、发式、服装主色、年龄与随身物件一致。"
+        )
+        exclusions = (
+            "绝对禁止生成任何汉字、字母、数字、文字状符号、题签、匾额、书页字迹、"
+            "印章、字幕、水印、界面、边框或品牌标识；所有纸张、牌匾和卷轴必须纯空白。"
+            "避免教科书插图与儿童读物风、照片写实、三维塑料感、日式动漫脸、肢体畸形。"
+        )
+        # Preserve the continuity and no-text clauses instead of allowing a
+        # long narration to truncate away the two most important constraints.
+        body_limit = max(0, 790 - len(continuity_clause) - len(exclusions))
+        return prompt[:body_limit] + continuity_clause + exclusions
 
     def _parameters(self) -> dict[str, object]:
         if self.config.model == "wan2.6-t2i":
@@ -309,6 +330,7 @@ class AliyunImageAdapter:
                 "watermark": False,
                 "n": 1,
                 "negative_prompt": (
+                    "汉字，字母，数字，文字状符号，题签，匾额，书页字迹，印章，字幕，"
                     "文字，题签，水印，标志，界面，边框，照片写实，三维塑料感，"
                     "过度饱和，日式动漫脸，肢体畸形，多余手指，血腥，惊悚特写"
                 ),
@@ -529,6 +551,7 @@ class AliyunImageAdapter:
         stage_direction: str,
         story_title: str,
         source_title: str,
+        continuity_context: str = "",
     ) -> SceneImageResult:
         compact_title = _compact(scene_title, limit=80) or "这一幕"
         alt_text = f"{compact_title}的中式连环画画面"
@@ -548,6 +571,7 @@ class AliyunImageAdapter:
                 stage_direction=stage_direction,
                 story_title=story_title,
                 source_title=source_title,
+                continuity_context=continuity_context,
             ),
             alt_text=alt_text,
         )
@@ -582,7 +606,11 @@ class AliyunImageAdapter:
             "避免彩色、水彩、油画、照片写实、三维渲染、日式动漫脸、"
             "教科书插图、剪贴画与矢量扁平化。"
         )
-        return prompt[:790]
+        exclusions = (
+            "绝对禁止生成任何汉字、字母、数字、文字状符号、题签、匾额、书页字迹、"
+            "印章、字幕、水印、边框、界面或品牌标识；纸张、牌匾与卷轴必须纯空白。"
+        )
+        return prompt[: max(0, 790 - len(exclusions))] + exclusions
 
     @staticmethod
     def build_safe_cover_retry_prompt(
@@ -614,7 +642,11 @@ class AliyunImageAdapter:
             + "画面不出现任何文字、题签、印章、水印、边框、界面或品牌标识；"
             "避免彩色、照片写实、三维渲染、动漫、教科书插图、剪贴画与矢量扁平化。"
         )
-        return prompt[:790]
+        exclusions = (
+            "绝对禁止生成任何汉字、字母、数字、文字状符号、题签、匾额、书页字迹、"
+            "印章、字幕、水印、边框、界面或品牌标识；纸张、牌匾与卷轴必须纯空白。"
+        )
+        return prompt[: max(0, 790 - len(exclusions))] + exclusions
 
     def generate_story_cover(
         self,

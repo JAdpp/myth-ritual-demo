@@ -60,6 +60,7 @@
 }
 
 .mapping-stage__main {
+  position: relative;
   display: grid;
   gap: 1.2rem;
   min-width: 0;
@@ -206,6 +207,41 @@
 .mapping-state--gap { color: var(--mapping-branch-ink); }
 .mapping-state--not_applicable { color: var(--ink-faint); }
 
+.mapping-node__states {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+.mapping-state,
+.mapping-review-state {
+  padding: 0.2rem 0.42rem;
+  border: 1px solid rgba(125, 42, 28, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.mapping-review-state {
+  color: var(--mapping-branch-ink);
+  font-family: var(--sans);
+  font-size: 0.66rem;
+}
+
+.mapping-review-state.is-reviewed {
+  color: var(--mapping-source-ink);
+  border-color: rgba(47, 74, 69, 0.2);
+  background: rgba(226, 238, 233, 0.72);
+}
+
+.mapping-review-state.is-reviewed::before {
+  margin-right: 0.2rem;
+  content: "✓";
+}
+
 .mapping-user-node__preview {
   margin: 0.8rem 0 0;
   color: var(--ink-soft);
@@ -272,6 +308,7 @@
 .mapping-message--user p { background: var(--paper-raised); }
 
 .mapping-assistant__preview { margin: 0 1rem 1rem; padding: 0.8rem; border: 1px solid var(--mapping-branch); }
+.mapping-assistant__preview:focus-visible { outline: 3px solid var(--lamp-ink); outline-offset: 3px; }
 .mapping-assistant__preview h3 { font-size: 0.95rem; }
 .mapping-assistant__preview article { padding: 0.55rem 0; border-top: 1px solid var(--line); }
 .mapping-assistant__preview article p { margin: 0.2rem 0; }
@@ -285,6 +322,7 @@
 .mapping-assistant__composer > div { display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; }
 .mapping-assistant__composer small { color: var(--ink-faint); font-size: 0.66rem; }
 .mapping-assistant__composer button { padding: 0.45rem 0.8rem; color: #fff; border: 1px solid var(--mapping-branch-ink); background: var(--mapping-branch-ink); }
+.mapping-assistant__retry { margin: 0.35rem 0; color: var(--mapping-branch-ink); font-size: 0.74rem; }
 
 .mapping-hope { padding: 1.2rem; }
 .mapping-hope > header { display: flex; gap: 1rem; justify-content: space-between; padding-bottom: 0.8rem; border-bottom: 1px solid var(--rule); }
@@ -309,12 +347,12 @@
 .mapping-approval-dock {
   position: sticky;
   z-index: 8;
-  bottom: 0;
+  bottom: 1rem;
   display: flex;
   gap: 1rem;
   align-items: center;
   justify-content: space-between;
-  margin-top: 1.2rem;
+  margin-top: 0;
   padding: 0.8rem 1rem;
   border-top: 1px solid var(--rule);
 }
@@ -323,6 +361,12 @@
 .mapping-approval-dock__status span { font-family: var(--sans); font-size: 0.72rem; }
 .mapping-approval-dock__status p { width: 100%; margin: 0; color: var(--ink-soft); font-size: 0.76rem; }
 .mapping-approval-dock__actions { display: flex; gap: 0.6rem; }
+
+.mapping-user-node__editor,
+.mapping-assistant__composer,
+.mapping-hope__detail {
+  scroll-margin-block: 6rem;
+}
 
 /* ============================================================
    Visual refinement: a translucent "mapping table"

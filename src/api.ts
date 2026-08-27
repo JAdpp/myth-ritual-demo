@@ -26,6 +26,15 @@ import type {
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 export const API_BASE_URL = configuredBaseUrl || "";
 
+const DEFAULT_REQUEST_TIMEOUT_MS = 45_000;
+const MODEL_REQUEST_TIMEOUT_MS = 90_000;
+const MEDIA_REQUEST_TIMEOUT_MS = 120_000;
+const pendingIdempotencyKeys = new Map<string, string>();
+
+type RequestOptions = {
+  timeoutMs?: number;
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -98,23 +107,71 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+function idempotencySignature(path: string, init?: RequestInit): string | null {
+  const method = (init?.method ?? "GET").toUpperCase();
+  if (method === "GET" || method === "HEAD") return null;
+  return `${method}\n${path}\n${typeof init?.body === "string" ? init.body : ""}`;
+}
+
+function createIdempotencyKey(): string {
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+  return `mengdie-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  options: RequestOptions = {},
+): Promise<T> {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeout = globalThis.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+  const callerSignal = init?.signal;
+  const abortFromCaller = () => controller.abort(callerSignal?.reason);
+  callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
+
+  const signature = idempotencySignature(path, init);
+  const idempotencyKey = signature
+    ? pendingIdempotencyKeys.get(signature) ?? createIdempotencyKey()
+    : null;
+  if (signature && idempotencyKey) pendingIdempotencyKeys.set(signature, idempotencyKey);
+
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       ...init,
+      signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
         ...init?.headers,
       },
     });
-  } catch (error) {
+  } catch {
+    globalThis.clearTimeout(timeout);
+    callerSignal?.removeEventListener("abort", abortFromCaller);
+    if (timedOut) {
+      throw new ApiError(
+        "这一步等待时间较长，连接已暂停。你可以重试；若服务端其实已经完成，同一次提交不会重复执行。",
+        { code: "REQUEST_TIMEOUT" },
+      );
+    }
     throw new ApiError(
       "无法连接故事服务。请确认后端已在 127.0.0.1:8010 启动，然后重试；本页只显示服务的真实返回。",
       { code: "API_UNAVAILABLE" },
     );
   }
+
+  globalThis.clearTimeout(timeout);
+  callerSignal?.removeEventListener("abort", abortFromCaller);
+  if (signature) pendingIdempotencyKeys.delete(signature);
 
   if (response.status === 204) return undefined as T;
 
@@ -159,10 +216,14 @@ export function createConversationTurn(
   message: string,
   history: ConversationMessage[],
 ) {
-  return request<ConversationTurnResponse>(`/api/sessions/${sessionId}/conversation-turns`, {
-    method: "POST",
-    body: JSON.stringify({ phase: "encounter", message, history: history.slice(-8) }),
-  });
+  return request<ConversationTurnResponse>(
+    `/api/sessions/${sessionId}/conversation-turns`,
+    {
+      method: "POST",
+      body: JSON.stringify({ phase: "encounter", message, history: history.slice(-8) }),
+    },
+    { timeoutMs: MODEL_REQUEST_TIMEOUT_MS },
+  );
 }
 
 export function confirmExperienceBrief(
@@ -186,10 +247,14 @@ export function getStoryOffers(
   excludedStoryVersionIds: string[] = [],
   refresh = false,
 ) {
-  return request<StoryOffer>(`/api/sessions/${sessionId}/story-offers`, {
-    method: "POST",
-    body: JSON.stringify({ excludedStoryVersionIds, refresh }),
-  });
+  return request<StoryOffer>(
+    `/api/sessions/${sessionId}/story-offers`,
+    {
+      method: "POST",
+      body: JSON.stringify({ excludedStoryVersionIds, refresh }),
+    },
+    { timeoutMs: MODEL_REQUEST_TIMEOUT_MS },
+  );
 }
 
 export function updateStorySelection(
@@ -205,10 +270,14 @@ export function updateStorySelection(
 }
 
 export function createBranch(sessionId: string, selectedStoryVersionId: string, nodes: BranchNodeDraft[]) {
-  return request<UserBranchVersion>(`/api/sessions/${sessionId}/branches`, {
-    method: "POST",
-    body: JSON.stringify({ selectedStoryVersionId, nodes }),
-  });
+  return request<UserBranchVersion>(
+    `/api/sessions/${sessionId}/branches`,
+    {
+      method: "POST",
+      body: JSON.stringify({ selectedStoryVersionId, nodes }),
+    },
+    { timeoutMs: MODEL_REQUEST_TIMEOUT_MS },
+  );
 }
 
 export function requestNodeSuggestions(
@@ -219,19 +288,23 @@ export function requestNodeSuggestions(
   hopeAnchor?: HopeAnchor,
   assistantMessage?: string,
 ) {
-  return request<BranchSuggestionResponse>(`/api/sessions/${sessionId}/branches`, {
-    method: "PATCH",
-    headers: branch.etag ? { "If-Match": branch.etag } : undefined,
-    body: JSON.stringify({
-      action: "suggest",
-      branchVersionId: branch.id,
-      parentVersion: branch.version,
-      nodeId,
-      nodes,
-      hopeAnchor,
-      assistantMessage,
-    }),
-  });
+  return request<BranchSuggestionResponse>(
+    `/api/sessions/${sessionId}/branches`,
+    {
+      method: "PATCH",
+      headers: branch.etag ? { "If-Match": branch.etag } : undefined,
+      body: JSON.stringify({
+        action: "suggest",
+        branchVersionId: branch.id,
+        parentVersion: branch.version,
+        nodeId,
+        nodes,
+        hopeAnchor,
+        assistantMessage,
+      }),
+    },
+    { timeoutMs: MODEL_REQUEST_TIMEOUT_MS },
+  );
 }
 
 export function saveBranch(
@@ -267,10 +340,14 @@ export function approveBranch(sessionId: string, branch: UserBranchVersion) {
 }
 
 export function createTheatreScript(sessionId: string, branchVersionId: string) {
-  return request<TheatreScript>(`/api/sessions/${sessionId}/theatre-scripts`, {
-    method: "POST",
-    body: JSON.stringify({ branchVersionId }),
-  });
+  return request<TheatreScript>(
+    `/api/sessions/${sessionId}/theatre-scripts`,
+    {
+      method: "POST",
+      body: JSON.stringify({ branchVersionId }),
+    },
+    { timeoutMs: MODEL_REQUEST_TIMEOUT_MS },
+  );
 }
 
 export function createTheatreSceneImage(
@@ -281,6 +358,7 @@ export function createTheatreSceneImage(
   return request<TheatreSceneImage>(
     `/api/sessions/${sessionId}/theatre-scripts/${theatreScriptId}/acts/${actId}/scene-image`,
     { method: "POST" },
+    { timeoutMs: MEDIA_REQUEST_TIMEOUT_MS },
   );
 }
 
@@ -288,6 +366,7 @@ export function createStoryCover(sessionId: string, storyVersionId: string) {
   return request<StoryCoverImage>(
     `/api/sessions/${sessionId}/stories/${storyVersionId}/cover`,
     { method: "POST" },
+    { timeoutMs: MEDIA_REQUEST_TIMEOUT_MS },
   );
 }
 
@@ -299,6 +378,7 @@ export function createActNarration(
   return request<TheatreActNarration>(
     `/api/sessions/${sessionId}/theatre-scripts/${theatreScriptId}/acts/${actId}/narration`,
     { method: "POST" },
+    { timeoutMs: MEDIA_REQUEST_TIMEOUT_MS },
   );
 }
 

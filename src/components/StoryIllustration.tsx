@@ -102,6 +102,7 @@ export function StoryIllustration({
   title,
   imageUrl,
   imageAlt,
+  generationSource,
   isLoading = false,
   onImageError,
 }: {
@@ -110,6 +111,7 @@ export function StoryIllustration({
   /** Generated ink line-drawing. The local glyph stands in until it arrives. */
   imageUrl?: string | null;
   imageAlt?: string;
+  generationSource?: string | null;
   /** The cover request is in flight.  This has its own quiet plate so the
       local fallback never masquerades as the generated white drawing. */
   isLoading?: boolean;
@@ -130,7 +132,7 @@ export function StoryIllustration({
           referrerPolicy="no-referrer"
           onError={onImageError}
         />
-        <figcaption>白描题图</figcaption>
+        <figcaption>{generationSource === "aliyun_image_model" ? "阿里云模型生成白描题图" : "模型生成白描题图"}</figcaption>
       </figure>
     );
   }

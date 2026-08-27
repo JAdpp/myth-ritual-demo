@@ -99,7 +99,24 @@ vi.mock("./components/ArticulationStage", () => ({
 }));
 
 vi.mock("./components/RitualizationStage", () => ({
-  RitualizationStage: () => <main id="main"><h1>Ritualization mock</h1><p>theatre opened</p></main>,
+  RitualizationStage: ({
+    error,
+    notice,
+    onComplete,
+  }: {
+    error: string | null;
+    notice: string | null;
+    onComplete: (payload: { title: string; finalLine: string; gesture: "light"; save: boolean }) => Promise<void>;
+  }) => <main id="main">
+    <h1>Ritualization mock</h1><p>theatre opened</p>
+    {error && <p>{error}</p>}{notice && <p>{notice}</p>}
+    <button type="button" onClick={() => void onComplete({
+      title: "测试纪念卡",
+      finalLine: "这是确认后的末句。",
+      gesture: "light",
+      save: false,
+    })}>complete ritual</button>
+  </main>,
   ArtifactView: () => <main id="main"><h1>Artifact mock</h1></main>,
 }));
 
@@ -337,5 +354,40 @@ describe("App partial-failure recovery", () => {
     expect(apiMocks.saveBranch).toHaveBeenCalledTimes(1);
     expect(apiMocks.approveBranch).toHaveBeenCalledTimes(1);
     expect(apiMocks.createTheatreScript).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries provenance after completion without creating a second ritual artifact", async () => {
+    apiMocks.createTheatreScript.mockReset().mockResolvedValue(theatre);
+    apiMocks.completeRitual.mockResolvedValue({
+      id: "artifact-1",
+      title: "测试纪念卡",
+      finalLine: "这是确认后的末句。",
+      ritualGesture: "light",
+      saved: false,
+      createdAt: "2026-08-27T00:00:00Z",
+    });
+    apiMocks.getProvenance
+      .mockRejectedValueOnce(new Error("temporary provenance failure"))
+      .mockResolvedValue({
+        sessionId: "session-1",
+        corpusVersion: "corpus-test",
+        entries: [],
+      });
+
+    await click("begin");
+    await click("create brief");
+    await click("confirm brief");
+    await click("select story");
+    await click("approve and open theatre");
+    await click("complete ritual");
+
+    expect(container.textContent).toContain("终幕已经完成，但来源记录暂时没有载入");
+    expect(apiMocks.completeRitual).toHaveBeenCalledTimes(1);
+    expect(apiMocks.getProvenance).toHaveBeenCalledTimes(1);
+
+    await click("complete ritual");
+    expect(container.textContent).toContain("Artifact mock");
+    expect(apiMocks.completeRitual).toHaveBeenCalledTimes(1);
+    expect(apiMocks.getProvenance).toHaveBeenCalledTimes(2);
   });
 });

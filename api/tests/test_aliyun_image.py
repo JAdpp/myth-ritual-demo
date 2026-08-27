@@ -117,6 +117,8 @@ def test_z_image_uses_sync_multimodal_route_and_horizontal_payload() -> None:
     assert result.image_url == "https://example-oss.aliyuncs.com/scene.png?Expires=1"
     assert result.public_payload(act_id="act-2") == {
         "actId": "act-2",
+        "generationSource": "aliyun_image_model",
+        "fallbackReason": None,
         "status": "ready",
         "imageUrl": result.image_url,
         "altText": "渡口相逢的中式连环画画面",
@@ -153,6 +155,8 @@ def test_story_cover_uses_baimiao_prompt_and_browser_safe_payload() -> None:
         "altText": "《柳毅传书》的白描题图",
         "message": None,
         "retryable": True,
+        "generationSource": "aliyun_image_model",
+        "fallbackReason": None,
     }
     prompt = client.calls[0]["json"]["input"]["messages"][0]["content"][0]["text"]
     assert "纯水墨白描" in prompt

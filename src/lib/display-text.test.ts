@@ -14,4 +14,11 @@ describe("繁体古籍的简体显示层", () => {
     expect(toSimplifiedDisplay(undefined)).toBe("");
     expect(toSimplifiedDisplay(null)).toBe("");
   });
+
+  it("清理机器切分题名中的重复书名号与标点", () => {
+    expect(toSimplifiedDisplay("《《太平廣記》》卷十。。"))
+      .toBe("《太平广记》卷十。");
+    expect(toSimplifiedDisplay("何巫相！！。"))
+      .toBe("何巫相！");
+  });
 });

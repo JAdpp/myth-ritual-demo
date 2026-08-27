@@ -17,7 +17,7 @@ import "../ritual-media.css";
 
 type SceneVisualState = Pick<
   TheatreSceneImage,
-  "status" | "imageUrl" | "altText" | "message" | "retryable"
+  "status" | "imageUrl" | "altText" | "message" | "retryable" | "generationSource" | "fallbackReason"
 > | {
   status: "idle" | "loading";
   imageUrl: null;
@@ -169,14 +169,14 @@ function TheatreScene({
         {visual.status === "loading" && (
           <span><i aria-hidden="true" />正在绘制第 {actIndex + 1} 幕画面…</span>
         )}
-        {visual.status === "ready" && <span className="scene-image-ready">第 {actIndex + 1} 幕画面已就位</span>}
+        {visual.status === "ready" && <span className="scene-image-ready">{visual.generationSource === "aliyun_image_model" ? "阿里云模型生成画面" : "模型生成画面"} · 第 {actIndex + 1} 幕</span>}
         {visual.status === "fallback" && (
           <div>
-            <span>{toSimplifiedDisplay(visual.message) || "本幕继续使用纸影舞台。"}</span>
+            <span><strong>纸影备用舞台</strong> · {toSimplifiedDisplay(visual.message) || "本幕未取得生成画面。"}</span>
             {visual.retryable && <button type="button" onClick={onRetry}>重试本幕画面</button>}
           </div>
         )}
-        {visual.status === "idle" && <span>第 {actIndex + 1} 幕 · {sceneTitle}</span>}
+        {visual.status === "idle" && <span>纸影备用舞台 · 第 {actIndex + 1} 幕 · {sceneTitle}</span>}
       </div>
     </div>
   );
@@ -187,20 +187,24 @@ type NarrationState = "idle" | "loading" | "speaking" | "paused";
 /** How long the page-turn runs before the next act is mounted. */
 const ACT_TURN_MS = 760;
 
-function narrationText(act: TheatreAct) {
+function narrationText(act: TheatreAct, finalLineOverride?: string) {
   return toSimplifiedDisplay(
-    [act.sceneTitle ?? act.title, act.narration, act.dialogue].filter(Boolean).join("。 "),
+    [act.sceneTitle ?? act.title, act.narration, finalLineOverride || act.dialogue]
+      .filter(Boolean)
+      .join("。 "),
   );
 }
 
 function TheatrePlayer({
   sessionId,
   script,
+  finalLineOverride,
   onReachedEnd,
   onSceneImage,
 }: {
   sessionId?: string;
   script: TheatreScript;
+  finalLineOverride: string;
   onReachedEnd: () => void;
   onSceneImage?: (actId: string, imageUrl: string) => void;
 }) {
@@ -221,6 +225,7 @@ function TheatrePlayer({
   const turnTimerRef = useRef<number | null>(null);
   const acts = script.acts;
   const act = acts[boundedActIndex(actIndex, acts.length)];
+  const finalActId = acts.at(-1)?.id;
   const duration = Math.max(1, act?.durationSeconds ?? 1);
   const progress = Math.min(100, (elapsed / duration) * 100);
   // While the voice is still working through this act, the clock must not turn
@@ -343,7 +348,10 @@ function TheatrePlayer({
       return;
     }
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(narrationText(targetAct));
+    const isFinalAct = targetAct.id === finalActId;
+    const utterance = new SpeechSynthesisUtterance(
+      narrationText(targetAct, isFinalAct ? finalLineOverride.trim() : undefined),
+    );
     const voice = window.speechSynthesis.getVoices().find((item) => item.lang.toLowerCase().startsWith("zh"));
     if (voice) utterance.voice = voice;
     utterance.lang = voice?.lang ?? "zh-CN";
@@ -360,12 +368,19 @@ function TheatrePlayer({
     speechUtteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
     setNarrationState("speaking");
-  }, [handleNarrationFinished, speechSupported]);
+  }, [finalActId, finalLineOverride, handleNarrationFinished, speechSupported]);
 
   /** Fetch (once) and play this act's CosyVoice narration. */
   const playNarration = useCallback(async (targetAct: TheatreAct) => {
     stopNarration();
     setNarrationState("loading");
+    setNarrationMessage(null);
+
+    if (targetAct.id === finalActId && finalLineOverride.trim()) {
+      setNarrationMessage("终幕末句已经更新，改用当前设备朗读，字幕与纪念卡保持一致。");
+      speakLocally(targetAct);
+      return;
+    }
 
     let clip = narrationClips[targetAct.id];
     if (clip === undefined) {
@@ -405,7 +420,7 @@ function TheatrePlayer({
       narrationAudioRef.current = null;
       speakLocally(targetAct);
     }
-  }, [handleNarrationFinished, narrationClips, script.id, sessionId, speakLocally, stopNarration]);
+  }, [finalActId, finalLineOverride, handleNarrationFinished, narrationClips, script.id, sessionId, speakLocally, stopNarration]);
 
   function toggleNarration() {
     if (!act || !curtainOpen) return;
@@ -529,6 +544,9 @@ function TheatrePlayer({
       ? "继续旁白"
       : narrationState === "loading" ? "正在准备旁白…" : "播放本幕旁白";
   const actVisual = sceneVisuals[act.id] ?? idleSceneState;
+  const displayedDialogue = act.id === finalActId && finalLineOverride.trim()
+    ? finalLineOverride.trim()
+    : act.dialogue;
 
   return (
     <section className="theatre-player theatre-player-with-media" aria-labelledby="theatre-title">
@@ -560,7 +578,7 @@ function TheatrePlayer({
         <div className="act-caption" aria-live="polite">
           <span>第 {actIndex + 1} 幕 · {toSimplifiedDisplay(act.sceneTitle ?? act.title)}</span>
           <p>{toSimplifiedDisplay(act.narration)}</p>
-          {act.dialogue && <blockquote>{toSimplifiedDisplay(act.dialogue)}</blockquote>}
+          {displayedDialogue && <blockquote>{toSimplifiedDisplay(displayedDialogue)}</blockquote>}
         </div>
       </div>
 
@@ -603,6 +621,7 @@ function TheatrePlayer({
           ) : (
             <p className="media-fallback" role="status">当前设备无法朗读旁白；字幕完整保留。</p>
           )}
+          {narrationMessage && <p className="media-fallback" role="status">{toSimplifiedDisplay(narrationMessage)}</p>}
         </section>
 
       </div>
@@ -632,10 +651,10 @@ export function RitualizationStage({
   onSceneImage?: (actId: string, imageUrl: string) => void;
 }) {
   const [reachedEnd, setReachedEnd] = useState(false);
-  const [title, setTitle] = useState(script.title ?? "");
-  const [finalLine, setFinalLine] = useState(script.finalLineSuggestions[0] ?? "");
+  const [title, setTitle] = useState(toSimplifiedDisplay(script.title ?? ""));
+  const [finalLine, setFinalLine] = useState(toSimplifiedDisplay(script.finalLineSuggestions[0] ?? ""));
   const [gesture, setGesture] = useState<RitualGesture>("light");
-  const [save, setSave] = useState(true);
+  const [save, setSave] = useState(false);
   const totalDuration = useMemo(
     () => script.totalDurationSeconds || script.acts.reduce((sum, act) => sum + act.durationSeconds, 0),
     [script],
@@ -645,10 +664,10 @@ export function RitualizationStage({
     <main id="main" className="stage-page ritual-page">
       <header className="stage-intro ritual-intro">
         <h1>再演</h1>
-        <p>把这条支线演给自己看。全卷约 {Math.max(1, Math.round(totalDuration / 60))} 分钟；拉开幕布后旁白会随每一幕自动朗读，随时可暂停。</p>
+        <p>把这条支线演给自己看。全卷约 {Math.max(1, Math.round(totalDuration / 60))} 分钟；各幕画面由阿里云模型逐幕生成，未成功时会明确显示纸影备用舞台。旁白随幕朗读，也可随时暂停。</p>
       </header>
       <StatusMessage error={error} notice={notice} />
-      <TheatrePlayer sessionId={sessionId} script={script} onReachedEnd={() => setReachedEnd(true)} onSceneImage={onSceneImage} />
+      <TheatrePlayer sessionId={sessionId} script={script} finalLineOverride={finalLine} onReachedEnd={() => setReachedEnd(true)} onSceneImage={onSceneImage} />
 
       <section className={`ritual-console ${reachedEnd ? "is-ready" : ""}`} aria-labelledby="ritual-title">
         <div className="ritual-heading">
@@ -668,9 +687,13 @@ export function RitualizationStage({
             </label>
             {script.finalLineSuggestions.length > 1 && (
               <div className="line-suggestions">
-                {script.finalLineSuggestions.slice(0, 3).map((line) => <button type="button" key={line} onClick={() => setFinalLine(line)}>{line}</button>)}
+                {script.finalLineSuggestions.slice(0, 3).map((line) => {
+                  const simplifiedLine = toSimplifiedDisplay(line);
+                  return <button type="button" key={line} onClick={() => setFinalLine(simplifiedLine)}>{simplifiedLine}</button>;
+                })}
               </div>
             )}
+            <p className="final-line-sync-note">末句会立即替换终幕字幕与纪念卡，并只作为网页字幕呈现，不写入画面生成提示，因此无需重绘。</p>
           </div>
           <fieldset className="gesture-options">
             <legend>选择一个终幕动作</legend>
@@ -685,7 +708,7 @@ export function RitualizationStage({
           </fieldset>
           <label className="save-control">
             <input type="checkbox" checked={save} onChange={(event) => setSave(event.target.checked)} />
-            <span><strong>暂存纪念卡</strong><small>{save ? "按当前服务的数据期限保存，随时可以删除。" : "完成后立即丢弃纪念卡。"}</small></span>
+            <span><strong>暂存纪念卡</strong><small>{save ? "在本次会话内暂存，最迟二十四小时自动清除；结束页可立即删除。" : "默认不留存纪念卡；完成后只在当前页面展示。"}</small></span>
           </label>
         </div>
         <button className="primary-action ritual-action" type="button" disabled={!reachedEnd || !title.trim() || !finalLine.trim() || busy} onClick={() => void onComplete({ title: title.trim(), finalLine: finalLine.trim(), gesture, save })}>
@@ -760,7 +783,7 @@ export function ArtifactView({
                 <li key={act.id} className="recap-row">
                   <div className="recap-art">
                     {image ? (
-                      <img src={image} alt={`第 ${index + 1} 幕画面`} loading="lazy" referrerPolicy="no-referrer" />
+                      <><img src={image} alt={`第 ${index + 1} 幕的模型生成画面`} loading="lazy" referrerPolicy="no-referrer" /><span className="recap-image-origin">模型生成画面</span></>
                     ) : (
                       <div className="recap-art-empty" role="img" aria-label={`第 ${index + 1} 幕暂无画面`}>
                         <span>第 {index + 1} 幕</span>

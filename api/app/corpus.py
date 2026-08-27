@@ -85,6 +85,15 @@ _C1_REQUIRED_COLUMNS = {
 # fetch a bounded shortlist from classical Chinese source text; the service
 # still explains recommendations using the words found in the user's summary.
 _C1_QUERY_ALIASES: dict[str, tuple[str, ...]] = {
+    "答应": ("許之曰", "欣然許之", "應允其事", "諾而受命"),
+    "承诺": ("信守其言", "不負所託", "許諾其事", "踐其言"),
+    "托付": ("託付其事", "寄書傳信", "受人之託", "持書往告"),
+    "传信": ("寄書傳信", "持書往告", "使者傳言", "致書於人"),
+    "拒绝": ("辭而不受", "固辭不從", "終不肯從", "謝而卻之"),
+    "求助": ("請人相助", "告急求援", "往求救助", "託人往告"),
+    "分工": ("各任其事", "分掌其職", "眾人共作", "各司其職"),
+    "期限": ("限期而成", "期日將至", "久而未成", "歲月既久"),
+    "反悔": ("悔其所許", "中道而悔", "既許復辭", "追悔前言"),
     "关系": ("父母兄弟", "夫妻婚姻", "朋友交遊", "親族往來"),
     "边界": ("不可侵犯", "禮法所限", "禁止往來", "內外有別"),
     "信任": ("深信不疑", "以信相託", "託付其事", "不相疑忌"),
@@ -102,6 +111,48 @@ _C1_QUERY_ALIASES: dict[str, tuple[str, ...]] = {
     "目标": ("志向所求", "欲得其物", "所願未遂", "立志求之"),
     "梦想": ("夢中所見", "夜夢神人", "夢寐所求", "所願得成"),
 }
+
+# These words describe almost any life story.  On their own they are not a
+# defensible reason to search thousands of classical paragraphs: doing so used
+# to turn a line such as "我在工作中做了一个决定" into a large OR query and
+# surface whichever source happened to contain 官職 or 決意.  A longer phrase
+# (for example "工作分工" or "仓促答应") is still allowed because it carries
+# an event or relationship, not just a topic heading.
+_GENERIC_C1_QUERY_TERMS = frozenset(
+    {
+        "事情",
+        "故事",
+        "生活",
+        "最近",
+        "工作",
+        "变化",
+        "改变",
+        "选择",
+        "决定",
+        "行动",
+        "责任",
+        "自己",
+        "希望",
+        "普通",
+        "困难",
+        "压力",
+    }
+)
+
+
+def _specific_c1_query_term(value: Any) -> str | None:
+    term = re.sub(r"\s+", "", str(value or "")).strip("，。！？；：、,.!?;:()（）")
+    if len(term) < 3 or len(term) > 16 or term in _GENERIC_C1_QUERY_TERMS:
+        return None
+    # A model occasionally returns label-like phrases such as "工作选择".
+    # Requiring at least one non-generic component prevents two broad labels
+    # from becoming a false signal while retaining concrete phrases.
+    generic_remainder = term
+    for generic in sorted(_GENERIC_C1_QUERY_TERMS, key=len, reverse=True):
+        generic_remainder = generic_remainder.replace(generic, "")
+    if not generic_remainder:
+        return None
+    return term
 
 
 def stable_hash(value: Any) -> str:
@@ -323,17 +374,20 @@ def _c1_theme_terms(text: str) -> list[str]:
 def _c1_query_terms(query: str, explicit_terms: Sequence[str] | None = None) -> list[str]:
     terms: list[str] = []
     for raw_term in explicit_terms or ():
-        term = re.sub(r"\s+", "", str(raw_term)).strip()
+        term = _specific_c1_query_term(raw_term)
         if term:
-            terms.extend(_C1_QUERY_ALIASES.get(term, (term,))[:2])
+            aliases = _C1_QUERY_ALIASES.get(term)
+            terms.extend(aliases[:2] if aliases else (term,))
     for modern, aliases in _C1_QUERY_ALIASES.items():
-        if modern in query:
+        if modern in query and modern not in _GENERIC_C1_QUERY_TERMS:
             terms.extend(aliases[:2])
-    # Long literal fragments can occasionally match a title or a source
-    # passage directly. Keep them bounded so one request cannot create a very
-    # large SQL expression.
-    for fragment in re.findall(r"[\u3400-\u9fff]{3,8}", query):
-        terms.append(fragment)
+    # Literal retrieval is intentionally limited to quoted phrases.  Taking
+    # arbitrary 3-8 character windows from a sentence made fragments such as
+    # "我正在面对" look like evidence even though they describe no event.
+    for fragment in re.findall(r"[“\"《]([\u3400-\u9fff]{3,16})[”\"》]", query):
+        specific = _specific_c1_query_term(fragment)
+        if specific:
+            terms.append(specific)
     unique: list[str] = []
     for term in terms:
         if term not in unique:
@@ -806,8 +860,14 @@ class CorpusRepository:
         normalized: list[dict[str, Any]] = []
         for row in selected_rows[:limit]:
             record = self._normalize_c1_row(row)
-            record["retrievalMode"] = (
-                "sqlite_fts5" if record["storyVersionId"] in fts_matched_ids else "stable_sample"
+            is_fts_match = record["storyVersionId"] in fts_matched_ids
+            record["retrievalMode"] = "sqlite_fts5" if is_fts_match else "stable_sample"
+            searchable = " ".join(
+                str(row[key] or "")
+                for key in ("title", "source_work_title", "source_locator", "text")
+            )
+            record["retrievalTermsMatched"] = (
+                [term for term in terms if term in searchable][:4] if is_fts_match else []
             )
             normalized.append(record)
         return normalized

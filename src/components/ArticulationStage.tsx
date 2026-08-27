@@ -37,11 +37,13 @@ interface SuggestedNodeUpdate {
 }
 
 const INTENTS: ReadonlyArray<{ id: AssistantIntent; label: string; description: string }> = [
-  { id: "clarify", label: "解释这处", description: "说明故事与经历为何这样对应" },
-  { id: "reorder", label: "调整顺序", description: "重新安排右页内容的位置" },
-  { id: "fill_gap", label: "补充一处", description: "为尚未写清的地方准备说法" },
-  { id: "preserve_boundary", label: "检查原文", description: "核对哪些内容不能误写" },
+  { id: "clarify", label: "说明这处对应", description: "比较原典情节与我的经历" },
+  { id: "reorder", label: "调整节点顺序", description: "交换右页两处内容" },
+  { id: "fill_gap", label: "补上空缺节点", description: "为未写清的一处起草" },
+  { id: "preserve_boundary", label: "核对原典边界", description: "查看哪些事实不能改写" },
 ];
+
+const ALL_NODE_IDS = BRANCH_NODE_DEFINITIONS.map((definition) => definition.id);
 
 function normalizeNodes(nodes: BranchNodeDraft[] | undefined): BranchNodeDraft[] {
   const fallback = makeEmptyBranchNodes();
@@ -112,20 +114,33 @@ function MappingAssistant({
   assistantBusy: boolean;
   pendingUpdates: SuggestedNodeUpdate[];
   onIntent: (intent: AssistantIntent) => void;
-  onSend: (text: string) => Promise<void>;
+  onSend: (text: string, retry: boolean) => Promise<boolean>;
   onApplyUpdates: () => void;
   onDiscardUpdates: () => void;
 }) {
   const [draft, setDraft] = useState("");
+  const [sendFailed, setSendFailed] = useState(false);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
+  const previewRef = useRef<HTMLElement>(null);
   const activeNode = nodes.find((node) => node.id === activeNodeId) ?? nodes[0];
   const sourceBeat = deriveSourceBeats(story).find((beat) => beat.id === activeNodeId);
+  const awaitingPreviewDecision = pendingUpdates.length > 0;
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    if (sendFailed) {
+      composerRef.current?.focus();
+    } else if (awaitingPreviewDecision) {
+      previewRef.current?.focus();
+    }
+  }, [awaitingPreviewDecision, sendFailed]);
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const text = draft.trim();
-    if (!text || disabled) return;
-    void onSend(text);
-    setDraft("");
+    if (!text || disabled || assistantBusy || awaitingPreviewDecision) return;
+    const succeeded = await onSend(text, sendFailed);
+    setSendFailed(!succeeded);
+    if (succeeded) setDraft("");
   }
 
   return (
@@ -141,25 +156,26 @@ function MappingAssistant({
       </header>
 
       <div className="mapping-assistant__disclosure">
-        <p>告诉栖蝶想改哪一处；它会先给出预览，由你决定是否应用。</p>
+        <p>指出哪一处不准确，栖蝶只会准备修改预览；你点击“应用到画布”后才会改动初稿。</p>
       </div>
 
       <section className="mapping-assistant__context" aria-label="当前映照位置">
-        <span>正在看</span>
+        <span>当前校对</span>
         <strong>{activeNode?.title}</strong>
         <p><b>古籍依据：</b>{toSimplifiedDisplay(sourceBeat?.content)}</p>
       </section>
 
-      <div className="mapping-assistant__intents" aria-label="半结构化对话意图">
+      <div className="mapping-assistant__intents" aria-label="常用修改方式">
         {INTENTS.map((intent) => (
           <button
             key={intent.id}
             type="button"
-            disabled={disabled || busyIntent !== null}
+            disabled={disabled || assistantBusy || awaitingPreviewDecision || busyIntent !== null}
             onClick={() => onIntent(intent.id)}
             aria-label={`${intent.label}：${intent.description}`}
           >
             <strong>{busyIntent === intent.id ? "处理中…" : intent.label}</strong>
+            <small>{intent.description}</small>
           </button>
         ))}
       </div>
@@ -176,8 +192,13 @@ function MappingAssistant({
       </div>
 
       {pendingUpdates.length > 0 && (
-        <section className="mapping-assistant__preview" aria-label="待确认的画布修改">
-          <h3>待确认的修改</h3>
+        <section
+          ref={previewRef}
+          className="mapping-assistant__preview"
+          aria-label="待确认的画布修改"
+          tabIndex={-1}
+        >
+          <h3>修改预览 · 尚未写入画布</h3>
           {pendingUpdates.map((update) => {
             const node = nodes.find((item) => item.id === update.nodeId);
             return (
@@ -189,26 +210,37 @@ function MappingAssistant({
             );
           })}
           <div>
-            <button type="button" onClick={onDiscardUpdates}>暂不采用</button>
+            <button type="button" onClick={() => { setSendFailed(false); onDiscardUpdates(); }}>暂不采用</button>
             <button type="button" className="primary-action compact-action" onClick={onApplyUpdates}>应用到画布</button>
           </div>
         </section>
       )}
 
       <form className="mapping-assistant__composer" onSubmit={submit}>
-        <label htmlFor="mapping-chat-input">继续说明你想怎么改</label>
+        <label htmlFor="mapping-chat-input">告诉栖蝶哪处不准确，或希望怎样改</label>
         <textarea
+          ref={composerRef}
           id="mapping-chat-input"
           rows={3}
           maxLength={360}
           value={draft}
-          disabled={disabled || assistantBusy}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder="例如：第二段其实先发生；或这个节点和我的经历不对应。"
+          disabled={disabled || assistantBusy || awaitingPreviewDecision}
+          aria-describedby={sendFailed ? "mapping-chat-retry-hint" : undefined}
+          onChange={(event) => {
+            setDraft(event.target.value);
+            setSendFailed(false);
+          }}
+          placeholder="例如：第二段其实先发生；这里写的是同事，不是家人。"
         />
+        {sendFailed && <p id="mapping-chat-retry-hint" className="mapping-assistant__retry" role="status">刚才的说明已保留，可以直接重试。</p>}
         <div>
           <small>{draft.length}/360</small>
-          <button type="submit" disabled={disabled || assistantBusy || !draft.trim()}>{assistantBusy ? "正在整理…" : "发送"}</button>
+          <button
+            type="submit"
+            disabled={disabled || assistantBusy || awaitingPreviewDecision || !draft.trim()}
+          >
+            {assistantBusy ? "正在生成预览…" : sendFailed ? "重试生成预览" : "发送修改说明"}
+          </button>
         </div>
       </form>
     </aside>
@@ -248,12 +280,15 @@ export function ArticulationStage({
   const [assistantBusy, setAssistantBusy] = useState(false);
   const [pendingUpdates, setPendingUpdates] = useState<SuggestedNodeUpdate[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [reviewedNodeIds, setReviewedNodeIds] = useState<Set<BranchNodeId>>(() => new Set(
+    branch.status === "approved" ? ALL_NODE_IDS : [],
+  ));
   const messageCounter = useRef(1);
   const [messages, setMessages] = useState<AssistantMessage[]>([
     {
       id: 0,
       role: "assistant",
-      text: `《${toSimplifiedDisplay(story.title)}》与刚才经历的五处映照已列在画布中。选中节点后，可以继续说明要修改的地方。`,
+      text: `我先把《${toSimplifiedDisplay(story.title)}》与你的经历写成五处对应。当前只是初稿；依次看一遍，准确的不用改，不准确的再告诉我。`,
     },
   ]);
 
@@ -263,13 +298,29 @@ export function ArticulationStage({
     setHopeDetail(branch.hopeAnchor?.detail ?? "");
   }, [branch.id, branch.version]);
 
+  useEffect(() => {
+    setReviewedNodeIds(new Set(branch.status === "approved" ? ALL_NODE_IDS : []));
+  }, [branch.id]);
+
+  useEffect(() => {
+    if (branch.status === "approved") setReviewedNodeIds(new Set(ALL_NODE_IDS));
+  }, [branch.status]);
+
   const hopeAnchor = hopeType ? { type: hopeType, detail: hopeDetail } satisfies HopeAnchor : undefined;
-  const addressedCount = nodes.filter((node) => node.skipped || node.value.trim()).length;
+  const draftedCount = nodes.filter((node) => node.skipped || node.value.trim()).length;
   const gapCount = nodes.filter((node) => !node.skipped && !node.value.trim()).length;
+  const reviewedCount = reviewedNodeIds.size;
+  const allNodesReviewed = reviewedCount === ALL_NODE_IDS.length;
   const preview = useMemo(() => buildBranchPreview(nodes, hopeAnchor), [nodes, hopeAnchor]);
-  const ready = branchReadyForApproval(nodes, hopeAnchor);
+  const contentReady = branchReadyForApproval(nodes, hopeAnchor);
+  const ready = contentReady && allNodesReviewed;
   const branchApproved = branch.status === "approved";
   const recoverableHopeAnchor = hopeAnchor ?? branch.hopeAnchor;
+  const assistantWorkPending = assistantBusy
+    || busyIntent !== null
+    || suggestingNode !== null
+    || pendingUpdates.length > 0;
+  const editingLocked = branchApproved || busy || assistantWorkPending;
 
   function appendMessage(role: AssistantMessage["role"], text: string) {
     const id = messageCounter.current;
@@ -277,7 +328,22 @@ export function ArticulationStage({
     setMessages((current) => [...current.slice(-7), { id, role, text }]);
   }
 
+  function markNodeReviewed(nodeId: BranchNodeId) {
+    setReviewedNodeIds((current) => {
+      if (current.has(nodeId)) return current;
+      const next = new Set(current);
+      next.add(nodeId);
+      return next;
+    });
+  }
+
+  function activateNode(nodeId: BranchNodeId) {
+    setActiveNodeId(nodeId);
+    markNodeReviewed(nodeId);
+  }
+
   function updateNode(nodeId: BranchNodeId, patch: Partial<BranchNodeDraft>) {
+    markNodeReviewed(nodeId);
     setNodes((current) => current.map((node) => node.id === nodeId ? { ...node, ...patch } : node));
   }
 
@@ -285,6 +351,8 @@ export function ArticulationStage({
     const fromIndex = nodes.findIndex((node) => node.id === nodeId);
     const targetNode = nodes[fromIndex + delta];
     if (!targetNode) return;
+    markNodeReviewed(nodeId);
+    markNodeReviewed(targetNode.id);
     setNodes((current) => {
       const from = current.findIndex((node) => node.id === nodeId);
       const to = from + delta;
@@ -354,8 +422,8 @@ export function ArticulationStage({
     }
   }
 
-  async function handleFreeformMessage(text: string) {
-    appendMessage("user", text);
+  async function handleFreeformMessage(text: string, retry = false): Promise<boolean> {
+    if (!retry) appendMessage("user", text);
     setAssistantBusy(true);
     setLocalError(null);
     try {
@@ -368,26 +436,29 @@ export function ArticulationStage({
         : updates;
       if (fallbackUpdates.length > 0) {
         setPendingUpdates(fallbackUpdates);
-        appendMessage("assistant", `已生成 ${fallbackUpdates.length} 处修改，确认后写入画布。`);
+        appendMessage("assistant", `我准备了 ${fallbackUpdates.length} 处修改预览。先核对内容，点击“应用到画布”后才会替换初稿。`);
       } else {
-        appendMessage("assistant", "我理解了你的说明，但这次没有形成可写入的修改。你可以换一种说法，或直接展开节点校对。");
+        appendMessage("assistant", "这段说明没有形成具体改动。可以直接指出节点名称和要改的事实，或在左侧展开该节点编辑。");
       }
+      return true;
     } catch (assistantError) {
-      setLocalError(assistantError instanceof Error ? assistantError.message : "这次没有取得修改建议，请稍后再试。");
-      appendMessage("assistant", "这次没有取得修改建议。你的原有画布没有变化，可以稍后再试。");
+      setLocalError(assistantError instanceof Error ? assistantError.message : "未能生成修改预览。刚才的说明已保留，可以直接重试。");
+      appendMessage("assistant", "未能生成修改预览。画布没有变化，刚才的说明仍在输入框中。");
+      return false;
     } finally {
       setAssistantBusy(false);
     }
   }
 
   function applyPendingUpdates() {
+    pendingUpdates.forEach((update) => markNodeReviewed(update.nodeId));
     setNodes((current) => current.map((node) => {
       const update = pendingUpdates.find((item) => item.nodeId === node.id);
       return update
         ? { ...node, value: update.value, skipped: false, expressionOrigin: "model_edited" }
         : node;
     }));
-    appendMessage("assistant", `已把 ${pendingUpdates.length} 处修改写入画布。你仍可逐项展开校对。`);
+    appendMessage("assistant", `已把 ${pendingUpdates.length} 处修改写入画布。其他节点没有变化。`);
     setPendingUpdates([]);
   }
 
@@ -398,7 +469,7 @@ export function ArticulationStage({
           <p className="section-label">共谱</p>
           <h1>校对故事与经历的映照初稿。</h1>
         </div>
-        <p>画布已按对话自动生成；可以直接编辑，或使用右侧助手修改。</p>
+        <p>栖蝶已起草五处映照。依次展开看一眼；准确的不用改，不准确的再调整。</p>
       </header>
 
       <StatusMessage error={error ?? localError} notice={notice} />
@@ -416,9 +487,11 @@ export function ArticulationStage({
             story={story}
             nodes={nodes}
             activeNodeId={activeNodeId}
-            disabled={branchApproved || busy}
+            disabled={editingLocked}
             suggestingNode={suggestingNode}
-            onActivate={setActiveNodeId}
+            reviewedNodeIds={reviewedNodeIds}
+            onActivate={activateNode}
+            onReview={markNodeReviewed}
             onChange={updateNode}
             onMoveContent={moveContent}
             onRequestSuggestion={(nodeId) => void getSuggestions(nodeId)}
@@ -438,7 +511,7 @@ export function ArticulationStage({
                 <label key={anchor.type} className={hopeType === anchor.type ? "is-selected" : ""}>
                   <input
                     type="radio"
-                    disabled={branchApproved}
+                    disabled={editingLocked}
                     name="hope-anchor"
                     value={anchor.type}
                     checked={hopeType === anchor.type}
@@ -453,7 +526,7 @@ export function ArticulationStage({
               <textarea
                 rows={3}
                 maxLength={180}
-                disabled={branchApproved}
+                disabled={editingLocked}
                 value={hopeDetail}
                 onChange={(event) => setHopeDetail(event.target.value)}
                 placeholder="例如：答案还没出现，但我愿意先联系一个可以同行的人。"
@@ -465,13 +538,53 @@ export function ArticulationStage({
             <summary>预览你的完整版本 <span>{preview.length} 字</span></summary>
             <div>{preview ? preview.split("\n\n").map((paragraph, index) => <p key={`${paragraph}-${index}`}>{paragraph}</p>) : <p>画布中的用户内容会在这里连成支线。</p>}</div>
           </details>
+
+          <footer className="mapping-approval-dock" aria-label="保存或确认共谱">
+            <div className="mapping-approval-dock__status" role="status" aria-live="polite">
+              <span><strong>{draftedCount}</strong> 处已有初稿</span>
+              <span><strong>{reviewedCount}</strong> / {ALL_NODE_IDS.length} 处已查看</span>
+              <p>
+                {branchApproved
+                  ? "这版共谱已由你确认，可以进入再演。"
+                  : assistantBusy || busyIntent !== null || suggestingNode !== null
+                    ? "栖蝶正在生成内容；完成前不会保存或进入再演。"
+                    : pendingUpdates.length > 0
+                      ? "有修改预览待决定；应用或暂不采用后才能保存。"
+                      : gapCount > 0
+                        ? `${gapCount} 处仍待补；也可以把确实不对应的节点标为“不适用”。`
+                        : !allNodesReviewed
+                          ? `再展开 ${ALL_NODE_IDS.length - reviewedCount} 处看一眼；只改不准确的地方。`
+                          : !contentReady
+                            ? "五处都已查看；再选择并写下一个回返支点。"
+                            : "五处都已查看，可以确认这版共谱。"}
+              </p>
+            </div>
+            <div className="mapping-approval-dock__actions">
+              <button
+                className="secondary-action"
+                type="button"
+                disabled={branchApproved || !hopeAnchor || busy || assistantWorkPending}
+                onClick={() => hopeAnchor && void onSave(nodes, hopeAnchor)}
+              >
+                保存这版修改
+              </button>
+              <button
+                className="primary-action compact-action"
+                type="button"
+                disabled={busy || assistantWorkPending || !recoverableHopeAnchor || (!branchApproved && !ready)}
+                onClick={() => recoverableHopeAnchor && void onApprove(nodes, recoverableHopeAnchor)}
+              >
+                {busy ? "正在准备…" : branchApproved ? "继续进入再演" : "确认共谱并进入再演"}
+              </button>
+            </div>
+          </footer>
         </div>
 
         <MappingAssistant
           story={story}
           nodes={nodes}
           activeNodeId={activeNodeId}
-          disabled={branchApproved || busy}
+          disabled={branchApproved || busy || suggestingNode !== null}
           messages={messages}
           busyIntent={busyIntent}
           assistantBusy={assistantBusy}
@@ -482,31 +595,6 @@ export function ArticulationStage({
           onDiscardUpdates={() => setPendingUpdates([])}
         />
       </div>
-
-      <footer className="mapping-approval-dock">
-        <div className="mapping-approval-dock__status">
-          <span>{gapCount > 0 ? <><strong>{gapCount}</strong> 个节点待处理</> : <><strong>{addressedCount}</strong> 个节点已处理</>}</span>
-          <p>{branchApproved ? "这版共谱已确认，可以进入再演。" : ready ? "初稿已完成校对，可以进入再演。" : "请看完所有节点，并添加一个回返支点。"}</p>
-        </div>
-        <div className="mapping-approval-dock__actions">
-          <button
-            className="secondary-action"
-            type="button"
-            disabled={branchApproved || !hopeAnchor || busy}
-            onClick={() => hopeAnchor && void onSave(nodes, hopeAnchor)}
-          >
-            保存这版修改
-          </button>
-          <button
-            className="primary-action compact-action"
-            type="button"
-            disabled={busy || !recoverableHopeAnchor || (!branchApproved && !ready)}
-            onClick={() => recoverableHopeAnchor && void onApprove(nodes, recoverableHopeAnchor)}
-          >
-            {busy ? "正在准备…" : branchApproved ? "继续进入再演" : "确认共谱并进入再演"}
-          </button>
-        </div>
-      </footer>
     </main>
   );
 }

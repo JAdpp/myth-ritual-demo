@@ -21,11 +21,9 @@ import {
 import { ArticulationStage } from "./components/ArticulationStage";
 import { ConsentScreen } from "./components/ConsentScreen";
 import { EncounterStage } from "./components/EncounterStage";
-import { EnglishGuide } from "./components/EnglishGuide";
 import { ArtifactView, RitualizationStage } from "./components/RitualizationStage";
 import { SiteHeader, StoryLoom } from "./components/StoryLoom";
 import { getSafetyStopRoute, isDeletionReceiptFor } from "./lib/contracts";
-import { useSiteLanguage } from "./lib/language";
 import { buildBranchPreview, prepareStoryForExperience } from "./lib/story";
 import type {
   BranchNodeDraft,
@@ -55,7 +53,6 @@ function errorMessage(error: unknown): string {
 }
 
 export function App() {
-  const [language, setLanguage] = useSiteLanguage();
   const [stage, setStage] = useState<ExperienceStage>("welcome");
   const [consent, setConsent] = useState<SessionConsent | null>(null);
   const [session, setSession] = useState<ExperienceSession | null>(null);
@@ -77,7 +74,7 @@ export function App() {
   const safetyStopped = Boolean(getSafetyStopRoute(brief));
 
   useEffect(() => {
-    document.title = "梦蝶记 · 中国古典叙事与个人经历共谱";
+    document.title = "梦蝶记 · 中国古典神话传说与个人经历共谱";
   }, []);
 
   useEffect(() => {
@@ -154,11 +151,7 @@ export function App() {
     try {
       const nextBrief = await createExperienceBrief(requireSession().id, input);
       setBrief(nextBrief);
-      setNotice(
-        getSafetyStopRoute(nextBrief)
-          ? null
-          : "中性摘要已生成。确认之后才会开始选取故事。",
-      );
+      setNotice(null);
       return nextBrief;
     } catch (briefError) {
       setError(errorMessage(briefError));
@@ -179,7 +172,7 @@ export function App() {
       setOffer(nextOffer);
       setOffersExhausted(Boolean(nextOffer.exhausted));
       setRejectedAll(false);
-      setNotice("栖蝶已从完整故事库取得候选。每张卡都会显示真实题名、出处和推荐理由。");
+      setNotice("栖蝶已从机器切分的开发故事池取得候选。卡牌会显示题名、出处与推荐理由；技术演示版尚未逐条完成人工复核。");
     } catch (confirmError) {
       setError(errorMessage(confirmError));
     } finally {
@@ -193,9 +186,14 @@ export function App() {
   ): Promise<ConversationTurnResponse | null> {
     try {
       return await createConversationTurn(requireSession().id, message, history);
-    } catch {
+    } catch (conversationError) {
       // The encounter keeps its reviewed local follow-up when the optional
       // conversational endpoint is unavailable.
+      if (conversationError instanceof ApiError && conversationError.code === "safety_blocked") {
+        setError(conversationError.message);
+      } else {
+        setNotice("云端回应暂时没有到达，栖蝶已用本地追问继续；你写下的内容仍保留。");
+      }
       return null;
     }
   }
@@ -229,7 +227,7 @@ export function App() {
       setOffer(nextOffer);
       setOffersExhausted(Boolean(nextOffer.exhausted));
       setRejectedAll(false);
-      setNotice(nextOffer.exhausted ? "已到达本次可浏览范围，这是最后一批。" : "已换一批，上一批就此留在原处。");
+      setNotice(nextOffer.exhausted ? "已到达本次可浏览范围，这是最后一批。" : "已换一批，上一批已退出当前卡面。");
     } catch (offerError) {
       setError(errorMessage(offerError));
     } finally {
@@ -361,21 +359,43 @@ export function App() {
     if (!script) return;
     clearMessages();
     setBusy(true);
+    let nextArtifact = artifact;
     try {
-      const nextArtifact = await completeRitual(requireSession().id, {
-        theatreScriptId: script.id,
-        storyTitle: payload.title,
-        finalLine: payload.finalLine,
-        ritualGesture: payload.gesture,
-        saveArtifact: payload.save,
-      });
+      if (!nextArtifact) {
+        nextArtifact = await completeRitual(requireSession().id, {
+          theatreScriptId: script.id,
+          storyTitle: payload.title,
+          finalLine: payload.finalLine,
+          ritualGesture: payload.gesture,
+          saveArtifact: payload.save,
+        });
+        setArtifact(nextArtifact);
+        setScript((current) => {
+          if (!current || current.acts.length === 0) return current;
+          const lastIndex = current.acts.length - 1;
+          return {
+            ...current,
+            finalLineSuggestions: [
+              payload.finalLine,
+              ...current.finalLineSuggestions.filter((line) => line !== payload.finalLine),
+            ],
+            acts: current.acts.map((act, index) => (
+              index === lastIndex ? { ...act, dialogue: payload.finalLine } : act
+            )),
+          };
+        });
+      }
       const nextLedger = await getProvenance(requireSession().id);
-      setArtifact(nextArtifact);
       setLedger(nextLedger);
       setStage("artifact");
       setNotice(null);
     } catch (ritualError) {
-      setError(errorMessage(ritualError));
+      if (nextArtifact) {
+        setError(`终幕已经完成，但来源记录暂时没有载入：${errorMessage(ritualError)}`);
+        setNotice("再次点击终幕按钮只会补取来源记录，不会重复完成或重复保存纪念卡。");
+      } else {
+        setError(errorMessage(ritualError));
+      }
     } finally {
       setBusy(false);
     }
@@ -402,12 +422,8 @@ export function App() {
   return (
     <div className={`app-shell stage-${stage}`}>
       <a className="skip-link" href="#main">跳到主要内容</a>
-      <SiteHeader stage={stage} language={language} onLanguageChange={setLanguage} />
-      {/* The guide is layered over the experience rather than replacing it, so
-          switching to EN mid-session and back does not discard the conversation
-          the visitor is part-way through. */}
-      {language === "en" && <EnglishGuide onBackToExperience={() => setLanguage("zh")} />}
-      <div hidden={language === "en"}>
+      <SiteHeader stage={stage} />
+      <div>
       {stage !== "welcome" && <StoryLoom stage={stage} />}
 
       {stage === "welcome" && (

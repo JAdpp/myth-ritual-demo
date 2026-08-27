@@ -17,16 +17,17 @@ def _confirmed_session(client: TestClient) -> str:
             }
         },
     ).json()["id"]
+    user_story = "一位朋友托我传信，我已经答应，却担心反悔会显得不可靠。"
     brief = client.post(
         f"/api/sessions/{session_id}/experience-briefs",
-        json={"inputMode": "preset", "presetId": "plan-changed"},
+        json={"inputMode": "text", "text": user_story},
     ).json()
     confirmed = client.patch(
         f"/api/sessions/{session_id}/experience-briefs",
         json={
             "briefId": brief["id"],
             "parentVersion": brief["version"],
-            "neutralSummary": brief["neutralSummary"],
+            "neutralSummary": user_story,
             "confirmed": True,
         },
     )
@@ -94,6 +95,10 @@ def test_generated_c1_card_can_be_selected_mapped_and_sent_to_theatre() -> None:
         assert generated["deepAnnotated"] is False
         assert prepared["deepAnnotated"] is True
         assert generated["recommendationBasis"]["mode"] == "source_catalog_demo_match"
+        assert generated["recommendationBasis"]["candidateRecallMode"] == "sqlite_fts5"
+        assert "用户线索：" in generated["recommendationReason"]
+        assert "原典情节：" in generated["recommendationReason"]
+        assert "关键差异：" in generated["recommendationReason"]
         assert generated["summary"]
         assert generated["sourceCanon"]["sourceTitle"]
 

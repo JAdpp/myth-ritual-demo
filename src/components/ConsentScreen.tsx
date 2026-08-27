@@ -119,62 +119,6 @@ const MAPPING_NODES = [
   { label: "归返", canon: "百川归海", branch: "承担，但不独自扛下所有" },
 ] as const;
 
-const HERO_STORY_WORDS = [
-  { text: "神话", tone: "myth" },
-  { text: "传奇", tone: "legend" },
-  { text: "志怪", tone: "strange" },
-  { text: "小说", tone: "fiction" },
-] as const;
-
-function useHeroStoryWord() {
-  const [wordIndex, setWordIndex] = useState(0);
-  const [visibleCharacters, setVisibleCharacters] = useState(0);
-  const [deleting, setDeleting] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const currentWord = HERO_STORY_WORDS[wordIndex];
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== "function") return undefined;
-    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const syncPreference = () => setReducedMotion(preference.matches);
-    syncPreference();
-    preference.addEventListener?.("change", syncPreference);
-    return () => preference.removeEventListener?.("change", syncPreference);
-  }, []);
-
-  useEffect(() => {
-    if (reducedMotion) {
-      if (wordIndex !== 0) setWordIndex(0);
-      if (visibleCharacters !== HERO_STORY_WORDS[0].text.length) {
-        setVisibleCharacters(HERO_STORY_WORDS[0].text.length);
-      }
-      return undefined;
-    }
-
-    let delay = deleting ? 140 : 210;
-    let nextStep = () => setVisibleCharacters((count) => count + (deleting ? -1 : 1));
-
-    if (!deleting && visibleCharacters === currentWord.text.length) {
-      delay = 1_300;
-      nextStep = () => setDeleting(true);
-    } else if (deleting && visibleCharacters === 0) {
-      delay = 280;
-      nextStep = () => {
-        setWordIndex((index) => (index + 1) % HERO_STORY_WORDS.length);
-        setDeleting(false);
-      };
-    }
-
-    const timer = window.setTimeout(nextStep, delay);
-    return () => window.clearTimeout(timer);
-  }, [currentWord.text.length, deleting, reducedMotion, visibleCharacters, wordIndex]);
-
-  return {
-    text: currentWord.text.slice(0, visibleCharacters),
-    tone: currentWord.tone,
-  };
-}
-
 export function ConsentScreen({
   busy,
   error,
@@ -189,8 +133,11 @@ export function ConsentScreen({
   const [modalOpen, setModalOpen] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [activeCaseId, setActiveCaseId] = useState<(typeof DEMO_CASES)[number]["id"]>(DEMO_CASES[0].id);
-  const heroStoryWord = useHeroStoryWord();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const modalRef = useRef<HTMLElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const busyRef = useRef(busy);
+  busyRef.current = busy;
   const overview = health?.corpusOverview;
   const recommendationCount = overview?.totalRecommendationCandidates
     ?? overview?.recommendationPoolStories
@@ -200,7 +147,6 @@ export function ConsentScreen({
   const sourceWorkCount = overview?.catalogSourceWorks
     || overview?.catalogWorks?.length
     || undefined;
-  const deepAnnotatedCount = overview?.deepAnnotatedStories ?? 30;
   const featuredWorks = overview?.catalogWorks?.slice(0, 6) ?? [];
   const familyCards = useMemo(() => {
     const resolved = (overview?.familyIds ?? [])
@@ -216,12 +162,32 @@ export function ConsentScreen({
   useEffect(() => {
     if (!modalOpen) return;
     closeButtonRef.current?.focus();
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape" && !busy) setModalOpen(false);
+    function keepFocusInDialog(event: KeyboardEvent) {
+      if (event.key === "Escape" && !busyRef.current) {
+        setModalOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = [...(modalRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+      ) ?? [])];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable.at(-1) ?? first;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [busy, modalOpen]);
+    window.addEventListener("keydown", keepFocusInDialog);
+    return () => {
+      window.removeEventListener("keydown", keepFocusInDialog);
+      previousFocusRef.current?.focus();
+    };
+  }, [modalOpen]);
 
   useEffect(() => {
     const targets = [...document.querySelectorAll<HTMLElement>("[data-reveal]")];
@@ -263,6 +229,17 @@ export function ConsentScreen({
     void onBegin(bundledConsent);
   }
 
+  function openConsent() {
+    previousFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    setModalOpen(true);
+  }
+
+  function closeConsent() {
+    if (!busy) setModalOpen(false);
+  }
+
   return (
     <main id="main" className="landing-page landing-page-v2">
       <section
@@ -281,19 +258,17 @@ export function ConsentScreen({
         </div>
 
         <div className="landing-hero-copy">
-          <p className="hero-edition"><span>中国古典故事</span><i aria-hidden="true" /><span>个人经历</span><i aria-hidden="true" /><span>AI 共谱</span></p>
+          <p className="hero-edition"><span>中国古典神话传说</span><i aria-hidden="true" /><span>个人经历</span><i aria-hidden="true" /><span>共同续写</span></p>
           <p className="hero-wordmark">梦蝶记</p>
-          <h1 id="welcome-title" aria-label="古典神话、传奇、志怪与小说，在你的此刻生出一条新支线">
-            <span aria-hidden="true">
-              古典<span className={`hero-word-slot is-${heroStoryWord.tone}`}><span className="hero-rotating-word">{heroStoryWord.text}</span><i className="hero-type-caret" /></span>，
-            </span>
-            <br /><em>在你的此刻<br />生出一条新支线</em>
+          <h1 id="welcome-title">
+            <span>中国古典神话传说，</span>
+            <br /><em>在你的此刻<br /><span className="hero-branch-line">生出一条新支线</span></em>
           </h1>
           <p className="welcome-lead">
-            <strong>栖蝶——梦蝶记中的故事向导 AI。</strong>把一件最近发生、你愿意讲的小事告诉它；它会先整理并请你确认，再从可追溯的古籍候选中寻找一则可供比较的故事。原典留在原典，你的选择写成新的现代支线。
+            <strong>栖蝶——梦蝶记中的故事向导。</strong>把一件最近发生、你愿意讲的小事告诉它；它会先整理并请你确认，再从带有古籍出处的开发候选中寻找一则可供比较的故事。原典留在原典，你的选择写成新的现代支线。
           </p>
           <div id="hero-actions" className="landing-actions">
-            <button id="hero-start" className="primary-action landing-primary" type="button" onClick={() => setModalOpen(true)}>
+            <button id="hero-start" className="primary-action landing-primary" type="button" onClick={openConsent}>
               进入体验 <span aria-hidden="true">↗</span>
             </button>
             <a className="landing-text-link" href="#case-showcase">先看一次示例 <span aria-hidden="true">↓</span></a>
@@ -308,7 +283,7 @@ export function ConsentScreen({
           <header>
             <div className="hero-guide-identity">
               <QidieAvatar size={38} className="hero-guide-avatar" />
-              <p><strong>栖蝶</strong><span>故事向导 AI</span></p>
+              <p><strong>栖蝶</strong><span>故事向导</span></p>
             </div>
             <span className="hero-signal-status">整理过程示意</span>
           </header>
@@ -323,7 +298,7 @@ export function ConsentScreen({
           <footer><span>推荐理由可读</span><span>故事可以拒绝</span></footer>
         </aside>
 
-        <a className="hero-scroll-cue" href="#case-showcase"><span>SCROLL</span><i aria-hidden="true" /></a>
+        <a className="hero-scroll-cue" href="#case-showcase"><span>继续了解</span><i aria-hidden="true" /></a>
       </section>
 
       <section id="case-showcase" className="landing-section case-showcase" aria-labelledby="case-title" data-reveal>
@@ -389,21 +364,21 @@ export function ConsentScreen({
         </div>
         <ol className="journey-list feature-chapters">
           <li>
-            <span className="chapter-mark">相遇</span><small>ENCOUNTER</small>
+            <span className="chapter-mark">相遇</span><small>第一阶段</small>
             <h3>先回应，再追问</h3>
             <p>从一件真实小事开始。只有你确认摘要后，系统才会给出带真实题名、采用文本与理由的候选。</p>
             <div className="feature-tags"><span>自然对话</span><span>摘要确认</span><span>可换一批</span></div>
           </li>
           <li>
-            <span className="chapter-mark">共谱</span><small>ARTICULATION</small>
+            <span className="chapter-mark">共谱</span><small>第二阶段</small>
             <h3>原典在左，你执笔在右</h3>
             <p>五节点映照先形成可编辑初稿；你可以直接改，也可以请栖蝶修改。任何变化都先预览再应用。</p>
             <div className="feature-tags"><span>五节点画布</span><span>版本保留</span><span>逐处确认</span></div>
           </li>
           <li>
-            <span className="chapter-mark">再演</span><small>RITUALIZATION</small>
+            <span className="chapter-mark">再演</span><small>第三阶段</small>
             <h3>把批准的支线演出来</h3>
-            <p>4–7 幕场景、幕布、系统旁白、环境音与可选录音共同组成再演；最后由你完成落款与收束动作。</p>
+            <p>4–7 幕场景、幕布与系统旁白共同组成再演；最后由你完成落款与收束动作。</p>
             <div className="feature-tags"><span>逐幕场景</span><span>声音控制</span><span>终幕落款</span></div>
           </li>
         </ol>
@@ -476,7 +451,7 @@ export function ConsentScreen({
                 ))}
               </div>
             </div>
-            <small>4–7 幕场景配系统旁白与环境音；旁白读完自动翻幕，也可以随时关掉声音。</small>
+            <small>4–7 幕场景配系统旁白；旁白读完自动翻幕，也可以随时关掉声音。</small>
           </figure>
         </div>
       </section>
@@ -489,7 +464,7 @@ export function ConsentScreen({
           </header>
 
           <ol className="technology-pipeline" aria-label="梦蝶记技术链路">
-            <li><span>01</span><strong>先确认你说的</strong><p>只使用你确认过的经历摘要。</p></li>
+            <li><span>01</span><strong>先整理你说的</strong><p>先回应愿意分享的内容；摘要确认后才开始找故事。</p></li>
             <li><span>02</span><strong>在古籍中寻找</strong><p>只从可追溯的候选里寻找相近故事。</p></li>
             <li><span>03</span><strong>说明为何推荐</strong><p>比较情节与处境，并把理由写给你看。</p></li>
             <li><span>04</span><strong>检查来源边界</strong><p>确认题名、出处与改写没有混在一起。</p></li>
@@ -497,18 +472,14 @@ export function ConsentScreen({
           </ol>
 
           <div className="technology-proof-grid">
-            <article className="proof-source"><span><i aria-hidden="true" />原典</span><h3>来源与采用文本保持只读</h3><p>AI 的讲解与改写不会冒充原典。</p></article>
+            <article className="proof-source"><span><i aria-hidden="true" />原典</span><h3>来源与采用文本保持只读</h3><p>智能讲解与现代改写不会冒充原典。</p></article>
             <article className="proof-branch"><span><i aria-hidden="true" />你的支线</span><h3>每次修改独立保留</h3><p>只有你确认的版本才会进入剧场。</p></article>
-            <article className="proof-seal"><span><i aria-hidden="true" />最终确认</span><h3>决定权始终在你</h3><p>印章只表示你的选择，不代表 AI 一定正确。</p></article>
+            <article className="proof-seal"><span><i aria-hidden="true" />最终确认</span><h3>决定权始终在你</h3><p>印章只表示你的选择，不代表模型一定正确。</p></article>
           </div>
 
           <div className="technology-stats" aria-label="当前实现数字">
             <p><strong>{recommendationCount.toLocaleString("zh-CN")}</strong>{" "}<span>条可推荐候选</span></p>
             <p><strong>{sourceWorkCount ?? 6}</strong>{" "}<span>部开放古籍来源</span></p>
-            {/* Was hard-coded at 30 while /api/health already reported it, which
-                is a number that goes stale silently the next time the corpus is
-                rebuilt. The literal stays only as the offline fallback. */}
-            <p><strong>{deepAnnotatedCount}</strong>{" "}<span>则重点整理主文本</span></p>
             <p><strong>4–7</strong>{" "}<span>幕动态再演</span></p>
           </div>
         </div>
@@ -519,7 +490,7 @@ export function ConsentScreen({
           <p className="section-label">故事来源</p>
           <h2 id="corpus-title"><strong>{recommendationCount.toLocaleString("zh-CN")}</strong> 条候选，<br />从出处开始</h2>
           <p className="corpus-status">
-            这里的数字指可推荐候选，不等同于同等数量的独立故事。候选来自可追溯的开放古籍；推荐卡会显示真实题名与出处，每次体验只采用一份明确主文本{sourceWorkCount ? `。目前汇集 ${sourceWorkCount} 部古籍` : ""}。
+            这里的数字指机器切分后的开发候选，不等同于同等数量的独立故事。技术演示版尚未逐条完成人工复核，但候选都会保留题名与出处；每次体验只采用一份主文本{sourceWorkCount ? `。目前汇集 ${sourceWorkCount} 部古籍` : ""}。
           </p>
           {featuredWorks.length ? (
             <ul className="corpus-group-list" aria-label="部分来源古籍">
@@ -548,24 +519,25 @@ export function ConsentScreen({
         <div>
           <h2>你不必先懂神话，<br />只要带来一件愿意讲的小事</h2>
           <p>栖蝶会陪你走完相遇、共谱与再演；原典不会被改写，最终留下什么由你决定。</p>
-          <button className="primary-action" type="button" onClick={() => setModalOpen(true)}>和栖蝶开始 <span aria-hidden="true">↗</span></button>
+          <button className="primary-action" type="button" onClick={openConsent}>和栖蝶开始 <span aria-hidden="true">↗</span></button>
         </div>
       </section>
 
       <footer className="landing-footer">
-        <p><strong>梦蝶记</strong><span>中国古典叙事与个人经历共谱</span></p>
+        <p><strong>梦蝶记</strong><span>中国古典神话传说与个人经历共谱</span></p>
         <p>成年用户文化叙事体验 · 非诊疗产品</p>
       </footer>
 
       {modalOpen && (
         <div className="consent-modal-backdrop" role="presentation" onMouseDown={(event) => {
-          if (event.target === event.currentTarget && !busy) setModalOpen(false);
+          if (event.target === event.currentTarget) closeConsent();
         }}>
-          <section className="consent-modal" role="dialog" aria-modal="true" aria-labelledby="consent-title" aria-describedby="consent-description">
-            <button ref={closeButtonRef} className="modal-close" type="button" aria-label="关闭确认弹窗" disabled={busy} onClick={() => setModalOpen(false)}>关闭</button>
+          <section ref={modalRef} className="consent-modal" role="dialog" aria-modal="true" aria-labelledby="consent-title" aria-describedby="consent-description consent-processing">
+            <button ref={closeButtonRef} className="modal-close" type="button" aria-label="关闭确认弹窗" disabled={busy} onClick={closeConsent}>关闭</button>
             <p className="section-label">进入前确认</p>
             <h2 id="consent-title">请先了解这次体验</h2>
-            <p id="consent-description">梦蝶记面向成年用户，是文化叙事体验而非诊疗。你输入的文字会发送到云端处理；故事库可能涉及死亡、身体伤害等敏感材料；本次会话可随时删除。</p>
+            <p id="consent-description">梦蝶记面向成年用户，是文化叙事体验而非诊疗。故事库可能涉及死亡、身体伤害等敏感材料；请不要填写姓名、联系方式、单位等可识别信息。</p>
+            <p id="consent-processing" className="consent-processing">启用模型服务时，对话与映照文字会交由深度求索处理；获批支线的分幕画面会交由阿里云处理。旁白目前由你的设备朗读。本应用仅在服务内存中暂存会话，最迟二十四小时自动清除；这不代表第三方服务的留存期限。结束页可立即删除本应用中的会话。</p>
             <label className="consent-row consent-bundle">
               <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} />
               <span><strong>我已年满十八岁，并理解和接受以上说明</strong></span>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 
 import type {
   BriefInputMode,
@@ -6,7 +6,9 @@ import type {
   ConversationTurnResponse,
   ExperienceBrief,
   SafetyStopRoute,
+  SourceReference,
   StoryCard,
+  StoryCoverImage,
   StoryOffer,
 } from "../types";
 import { getSafetyStopRoute } from "../lib/contracts";
@@ -33,9 +35,9 @@ const MAX_GUIDANCE_TURNS = 4;
 
 /** Shown while the confirmed summary is being turned into story cards. */
 const RETRIEVAL_STEPS = [
-  "确认摘要",
-  "在已审核语料中检索",
-  "核对出处与权利",
+  "确认你认可的摘要",
+  "在机器整理、未人工复核的开发语料中寻找候选",
+  "读取现有出处信息",
   "整理推荐理由",
 ] as const;
 
@@ -95,9 +97,68 @@ function responseFollowUpOptions(response: ConversationTurnResponse | null | und
   if (!Array.isArray(options)) return [];
   return [...new Set(options
     .filter((option): option is string => typeof option === "string")
-    .map((option) => option.trim())
+    .map(cleanFollowUpOption)
     .filter(Boolean))]
     .slice(0, 3);
+}
+
+function splitAlongOption(value: string): { cue: string; continuation: string } | null {
+  const match = value.match(/^沿着\s*[“‘"'](.+)[”’"']\s*[：:]\s*(.+)$/s);
+  if (!match) return null;
+  return { cue: match[1].trim(), continuation: match[2].trim() };
+}
+
+/** The API grounds a chip by prefixing it with a user cue. If an already
+ * grounded chip is later reused as that cue, keep the innermost cue and the
+ * newest continuation instead of showing “沿着「沿着…」”. */
+function cleanFollowUpOption(option: string): string {
+  const compact = option.replace(/\s+/g, " ").trim();
+  const outer = splitAlongOption(compact);
+  if (!outer) return compact.replace(/^(沿着\s*){2,}/, "沿着");
+
+  let cue = outer.cue;
+  let nested = false;
+  let inner = splitAlongOption(cue);
+  while (inner) {
+    nested = true;
+    cue = inner.cue;
+    inner = splitAlongOption(cue);
+  }
+  if (/^沿着(?:\s|[“‘"'])/.test(cue)) {
+    nested = true;
+    cue = cue.replace(/^沿着\s*[“‘"']?\s*/, "").replace(/[”’"']\s*$/, "");
+  }
+  return nested ? `沿着“${cue}”：${outer.continuation}` : compact;
+}
+
+function isMutableWikisourceReference(reference: SourceReference): boolean {
+  if (!reference.url) return false;
+  try {
+    const url = new URL(reference.url);
+    return /(^|\.)wikisource\.org$/i.test(url.hostname) && !url.searchParams.has("oldid");
+  } catch {
+    return /wikisource\.org/i.test(reference.url) && !/[?&]oldid=/i.test(reference.url);
+  }
+}
+
+function displayReferenceLabel(reference: SourceReference): string {
+  const label = toSimplifiedDisplay(formatSourceReference(reference));
+  return isMutableWikisourceReference(reference)
+    ? label.replace(/固定(?:修订|版本|快照)/g, "当前页面")
+    : label;
+}
+
+function displayRightsNotice(rights: string): string {
+  const notices: string[] = [];
+  if (/CC BY-SA 4\.0/i.test(rights)) {
+    notices.push("社区转录依“知识共享署名—相同方式共享 4.0”许可使用");
+  }
+  if (/page-image reuse requires separate review/i.test(rights)) {
+    notices.push("页面影像的再利用需另行确认");
+  } else if (/public-domain-believed/i.test(rights)) {
+    notices.push("古籍原文按推定公版材料处理");
+  }
+  return notices.length > 0 ? `${notices.join("；")}。` : toSimplifiedDisplay(rights);
 }
 
 function StorySource({ card }: { card: StoryCard }) {
@@ -165,6 +226,7 @@ function SafetyStopView({
 function StoryExplanation({
   card,
   coverUrl,
+  coverGenerationSource,
   busy,
   onClose,
   onConfirm,
@@ -172,6 +234,7 @@ function StoryExplanation({
 }: {
   card: StoryCard;
   coverUrl?: string | null;
+  coverGenerationSource?: string | null;
   busy: boolean;
   onClose: () => void;
   onConfirm: (card: StoryCard) => Promise<void>;
@@ -186,6 +249,7 @@ function StoryExplanation({
           family={card.illustrationKey ?? card.storyFamilyId}
           title={toSimplifiedDisplay(card.title)}
           imageUrl={coverUrl}
+          generationSource={coverGenerationSource}
           onImageError={onCoverError}
         />
       </div>
@@ -258,7 +322,10 @@ export function EncounterStage({
   const [turnBudget, setTurnBudget] = useState({ used: 0, total: MAX_GUIDANCE_TURNS });
   const [modelSummary, setModelSummary] = useState<string | null>(null);
   const [covers, setCovers] = useState<Record<string, string | null>>({});
+  const [coverSources, setCoverSources] = useState<Record<string, StoryCoverImage["generationSource"] | null>>({});
   const [coverStates, setCoverStates] = useState<Record<string, "loading" | "settled">>({});
+  const [conversationPending, setConversationPending] = useState(false);
+  const conversationRequestRef = useRef(false);
 
   useEffect(() => {
     // The brief created earlier in the same send only carries the user's own
@@ -283,6 +350,7 @@ export function EncounterStage({
   );
   const safetyStop = getSafetyStopRoute(brief);
   const userMessages = messages.filter((message) => message.role === "user");
+  const conversationBusy = busy || conversationPending;
 
   // Generated card headers belong to one offer.  Fetch them in sequence: three
   // simultaneous image requests can trip the provider's short burst limit,
@@ -292,6 +360,7 @@ export function EncounterStage({
     if (!sessionId || storyVersionIds.length === 0) return;
     let cancelled = false;
     setCovers({});
+    setCoverSources({});
     setCoverStates(Object.fromEntries(
       storyVersionIds.map((storyVersionId) => [storyVersionId, "loading"]),
     ) as Record<string, "loading" | "settled">);
@@ -303,6 +372,7 @@ export function EncounterStage({
           const cover = await createStoryCover(sessionId, storyVersionId);
           if (!cancelled && cover.status === "ready" && cover.imageUrl) {
             setCovers((current) => ({ ...current, [storyVersionId]: cover.imageUrl }));
+            setCoverSources((current) => ({ ...current, [storyVersionId]: cover.generationSource }));
           }
         } catch {
           // Keep the local drawing; a missing header must never block the offer.
@@ -318,53 +388,67 @@ export function EncounterStage({
 
   function dropCover(storyVersionId: string) {
     setCovers((current) => ({ ...current, [storyVersionId]: null }));
+    setCoverSources((current) => ({ ...current, [storyVersionId]: null }));
   }
 
   async function sendMessage() {
     const nextText = input.trim();
-    if (nextText.length < 4 || busy) return;
-    const nextUserMessages = [...userMessages.map((message) => message.text), nextText];
-    setMessages((current) => [...current, { id: `user-${Date.now()}`, role: "user", text: nextText }]);
-    setInput("");
-    setFollowUpOptions([]);
-    const aggregate = nextUserMessages.join("；").slice(0, 980);
-    const nextBrief = await onCreateBrief({ mode: "text", text: aggregate });
-    if (nextBrief && !getSafetyStopRoute(nextBrief)) {
-      const response = await onConversationReply?.(
-        nextText,
-        messages.map((message) => ({ role: message.role, text: message.text })),
-      );
-      const complete = response?.guidanceComplete === true
-        || nextUserMessages.length >= (response?.turnBudget ?? MAX_GUIDANCE_TURNS);
-      setGuidanceComplete(complete);
-      setTurnBudget({
-        used: response?.turnsUsed ?? nextUserMessages.length,
-        total: response?.turnBudget ?? MAX_GUIDANCE_TURNS,
-      });
-      const turnSummary = response?.summary?.trim();
-      if (complete && turnSummary) {
-        setModelSummary(turnSummary);
-        setSummary(turnSummary);
+    if (nextText.length < 4 || conversationRequestRef.current || conversationBusy) return;
+    conversationRequestRef.current = true;
+    setConversationPending(true);
+    try {
+      const nextUserMessages = [...userMessages.map((message) => message.text), nextText];
+      setMessages((current) => [...current, { id: `user-${Date.now()}`, role: "user", text: nextText }]);
+      setInput("");
+      setFollowUpOptions([]);
+      const aggregate = nextUserMessages.join("；").slice(0, 980);
+      const nextBrief = await onCreateBrief({ mode: "text", text: aggregate });
+      if (nextBrief && !getSafetyStopRoute(nextBrief)) {
+        const response = await onConversationReply?.(
+          nextText,
+          messages.map((message) => ({ role: message.role, text: message.text })),
+        );
+        const complete = response?.guidanceComplete === true
+          || nextUserMessages.length >= (response?.turnBudget ?? MAX_GUIDANCE_TURNS);
+        setGuidanceComplete(complete);
+        setTurnBudget({
+          used: response?.turnsUsed ?? nextUserMessages.length,
+          total: response?.turnBudget ?? MAX_GUIDANCE_TURNS,
+        });
+        const turnSummary = response?.summary?.trim();
+        if (complete && turnSummary) {
+          setModelSummary(turnSummary);
+          setSummary(turnSummary);
+        }
+        // Once guidance closes the assistant stops asking, so drop the
+        // follow-up prompts rather than inviting another round.
+        setFollowUpOptions(complete ? [] : responseFollowUpOptions(response));
+        const fallback = assistantFollowUp(nextUserMessages.length);
+        const acknowledgement = response?.acknowledgement?.trim() || fallback.acknowledgement;
+        const followUpQuestion = complete
+          ? ""
+          : response?.followUpQuestion?.trim() || fallback.followUpQuestion;
+        const reply = response?.reply?.trim()
+          || (followUpQuestion ? `${acknowledgement}\n\n${followUpQuestion}` : acknowledgement);
+        setMessages((current) => [...current, {
+          id: `assistant-${Date.now()}`,
+          role: "assistant",
+          text: reply,
+          acknowledgement: response ? response.acknowledgement?.trim() : acknowledgement,
+          followUpQuestion: complete ? undefined : (response ? response.followUpQuestion?.trim() : followUpQuestion),
+          source: response?.source,
+        }]);
       }
-      // Once guidance closes the assistant stops asking, so drop the
-      // follow-up prompts rather than inviting another round.
-      setFollowUpOptions(complete ? [] : responseFollowUpOptions(response));
-      const fallback = assistantFollowUp(nextUserMessages.length);
-      const acknowledgement = response?.acknowledgement?.trim() || fallback.acknowledgement;
-      const followUpQuestion = complete
-        ? ""
-        : response?.followUpQuestion?.trim() || fallback.followUpQuestion;
-      const reply = response?.reply?.trim()
-        || (followUpQuestion ? `${acknowledgement}\n\n${followUpQuestion}` : acknowledgement);
-      setMessages((current) => [...current, {
-        id: `assistant-${Date.now()}`,
-        role: "assistant",
-        text: reply,
-        acknowledgement: response ? response.acknowledgement?.trim() : acknowledgement,
-        followUpQuestion: complete ? undefined : (response ? response.followUpQuestion?.trim() : followUpQuestion),
-        source: response?.source,
-      }]);
+    } finally {
+      conversationRequestRef.current = false;
+      setConversationPending(false);
     }
+  }
+
+  function selectCardFromFace(event: MouseEvent<HTMLElement>, storyVersionId: string) {
+    const target = event.target;
+    if (target instanceof Element && target.closest("details, a, button")) return;
+    setSelectedId(storyVersionId);
   }
 
   if (safetyStop) return <SafetyStopView route={safetyStop} busy={busy} error={error} onExit={onExit} />;
@@ -382,7 +466,7 @@ export function EncounterStage({
         <section className="encounter-chat-layout" aria-labelledby="conversation-title">
           <div className="conversation-panel">
             <div className="conversation-toolbar"><div><QidieAvatar className="assistant-presence" /><div><h2 id="conversation-title">和栖蝶聊一段</h2><small>{allowPrivateText ? "可以自由对话，也可随时回改" : "当前使用结构化追问"}</small></div></div><span className="conversation-status">本次会话暂存</span></div>
-            <div className="chat-transcript" role="log" aria-live="polite" aria-label="与栖蝶的叙事对话">
+            <div className="chat-transcript" role="log" aria-live="polite" aria-busy={conversationBusy} aria-label="与栖蝶的叙事对话">
               {messages.map((message) => {
                 const completeAssistantTurn = message.role === "assistant"
                   && Boolean(message.acknowledgement)
@@ -399,35 +483,35 @@ export function EncounterStage({
                   </div>
                 );
               })}
-              {busy && <div className="chat-bubble chat-assistant chat-thinking"><span><QidieAvatar size={24} /> 栖蝶</span><p>正在整理这段线索…</p></div>}
+              {conversationBusy && <div className="chat-bubble chat-assistant chat-thinking" role="status"><span><QidieAvatar size={24} /> 栖蝶</span><p>正在回应，并整理这段线索…</p></div>}
             </div>
             {userMessages.length === 0 && (
               <div className="conversation-starters" aria-label="讲述这件事的句式起点">
                 <span>可以从一句话开始</span>
-                {STORY_STARTERS.map((starter) => <button key={starter.id} type="button" onClick={() => setInput(starter.label)}>{starter.label}</button>)}
+                {STORY_STARTERS.map((starter) => <button key={starter.id} type="button" disabled={conversationBusy} onClick={() => setInput(starter.label)}>{starter.label}</button>)}
               </div>
             )}
             {userMessages.length > 0 && followUpOptions.length > 0 && (
               <div className="conversation-starters" aria-label="栖蝶根据这件事给出的继续讲述方向">
                 <span>可以接着说</span>
-                {followUpOptions.map((option) => <button key={option} type="button" onClick={() => setInput(option)}>{option}</button>)}
+                {followUpOptions.map((option) => <button key={option} type="button" disabled={conversationBusy} onClick={() => setInput(option)}>{option}</button>)}
               </div>
             )}
             {guidanceComplete ? (
               <div className="conversation-closed" role="status">
-                <p><strong>这些已经够用了。</strong>右边的摘要可以直接改，确认后就去找故事。</p>
-                <button className="text-action" type="button" onClick={() => setGuidanceComplete(false)}>还想再补充一点</button>
+                <p><strong>这些已经够用了。</strong>这份摘要可以直接改，确认后就去找故事。</p>
+                <button className="text-action" type="button" disabled={conversationBusy} onClick={() => setGuidanceComplete(false)}>还想再补充一点</button>
               </div>
             ) : (
               <form className="chat-composer" onSubmit={(event) => { event.preventDefault(); void sendMessage(); }}>
                 <label htmlFor="story-chat-input" className="sr-only">回复栖蝶</label>
-                <textarea id="story-chat-input" rows={3} maxLength={320} value={input} disabled={busy} onChange={(event) => setInput(event.target.value)} placeholder="写下此刻愿意分享的部分；请不要填写姓名、联系方式或单位。" />
+                <textarea id="story-chat-input" rows={3} maxLength={320} value={input} disabled={conversationBusy} onChange={(event) => setInput(event.target.value)} placeholder="写下此刻愿意分享的部分；请不要填写姓名、联系方式或单位。" />
                 <div>
                   <small>
                     {input.length}/320 · 回车换行，点击发送
                     {turnBudget.used > 0 && ` · 已聊 ${turnBudget.used}/${turnBudget.total} 轮`}
                   </small>
-                  <button className="primary-action compact-action" type="submit" disabled={input.trim().length < 4 || busy}>发送</button>
+                  <button className="primary-action compact-action" type="submit" disabled={input.trim().length < 4 || conversationBusy}>{conversationPending ? "等待栖蝶回应…" : "发送"}</button>
                 </div>
               </form>
             )}
@@ -473,46 +557,52 @@ export function EncounterStage({
         <section className="story-offer redesigned-story-offer" aria-labelledby="offer-title">
           <div className="offer-heading"><div><p className="section-label">故事推荐</p><h2 id="offer-title">请选择一则想进一步了解的故事。</h2></div></div>
           {offer.exhausted && <p className="offer-boundary" role="status">这是本次可浏览范围的最后一批，每一则都是首次出现。</p>}
+          <fieldset className="story-card-fieldset">
+            <legend className="sr-only">选择一则想进一步了解的故事</legend>
           <div className="illustrated-story-grid">
             {preparedCards.map((card) => {
               const selected = card.storyVersionId === selectedId;
               const firstReference = card.sourceCanon.references[0];
+              const controlId = `story-choice-${card.storyVersionId}`;
+              const titleId = `${controlId}-title`;
+              const originId = `${controlId}-origin`;
+              const reasonId = `${controlId}-reason`;
               return (
                 <article
                   key={card.storyVersionId}
                   className={`illustrated-story-card story-card-tilt ${selected ? "selected" : ""}`}
+                  onClick={(event) => selectCardFromFace(event, card.storyVersionId)}
                 >
-                  {/* The whole card is the control: clicking it selects. The radio
-                      stays for keyboard and screen-reader users. */}
-                  <label className="story-card-choice">
-                    <input
-                      type="radio"
-                      name="story"
-                      checked={selected}
-                      onChange={() => setSelectedId(card.storyVersionId)}
-                    />
-                    <span className="sr-only">选择《{toSimplifiedDisplay(card.title)}》</span>
-                  </label>
-                  <button
-                    type="button"
-                    className="story-card-hit"
-                    aria-pressed={selected}
-                    aria-label={`选择《${toSimplifiedDisplay(card.title)}》`}
-                    onClick={() => setSelectedId(card.storyVersionId)}
+                  {/* One native radio owns selection and keyboard/AT semantics.
+                      The card face delegates pointer selection to it; source
+                      disclosures remain independent controls. */}
+                  <input
+                    id={controlId}
+                    className="story-card-radio"
+                    type="radio"
+                    name="story"
+                    checked={selected}
+                    aria-labelledby={titleId}
+                    aria-describedby={`${originId} ${reasonId}`}
+                    onChange={() => setSelectedId(card.storyVersionId)}
                   />
-                  <span className="story-card-selected-mark" aria-hidden="true">{selected ? "已选" : ""}</span>
+                  <span className="story-card-focus-ring" aria-hidden="true" />
+                  <span className="story-card-selected-mark" aria-hidden={!selected}>{selected ? "已选" : ""}</span>
                   <StoryIllustration
                     family={card.illustrationKey ?? card.storyFamilyId}
                     title={toSimplifiedDisplay(card.title)}
                     imageUrl={covers[card.storyVersionId]}
+                    generationSource={coverSources[card.storyVersionId]}
                     isLoading={coverStates[card.storyVersionId] === "loading"}
                     onImageError={() => dropCover(card.storyVersionId)}
                   />
                   <div className="illustrated-story-copy">
-                    <h3>{toSimplifiedDisplay(card.title)}</h3>
-                    <p className="story-card-origin"><span>原典出处</span><strong>{toSimplifiedDisplay(storySourceLabel(card))}</strong></p>
-                    <div className="recommendation-reason"><span>推荐理由</span><p>{toSimplifiedDisplay(storyRecommendationText(card))}</p></div>
-                    <details className="source-details story-card-source">
+                    <h3 id={titleId}>{toSimplifiedDisplay(card.title)}</h3>
+                    <p id={originId} className="story-card-origin"><span>原典出处</span><strong>{toSimplifiedDisplay(storySourceLabel(card))}</strong></p>
+                    <div id={reasonId} className="recommendation-reason"><span>推荐理由</span><p>{toSimplifiedDisplay(storyRecommendationText(card))}</p></div>
+                  </div>
+                  <div className="story-card-disclosure">
+                    <details className="source-details story-card-source" onClick={(event) => event.stopPropagation()}>
                       <summary>查看梗概与出处</summary>
                       <p className="story-card-summary">{toSimplifiedDisplay(card.summary)}</p>
                       {card.motifs.length > 0 && <ul className="motif-chips">{card.motifs.slice(0, 3).map((motif) => <li key={motif}>{toSimplifiedDisplay(motif)}</li>)}</ul>}
@@ -524,16 +614,25 @@ export function EncounterStage({
                       )}
                       {firstReference ? (
                         firstReference.url ? (
-                          <a href={firstReference.url} target="_blank" rel="noreferrer">{toSimplifiedDisplay(formatSourceReference(firstReference))}</a>
-                        ) : <small>{toSimplifiedDisplay(formatSourceReference(firstReference))}</small>
+                          <a href={firstReference.url} target="_blank" rel="noreferrer">{displayReferenceLabel(firstReference)}</a>
+                        ) : <small>{displayReferenceLabel(firstReference)}</small>
                       ) : null}
+                      <aside className="story-card-source-boundary" aria-label="来源边界">
+                        <strong>来源边界</strong>
+                        <p>本条来自机器切分的开发候选，人工复核待完成。</p>
+                        {firstReference?.rights && <p>{displayRightsNotice(firstReference.rights)}</p>}
+                        {firstReference && isMutableWikisourceReference(firstReference) && (
+                          <p>当前链接指向维基文库的可更新页面，不是带修订号的固定历史版本。</p>
+                        )}
+                      </aside>
                     </details>
                   </div>
                 </article>
               );
             })}
           </div>
-          <div className="offer-actions"><div><button className="secondary-action" type="button" disabled={busy || Boolean(offer.exhausted)} onClick={() => void onRefresh()}>换一批</button><button className="text-action" type="button" disabled={busy} onClick={() => void onRejectAll()}>都不合适</button></div><button className="primary-action compact-action" type="button" disabled={!selectedCard || busy} onClick={() => selectedCard && setDetailCard(selectedCard)}>查看选中故事 <span aria-hidden="true">→</span></button></div>
+          </fieldset>
+          <div className="offer-actions"><button className="primary-action compact-action" type="button" disabled={!selectedCard || busy} onClick={() => selectedCard && setDetailCard(selectedCard)}>查看选中故事 <span aria-hidden="true">→</span></button><div><button className="secondary-action" type="button" disabled={busy || Boolean(offer.exhausted)} onClick={() => void onRefresh()}>换一批</button><button className="text-action" type="button" disabled={busy} onClick={() => void onRejectAll()}>都不合适</button></div></div>
         </section>
       )}
 
@@ -541,6 +640,7 @@ export function EncounterStage({
         <StoryExplanation
           card={detailCard}
           coverUrl={covers[detailCard.storyVersionId]}
+          coverGenerationSource={coverSources[detailCard.storyVersionId]}
           busy={busy}
           onClose={() => setDetailCard(null)}
           onConfirm={onSelect}

@@ -313,6 +313,8 @@ export interface TheatreSceneImage {
   altText: string;
   message: string | null;
   retryable: boolean;
+  generationSource?: "aliyun_image_model" | "local_stage_fallback" | string;
+  fallbackReason?: string | null;
   createdAt?: string;
 }
 
@@ -324,6 +326,8 @@ export interface StoryCoverImage {
   altText: string;
   message: string | null;
   retryable: boolean;
+  generationSource?: "aliyun_image_model" | "local_card_fallback" | string;
+  fallbackReason?: string | null;
   createdAt?: string;
 }
 

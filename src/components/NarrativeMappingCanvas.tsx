@@ -57,7 +57,9 @@ export function NarrativeMappingCanvas({
   activeNodeId,
   disabled,
   suggestingNode,
+  reviewedNodeIds,
   onActivate,
+  onReview,
   onChange,
   onMoveContent,
   onRequestSuggestion,
@@ -68,7 +70,9 @@ export function NarrativeMappingCanvas({
   activeNodeId: BranchNodeId;
   disabled: boolean;
   suggestingNode: BranchNodeId | null;
+  reviewedNodeIds: ReadonlySet<BranchNodeId>;
   onActivate: (nodeId: BranchNodeId) => void;
+  onReview: (nodeId: BranchNodeId) => void;
   onChange: (nodeId: BranchNodeId, patch: Partial<BranchNodeDraft>) => void;
   onMoveContent: (nodeId: BranchNodeId, delta: -1 | 1) => void;
   onRequestSuggestion: (nodeId: BranchNodeId) => void;
@@ -81,17 +85,18 @@ export function NarrativeMappingCanvas({
       <header className="mapping-canvas__header">
         <div>
           <p className="section-label">映照初稿</p>
-          <h2 id="mapping-canvas-title">故事与经历的五处映照</h2>
+          <h2 id="mapping-canvas-title">原典情节与你经历的五处映照</h2>
+          <p>五处都有初稿；展开即算看过，只需修改不准确的部分。</p>
         </div>
         <div className="mapping-canvas__legend" aria-label="画布图例">
           <span><i className="legend-source" />古籍依据</span>
           <span><i className="legend-branch" />你的经历</span>
-          <span><i className="legend-gap" />需要校对</span>
+          <span><i className="legend-gap" />内容待补</span>
         </div>
       </header>
 
       <div className="mapping-canvas__lane-heads" aria-hidden="true">
-        <div><strong>古籍故事</strong><span>只读 · {toSimplifiedDisplay(story.sourceCanon.sourceTitle)}</span></div>
+        <div><strong>原典情节</strong><span>只读 · {toSimplifiedDisplay(story.sourceCanon.sourceTitle)}</span></div>
         <span />
         <div><strong>你的经历</strong><span>可编辑 · 由你确认</span></div>
       </div>
@@ -102,12 +107,13 @@ export function NarrativeMappingCanvas({
           if (!node) return null;
           const state = nodeState(node);
           const isActive = activeNodeId === node.id;
+          const isReviewed = reviewedNodeIds.has(node.id);
           const editorId = `mapping-node-${node.id}`;
 
           return (
             <li
               key={node.id}
-              className={`mapping-pair mapping-pair--${state}${isActive ? " is-active" : ""}`}
+              className={`mapping-pair mapping-pair--${state}${isActive ? " is-active" : ""}${isReviewed ? " is-reviewed" : ""}`}
               data-node-id={node.id}
             >
               <article className="mapping-source-node" aria-label={`${beat.label}，原典只读节点`}>
@@ -141,11 +147,16 @@ export function NarrativeMappingCanvas({
                   >
                     <strong>{node.title}</strong>
                   </button>
-                  {state !== "mapped" && (
-                    <span className={`mapping-state mapping-state--${state}`}>
-                      {state === "not_applicable" ? "不适用" : "待补"}
+                  <span className="mapping-node__states">
+                    {state !== "mapped" && (
+                      <span className={`mapping-state mapping-state--${state}`}>
+                        {state === "not_applicable" ? "不适用" : "内容待补"}
+                      </span>
+                    )}
+                    <span className={`mapping-review-state${isReviewed ? " is-reviewed" : ""}`}>
+                      {isReviewed ? "已看过" : "初稿待确认"}
                     </span>
-                  )}
+                  </span>
                 </header>
 
                 {!isActive && (
@@ -173,7 +184,7 @@ export function NarrativeMappingCanvas({
                     />
                   </label>
                   <div className="mapping-user-node__counter">
-                    {node.expressionOrigin === "model_edited" && <span>栖蝶起草，待你确认</span>}
+                    {node.expressionOrigin === "model_edited" && <span>{isReviewed ? "栖蝶起草，你已看过" : "栖蝶起草，待你确认"}</span>}
                     <span>{node.value.length}/360</span>
                   </div>
 
@@ -193,6 +204,13 @@ export function NarrativeMappingCanvas({
                   )}
 
                   <footer className="mapping-user-node__tools">
+                    <button
+                      type="button"
+                      disabled={disabled || isReviewed}
+                      onClick={() => onReview(node.id)}
+                    >
+                      {isReviewed ? "这处已看过" : "这处没问题"}
+                    </button>
                     <button
                       type="button"
                       disabled={disabled || suggestingNode !== null}

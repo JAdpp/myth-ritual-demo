@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getHealth, requestNodeSuggestions } from "./api";
+import { createExperienceBrief, getHealth, requestNodeSuggestions } from "./api";
 import type { UserBranchVersion } from "./types";
 
 afterEach(() => {
@@ -58,5 +58,34 @@ describe("branch assistant contract", () => {
       message: "画布已经更新，请刷新后再试。",
       code: "branch_version_conflict",
     });
+  });
+});
+
+describe("write request reliability", () => {
+  it("reuses an idempotency key after a connection failure, then rotates it after success", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("connection reset"))
+      .mockResolvedValue(new Response(JSON.stringify({ id: "brief-1" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const submit = () => createExperienceBrief("session-1", {
+      mode: "text",
+      text: "我接下任务后有些不安。",
+    });
+
+    await expect(submit()).rejects.toMatchObject({ code: "API_UNAVAILABLE" });
+    await submit();
+    await submit();
+
+    const requestHeaders = fetchMock.mock.calls.map(([, init]) => (
+      init?.headers as Record<string, string>
+    ));
+    expect(requestHeaders[0]["Idempotency-Key"]).toBeTruthy();
+    expect(requestHeaders[1]["Idempotency-Key"]).toBe(requestHeaders[0]["Idempotency-Key"]);
+    expect(requestHeaders[2]["Idempotency-Key"]).not.toBe(requestHeaders[1]["Idempotency-Key"]);
   });
 });

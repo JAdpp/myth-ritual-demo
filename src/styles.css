@@ -2052,8 +2052,8 @@ input:disabled {
 
 .act-switcher button {
   display: inline-grid;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   color: var(--ink-soft);
   border: 1px solid var(--edge);
@@ -2129,6 +2129,14 @@ input:disabled {
 .final-line-field {
   display: grid;
   gap: 0.7rem;
+}
+
+.final-line-sync-note {
+  margin: -0.15rem 0 0;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: var(--step--2);
+  line-height: var(--lh-tight);
 }
 
 .gesture-options {

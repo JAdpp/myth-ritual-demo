@@ -21,6 +21,68 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 
+_GENERIC_RETRIEVAL_TERMS = frozenset(
+    {
+        "事情",
+        "故事",
+        "生活",
+        "最近",
+        "工作",
+        "关系",
+        "变化",
+        "改变",
+        "选择",
+        "决定",
+        "行动",
+        "责任",
+        "自己",
+        "希望",
+        "困难",
+        "压力",
+    }
+)
+_BANNED_RECOMMENDATION_FILLER = (
+    "来源片段含",
+    "来源片段中有",
+    "相关性弱",
+    "可作为比较材料",
+    "提供了可比较的线索",
+)
+
+
+def _specific_retrieval_term(value: object) -> str | None:
+    term = re.sub(r"\s+", "", str(value or "")).strip("，。！？；：、,.!?;:()（）")
+    if not 3 <= len(term) <= 12 or term in _GENERIC_RETRIEVAL_TERMS:
+        return None
+    remainder = term
+    for generic in sorted(_GENERIC_RETRIEVAL_TERMS, key=len, reverse=True):
+        remainder = remainder.replace(generic, "")
+    return term if remainder else None
+
+
+def _clean_generated_chinese(value: object) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    while "《《" in text or "》》" in text:
+        text = text.replace("《《", "《").replace("》》", "》")
+    text = re.sub(r"([。！？；，、])\1+", r"\1", text)
+    return text
+
+
+def _is_structured_mapping_value(value: str) -> bool:
+    return (
+        24 <= len(value) <= 800
+        and all(label in value for label in ("现实线索：", "原典线索：", "映照差异："))
+        and not any(
+            filler in value
+            for filler in (
+                "可把现实中的人",
+                "这仍由用户修改确认",
+                "选择下一步能够承受的行动",
+            )
+        )
+    )
+
+
 class ModelUnavailable(RuntimeError):
     """Raised when live model generation is not enabled for this build."""
 
@@ -124,7 +186,9 @@ class DeepSeekAdapter:
             system_prompt=(
                 "你是中国古典叙事检索规划器。只把用户已确认的生活摘要转换为检索主题，"
                 "不得诊断人格、预测结局或补写用户经历。检索词必须是3至12个汉字、适合在繁体古文全文中检索的具体短语，"
-                "必须返回4至8个非空检索词；即使不确定，也要把摘要中的变化、关系、行动或愿望改写为可检索短语，不能返回空数组。"
+                "必须提取摘要中已经出现的具体事件、关系动作、冲突或物件；"
+                "工作、关系、变化、选择、决定、行动、责任等宽泛标签不得单独作为检索词，也不得为了凑数臆造细节。"
+                "返回2至8个非空检索词；摘要没有足够具体信息时可以返回空数组。"
                 "每个核心概念尽量同时给出简体和繁体等价词，作为terms中的两个独立字符串，"
                 "以便跨字形召回；主题标签只用简体中文且最多4个。"
                 "例如摘要涉及进入新环境和关系边界时，可返回："
@@ -136,8 +200,8 @@ class DeepSeekAdapter:
         )
         terms: list[str] = []
         for value in parsed.get("terms", []):
-            term = str(value).strip()
-            if 3 <= len(term) <= 12 and term not in terms:
+            term = _specific_retrieval_term(value)
+            if term and term not in terms:
                 terms.append(term)
             if len(terms) >= 8:
                 break
@@ -174,14 +238,19 @@ class DeepSeekAdapter:
                     "sourceTitle": str(item.get("sourceTitle") or "")[:120],
                     "locator": str(item.get("locator") or "")[:160],
                     "excerpt": str(item.get("excerpt") or "")[:500],
+                    "storySummary": str(item.get("storySummary") or "")[:360],
+                    "conflict": str(item.get("conflict") or "")[:240],
                 }
             )
         parsed = self._complete_json(
             system_prompt=(
                 "你是可解释的中国古典神话传说推荐重排器。只能依据用户确认摘要和给定的有出处候选，"
                 "不得引入候选之外的故事事实，不得诊断、说教或声称人格匹配。按相关性返回候选ID、0到1分数、"
-                "每个输入候选必须恰好返回一次，"
-                "不超过120字的逐卡理由和一个不超过20字的故事线索；理由和故事线索只用简体中文，"
+                "每个输入候选必须恰好返回一次；只有宽泛主题相似时分数必须低于0.55。"
+                "每条理由必须依次包含‘用户线索：’‘原典情节：’‘关键差异：’三部分，"
+                "分别引用用户摘要中的具体内容、候选中给出的具体情节，并说明两者不可等同之处；"
+                "不得使用‘来源片段含相关线索’‘可作为比较材料’等填充话。"
+                "理由不超过160字，故事线索不超过20字；理由和故事线索只用简体中文，"
                 "引用的原始繁体证据不得改写。返回JSON："
                 "{\"rankings\":[{\"storyVersionId\":\"...\",\"score\":0.8,"
                 "\"reason\":\"...\",\"storySignal\":\"...\"}]}。"
@@ -198,8 +267,8 @@ class DeepSeekAdapter:
             if not isinstance(item, dict):
                 continue
             story_id = str(item.get("storyVersionId") or "").strip()
-            reason = str(item.get("reason") or "").strip()
-            signal = str(item.get("storySignal") or "").strip()
+            reason = _clean_generated_chinese(item.get("reason"))
+            signal = _clean_generated_chinese(item.get("storySignal"))
             try:
                 score = float(item.get("score"))
             except (TypeError, ValueError):
@@ -212,6 +281,11 @@ class DeepSeekAdapter:
                 or len(reason) > 160
                 or not signal
                 or len(signal) > 30
+                or not all(
+                    label in reason
+                    for label in ("用户线索：", "原典情节：", "关键差异：")
+                )
+                or any(filler in reason for filler in _BANNED_RECOMMENDATION_FILLER)
             ):
                 continue
             seen.add(story_id)
@@ -253,6 +327,10 @@ class DeepSeekAdapter:
                 or ""
             )[:600],
             "motifs": [str(value)[:80] for value in source_canon.get("motifs", [])[:8]],
+            "characters": [
+                str(value)[:80] for value in source_canon.get("characters", [])[:8]
+            ],
+            "conflict": str(source_canon.get("conflict") or "")[:360],
         }
         node_ids = [
             "world_crack",
@@ -265,7 +343,10 @@ class DeepSeekAdapter:
             system_prompt=(
                 "你是叙事映照画布助手。根据用户确认摘要与固定来源故事，生成完整但可编辑的五节点映射初稿。"
                 "必须区分原典与用户处境，不得把推测写成用户事实，不得诊断或给治疗建议。"
-                "所有value和hopeAnchor只用简体中文；每个value为1至3句、具体且中性。"
+                "所有value和hopeAnchor只用简体中文。每个value必须由三段组成："
+                "‘现实线索：’引用摘要中已确认的具体事件；‘原典线索：’写明给定故事的具体人物与行动；"
+                "‘映照差异：’说明两者在处境、行动或结局上的关键不同。不得整段复制摘要，不得写通用模板。"
+                "每个value为1至3句、具体且中性，不得出现重复句号或双重书名号。"
                 "严格使用给定五个nodeId各一次。返回JSON："
                 "{\"nodes\":[{\"nodeId\":\"...\",\"value\":\"...\"}],"
                 "\"hopeAnchor\":{\"type\":\"action|relationship|meaning|open\",\"detail\":\"...\"}}。"
@@ -282,8 +363,12 @@ class DeepSeekAdapter:
             if not isinstance(item, dict):
                 continue
             node_id = str(item.get("nodeId") or "")
-            value = str(item.get("value") or "").strip()
-            if node_id in node_ids and node_id not in by_id and 1 <= len(value) <= 800:
+            value = _clean_generated_chinese(item.get("value"))
+            if (
+                node_id in node_ids
+                and node_id not in by_id
+                and _is_structured_mapping_value(value)
+            ):
                 by_id[node_id] = value
         if set(by_id) != set(node_ids):
             raise ModelUnavailable("DeepSeek returned an incomplete mapping draft")
@@ -326,7 +411,9 @@ class DeepSeekAdapter:
         parsed = self._complete_json(
             system_prompt=(
                 "你是映照画布编辑助手。根据用户的自然语言修改要求，只返回确实需要变动的节点。"
-                "保留用户原意，区分原典与现代映照，不得诊断或替用户做决定；value和rationale只用简体中文。返回JSON："
+                "先识别用户点名的节点；不得擅自改动其他节点。value必须是可以直接替换该节点的具体预览，"
+                "并继续区分现实线索、原典线索与映照差异；rationale要复述这次明确修改了什么。"
+                "保留用户原意，不得诊断或替用户做决定；value和rationale只用简体中文。返回JSON："
                 "{\"nodeUpdates\":[{\"nodeId\":\"...\",\"value\":\"...\",\"rationale\":\"...\"}]}。"
             ),
             user_payload={
@@ -365,13 +452,13 @@ class DeepSeekAdapter:
             if not isinstance(item, dict):
                 continue
             node_id = str(item.get("nodeId") or "")
-            value = str(item.get("value") or "").strip()
-            rationale = str(item.get("rationale") or "").strip()
+            value = _clean_generated_chinese(item.get("value"))
+            rationale = _clean_generated_chinese(item.get("rationale"))
             if (
                 node_id in allowed_ids
                 and node_id not in seen
-                and 1 <= len(value) <= 800
-                and len(rationale) <= 160
+                and _is_structured_mapping_value(value)
+                and 4 <= len(rationale) <= 160
             ):
                 seen.add(node_id)
                 updates.append(
@@ -499,6 +586,9 @@ class DeepSeekAdapter:
                         "所有回复只用简体中文，并采用清楚的两拍式回应。"
                         "第一拍 acknowledgement 要先共情、再承接，让用户觉得被听见，"
                         "而不是把原话换个说法复述一遍或干巴巴地总结信息。"
+                        "如果用户同时说了事件和自己最在意的顾虑、矛盾或边界，必须点出后者，"
+                        "不能只截取句子开头的事件；例如‘主动接下任务，却担心责任全落自己身上’，"
+                        "应承接‘想帮忙与怕责任失去边界同时存在’，而不是只复述‘接下任务’。"
                         "先用一句体贴的话回应这件事里对用户不容易、费力或要紧的地方，"
                         "再落到用户最新提到的具体事件、行动、关系或变化上。"
                         "共情要有分寸：只回应用户已经说出或明显流露的处境与心情，"
@@ -508,7 +598,8 @@ class DeepSeekAdapter:
                         "不得夸奖用户，不得臆测用户没有说出的原因与动机。"
                         "它不得包含问号。"
                         "第二拍 followUpQuestion 只问一个具体、开放、可跳过的问题，"
-                        "自然延续最新细节，不得连续抛出多个问题，也不得像问卷一样切换主题。"
+                        "自然延续最新细节；优先追问用户尚未展开的顾虑、情绪、责任边界或关系张力，"
+                        "不要泛问‘接下来发生了什么’。不得连续抛出多个问题，也不得像问卷一样切换主题。"
                         "同时给出2至3条可点击的下一步回答方向；每条都必须复用用户最新消息中的"
                         "具体行动、关系、地点或变化线索，不得返回固定主题菜单，不得替用户补造事实。"
                         "每条都写成用户能直接说出口的陈述句，而不是问句，"

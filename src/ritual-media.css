@@ -190,7 +190,7 @@
 
 .scene-image-status button {
   flex: 0 0 auto;
-  min-height: 32px;
+  min-height: 44px;
   padding: 0.25rem 0.6rem;
   color: #fff8ea;
   border: 1px solid rgba(255, 248, 234, 0.58);
@@ -224,6 +224,11 @@
 
 .scene-image-ready {
   opacity: 0.82;
+}
+
+.scene-image-status strong {
+  color: #fff8ea;
+  font-weight: 650;
 }
 
 .turning-moon {
@@ -409,6 +414,7 @@
 }
 
 .theatre-player-with-media .theatre-controls > div:last-child button {
+  min-height: 44px;
   border-color: rgba(62, 91, 84, 0.28);
   border-radius: 12px;
   background: rgba(249, 250, 247, 0.7);
@@ -509,7 +515,7 @@
 }
 
 .media-control-row button {
-  min-height: 38px;
+  min-height: 44px;
   padding: 0.48rem 0.78rem;
   color: var(--ink);
   border: 1px solid rgba(67, 94, 87, 0.28);
@@ -779,6 +785,7 @@
 .recap-row:last-child { padding-bottom: 0; border-bottom: 0; }
 
 .recap-art {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -790,6 +797,19 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+}
+
+.recap-image-origin {
+  position: absolute;
+  right: 0.45rem;
+  bottom: 0.45rem;
+  padding: 0.28rem 0.5rem;
+  color: #fff8ea;
+  border-radius: 999px;
+  background: rgb(24 46 41 / 72%);
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  backdrop-filter: blur(8px);
 }
 
 .recap-art-empty {
