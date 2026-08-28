@@ -519,8 +519,8 @@ export function ConsentScreen({
           ) : null}
         </div>
         <div className="corpus-shelf-wrap">
-          <h3 className="shelf-title">十二则熟悉故事</h3>
-          <div className="corpus-story-grid" aria-label="十二则熟悉故事的卡牌封面">
+          <h3 className="shelf-title">生成卡面预览</h3>
+          <div className="corpus-story-grid" aria-label="生成卡面预览">
             {familyCards.map((card) => (
               <article className="corpus-story-card" key={card.title}>
                 <img src={card.cover} alt={`《${card.title}》白描封面`} loading="lazy" decoding="async" />

@@ -325,6 +325,9 @@ describe("landing and conversational encounter", () => {
     expect(container.textContent).not.toContain("30 则重点整理主文本");
     expect(container.querySelectorAll(".corpus-story-card")).toHaveLength(12);
     expect(container.querySelectorAll(".corpus-story-card img")).toHaveLength(12);
+    expect(container.textContent).toContain("生成卡面预览");
+    expect(container.textContent).not.toContain("十二则熟悉故事");
+    expect(container.querySelector(".corpus-story-grid")?.getAttribute("aria-label")).toBe("生成卡面预览");
     expect(container.textContent).not.toContain("z-image");
     expect(container.textContent).not.toContain("DeepSeek");
     expect(container.textContent).not.toContain("SQLite");
