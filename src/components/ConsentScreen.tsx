@@ -121,6 +121,63 @@ const MAPPING_NODES = [
 
 const THEATRE_ACTS = ["接住火种", "光线成结", "把结摊开", "众人分线", "织成共图", "各执一端"] as const;
 
+const HERO_STORY_WORDS = [
+  { text: "神话", tone: "myth" },
+  { text: "传奇", tone: "legend" },
+  { text: "志怪", tone: "strange" },
+  { text: "小说", tone: "fiction" },
+] as const;
+
+function useHeroStoryWord() {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [visibleCharacters, setVisibleCharacters] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const currentWord = HERO_STORY_WORDS[wordIndex];
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return undefined;
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncPreference = () => setReducedMotion(preference.matches);
+    syncPreference();
+    preference.addEventListener?.("change", syncPreference);
+    return () => preference.removeEventListener?.("change", syncPreference);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      if (wordIndex !== 0) setWordIndex(0);
+      if (visibleCharacters !== HERO_STORY_WORDS[0].text.length) {
+        setVisibleCharacters(HERO_STORY_WORDS[0].text.length);
+      }
+      if (deleting) setDeleting(false);
+      return undefined;
+    }
+
+    let delay = deleting ? 140 : 210;
+    let nextStep = () => setVisibleCharacters((count) => count + (deleting ? -1 : 1));
+
+    if (!deleting && visibleCharacters === currentWord.text.length) {
+      delay = 1_300;
+      nextStep = () => setDeleting(true);
+    } else if (deleting && visibleCharacters === 0) {
+      delay = 280;
+      nextStep = () => {
+        setWordIndex((index) => (index + 1) % HERO_STORY_WORDS.length);
+        setDeleting(false);
+      };
+    }
+
+    const timer = window.setTimeout(nextStep, delay);
+    return () => window.clearTimeout(timer);
+  }, [currentWord.text.length, deleting, reducedMotion, visibleCharacters, wordIndex]);
+
+  return {
+    text: currentWord.text.slice(0, visibleCharacters),
+    tone: currentWord.tone,
+  };
+}
+
 export function ConsentScreen({
   busy,
   error,
@@ -135,6 +192,7 @@ export function ConsentScreen({
   const [modalOpen, setModalOpen] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [activeCaseId, setActiveCaseId] = useState<(typeof DEMO_CASES)[number]["id"]>(DEMO_CASES[0].id);
+  const heroStoryWord = useHeroStoryWord();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -262,8 +320,10 @@ export function ConsentScreen({
         <div className="landing-hero-copy">
           <p className="hero-edition"><span>中国古典神话传说</span><i aria-hidden="true" /><span>个人经历</span><i aria-hidden="true" /><span>共同续写</span></p>
           <p className="hero-wordmark">梦蝶记</p>
-          <h1 id="welcome-title">
-            <span>中国古典神话传说，</span>
+          <h1 id="welcome-title" aria-label="中国古典神话、传奇、志怪与小说，在你的此刻生出一条新支线。">
+            <span aria-hidden="true">
+              中国古典<span className={`hero-word-slot is-${heroStoryWord.tone}`}><span className="hero-rotating-word">{heroStoryWord.text}</span><i className="hero-type-caret" /></span>，
+            </span>
             <br /><em>在你的此刻<br /><span className="hero-branch-line">生出一条新支线</span></em>
           </h1>
           <p className="welcome-lead">

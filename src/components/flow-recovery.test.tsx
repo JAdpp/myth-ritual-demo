@@ -196,41 +196,74 @@ describe("front-end recovery and safety states", () => {
 });
 
 describe("landing and conversational encounter", () => {
-  it("renders a static Chinese hero heading without rotating category fragments", () => {
-    render(<ConsentScreen busy={false} error={null} health={null} onBegin={noop} />);
-
-    const heading = container.querySelector<HTMLHeadingElement>("#welcome-title");
-    expect(heading?.textContent).toContain("中国古典神话传说");
-    expect(heading?.textContent).toContain("在你的此刻生出一条新支线");
-    expect(container.querySelector(".hero-word-slot")).toBeNull();
-    expect(container.querySelector(".hero-rotating-word")).toBeNull();
-  });
-
-  it("keeps the static hero intact when reduced motion is requested", () => {
-    const originalMatchMedia = window.matchMedia;
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      value: vi.fn(() => ({
-        matches: true,
-        media: "(prefers-reduced-motion: reduce)",
-        onchange: null,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      })),
-    });
+  it("types, holds, and deletes all four story categories without changing the accessible heading", () => {
+    vi.useFakeTimers();
     try {
       render(<ConsentScreen busy={false} error={null} health={null} onBegin={noop} />);
-      expect(container.querySelector("#welcome-title")?.textContent).toContain("中国古典神话传说");
-      expect(container.querySelector(".hero-rotating-word")).toBeNull();
-    } finally {
-      if (typeof originalMatchMedia === "function") {
-        Object.defineProperty(window, "matchMedia", { configurable: true, value: originalMatchMedia });
-      } else {
-        Reflect.deleteProperty(window, "matchMedia");
+
+      const heading = container.querySelector<HTMLHeadingElement>("#welcome-title");
+      const slot = container.querySelector<HTMLElement>(".hero-word-slot");
+      const word = container.querySelector<HTMLElement>(".hero-rotating-word");
+      const accessibleHeading = "中国古典神话、传奇、志怪与小说，在你的此刻生出一条新支线。";
+      const sequence = [
+        { text: "神话", first: "神", tone: "myth", nextTone: "legend" },
+        { text: "传奇", first: "传", tone: "legend", nextTone: "strange" },
+        { text: "志怪", first: "志", tone: "strange", nextTone: "fiction" },
+        { text: "小说", first: "小", tone: "fiction", nextTone: "myth" },
+      ] as const;
+
+      expect(heading?.getAttribute("aria-label")).toBe(accessibleHeading);
+      expect(heading?.firstElementChild?.getAttribute("aria-hidden")).toBe("true");
+      expect(word?.textContent).toBe("");
+
+      for (const item of sequence) {
+        expect(slot?.classList.contains(`is-${item.tone}`)).toBe(true);
+        act(() => vi.advanceTimersByTime(210));
+        expect(word?.textContent).toBe(item.first);
+        act(() => vi.advanceTimersByTime(210));
+        expect(word?.textContent).toBe(item.text);
+        act(() => vi.advanceTimersByTime(1_300));
+        expect(word?.textContent).toBe(item.text);
+        act(() => vi.advanceTimersByTime(140));
+        expect(word?.textContent).toBe(item.first);
+        act(() => vi.advanceTimersByTime(140));
+        expect(word?.textContent).toBe("");
+        act(() => vi.advanceTimersByTime(280));
+        expect(slot?.classList.contains(`is-${item.nextTone}`)).toBe(true);
+        expect(heading?.getAttribute("aria-label")).toBe(accessibleHeading);
       }
+    } finally {
+      vi.clearAllTimers();
+      vi.useRealTimers();
+    }
+  });
+
+  it("keeps the full myth label static when reduced motion is requested", () => {
+    vi.stubGlobal("matchMedia", vi.fn((query: string) => ({
+      matches: query === "(prefers-reduced-motion: reduce)",
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })));
+    vi.useFakeTimers();
+    try {
+      render(<ConsentScreen busy={false} error={null} health={null} onBegin={noop} />);
+      const slot = container.querySelector<HTMLElement>(".hero-word-slot");
+      const word = container.querySelector<HTMLElement>(".hero-rotating-word");
+      expect(container.querySelector("#welcome-title")?.getAttribute("aria-label")).toBe(
+        "中国古典神话、传奇、志怪与小说，在你的此刻生出一条新支线。",
+      );
+      expect(slot?.classList.contains("is-myth")).toBe(true);
+      expect(word?.textContent).toBe("神话");
+      act(() => vi.advanceTimersByTime(10_000));
+      expect(word?.textContent).toBe("神话");
+    } finally {
+      vi.clearAllTimers();
+      vi.useRealTimers();
     }
   });
 
