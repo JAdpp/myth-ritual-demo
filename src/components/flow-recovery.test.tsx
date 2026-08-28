@@ -1,3 +1,4 @@
+import { existsSync, statSync } from "node:fs";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -231,6 +232,22 @@ describe("landing and conversational encounter", () => {
         Reflect.deleteProperty(window, "matchMedia");
       }
     }
+  });
+
+  it("shows a real five-act lianhuanhua example instead of an empty theatre", () => {
+    render(<ConsentScreen busy={false} error={null} health={null} onBegin={noop} />);
+
+    const image = container.querySelector<HTMLImageElement>(".theatre-spread-image");
+    expect(image?.getAttribute("src")).toBe("/assets/landing/theatre-dayu-five-act-v1.webp");
+    expect(image?.getAttribute("alt")).toContain("五幕连环画示例");
+    const assetPath = "public/assets/landing/theatre-dayu-five-act-v1.webp";
+    expect(existsSync(assetPath)).toBe(true);
+    expect(statSync(assetPath).size).toBeGreaterThan(100_000);
+    expect(container.querySelectorAll(".theatre-act-strip li")).toHaveLength(5);
+    expect(container.querySelector('.theatre-act-strip [aria-current="step"]')?.textContent).toContain("沿山寻水");
+    expect(container.textContent).toContain("示例连环画 · AI 生成");
+    expect(container.textContent).toContain("实际体验会根据你确认的支线生成 4–7 幕画面与旁白");
+    expect(container.querySelector(".theatre-curtain")).toBeNull();
   });
 
   it("keeps consent in an entry-triggered modal and renders the live corpus overview", async () => {

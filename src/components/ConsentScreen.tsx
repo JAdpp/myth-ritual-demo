@@ -119,6 +119,8 @@ const MAPPING_NODES = [
   { label: "归返", canon: "百川归海", branch: "承担，但不独自扛下所有" },
 ] as const;
 
+const THEATRE_ACTS = ["独自筑堤", "停下看图", "沿山寻水", "一起开渠", "水归开处"] as const;
+
 export function ConsentScreen({
   busy,
   error,
@@ -436,22 +438,35 @@ export function ConsentScreen({
           <figure className="showcase-theatre">
             <figcaption>
               <span className="section-label">再演 · 剧场</span>
-              <h3>幕布拉开，逐幕演出</h3>
+              <h3>五幕连环画，沿选择展开</h3>
             </figcaption>
             <div className="theatre-frame" aria-label="再演剧场示意">
-              <span className="theatre-curtain theatre-curtain-left" aria-hidden="true" />
-              <span className="theatre-curtain theatre-curtain-right" aria-hidden="true" />
+              <div className="theatre-artwork">
+                <img
+                  className="theatre-spread-image"
+                  src="/assets/landing/theatre-dayu-five-act-v1.webp"
+                  alt="五幕连环画示例：一人从独自加高堤坝，到停下看图、沿山寻水、与人开渠，最后让水流向开阔河谷。"
+                  width="1672"
+                  height="941"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span className="theatre-generation-note">示例连环画 · AI 生成</span>
+              </div>
               <div className="theatre-stage">
                 <span className="theatre-act">第 3 幕 · 重新选择方法</span>
                 <p>他没有继续加高堤坝，而是走遍山川，寻找水本来要去的地方。</p>
               </div>
-              <div className="theatre-controls" aria-hidden="true">
-                {[1, 2, 3, 4, 5].map((act) => (
-                  <span key={act} className={act === 3 ? "is-current" : ""}>{act}</span>
+              <ol className="theatre-act-strip" aria-label="五幕画面顺序">
+                {THEATRE_ACTS.map((act, index) => (
+                  <li key={act} className={index === 2 ? "is-current" : ""} aria-current={index === 2 ? "step" : undefined}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <strong>{act}</strong>
+                  </li>
                 ))}
-              </div>
+              </ol>
             </div>
-            <small>4–7 幕场景配系统旁白；旁白读完自动翻幕，也可以随时关掉声音。</small>
+            <small>这里展示一组固定示例；实际体验会根据你确认的支线生成 4–7 幕画面与旁白，也可以随时关掉声音。</small>
           </figure>
         </div>
       </section>

@@ -2158,42 +2158,61 @@
   text-align: right;
 }
 
-/* A stage seen between two curtains, at the moment one act is playing. */
+/* A real five-act lianhuanhua spread: the image carries the theatre promise,
+   while the dark caption rail remains only as a quiet piece of stage UI. */
 .theatre-frame {
   position: relative;
   overflow: hidden;
-  min-height: 12rem;
-  padding: clamp(1.1rem, 2.4vw, 1.9rem);
-  background: #0b2126;
-  border-radius: 3px;
+  background: #f2ede3;
+  border: 1px solid #c9c4b8;
+  border-radius: 2px 18px 2px 18px;
+  box-shadow: 0 0.85rem 2.2rem rgb(36 70 63 / 9%);
 }
 
-.theatre-curtain {
+.theatre-artwork {
+  position: relative;
+  overflow: hidden;
+  background: #f1ece2;
+}
+
+.theatre-spread-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1672 / 941;
+  object-fit: cover;
+  filter: saturate(0.82) contrast(1.025);
+}
+
+.theatre-generation-note {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 13%;
-  background: linear-gradient(90deg, #47231f, #2d1613);
-}
-
-.theatre-curtain-left { left: 0; }
-
-.theatre-curtain-right {
-  right: 0;
-  background: linear-gradient(270deg, #47231f, #2d1613);
+  top: 0.7rem;
+  left: 0.7rem;
+  padding: 0.28rem 0.52rem;
+  color: #38564f;
+  border: 1px solid rgb(73 103 95 / 34%);
+  border-radius: 2px 8px 2px 8px;
+  background: rgb(249 247 239 / 88%);
+  box-shadow: 0 0.3rem 1rem rgb(20 43 39 / 9%);
+  font-family: var(--md-utility);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  backdrop-filter: blur(7px);
 }
 
 .theatre-stage {
-  position: relative;
-  z-index: 1;
-  max-width: 26rem;
-  margin: 0 auto;
-  text-align: center;
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.42fr) minmax(0, 1fr);
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  align-items: center;
+  padding: 0.9rem 1rem;
+  color: #e6efe9;
+  background: #0b2126;
 }
 
 .theatre-act {
   display: block;
-  margin-bottom: 0.8rem;
+  margin: 0;
   color: #9bc9bd;
   font-family: var(--md-utility);
   font-size: 0.66rem;
@@ -2204,35 +2223,55 @@
   margin: 0;
   color: #e6efe9;
   font-family: var(--md-display);
-  font-size: 0.96rem;
-  line-height: 2;
+  font-size: 0.86rem;
+  line-height: 1.75;
 }
 
-.theatre-controls {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  gap: 0.4rem;
-  justify-content: center;
-  margin-top: 1.4rem;
-}
-
-.theatre-controls span {
+.theatre-act-strip {
   display: grid;
-  width: 1.5rem;
-  height: 1.5rem;
-  place-items: center;
-  color: rgb(229 241 235 / 45%);
-  border: 1px solid rgb(229 241 235 / 22%);
-  border-radius: 50%;
-  font-family: var(--md-utility);
-  font-size: 0.64rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px 0 0;
+  margin: 0;
+  background: #c8d2cd;
+  list-style: none;
 }
 
-.theatre-controls .is-current {
-  color: #0b2126;
-  border-color: #9bc9bd;
-  background: #9bc9bd;
+.theatre-act-strip li {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+  padding: 0.62rem 0.35rem 0.68rem;
+  color: #70827d;
+  text-align: center;
+  border-top: 2px solid transparent;
+  background: #f8faf6;
+}
+
+.theatre-act-strip span {
+  font-family: var(--md-utility);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+}
+
+.theatre-act-strip strong {
+  overflow: hidden;
+  color: #3f5b54;
+  font-family: var(--md-display);
+  font-size: 0.66rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.theatre-act-strip .is-current {
+  color: #1e4b43;
+  border-top-color: #4c887d;
+  background: #dfebe6;
+}
+
+.theatre-act-strip .is-current strong {
+  color: #1d5047;
 }
 
 @media (max-width: 860px) {
@@ -2255,6 +2294,11 @@
   .canvas-nodes li {
     grid-template-columns: minmax(0, 1fr) 4.4rem minmax(0, 1fr);
     font-size: 0.72rem;
+  }
+
+  .theatre-stage {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
   }
 }
 
@@ -2323,6 +2367,19 @@
 
   .showcase-pair > * {
     scroll-snap-align: start;
+  }
+
+  .theatre-generation-note {
+    top: 0.45rem;
+    left: 0.45rem;
+  }
+
+  .theatre-act-strip li {
+    padding-inline: 0.2rem;
+  }
+
+  .theatre-act-strip strong {
+    font-size: 0.58rem;
   }
 
   .corpus-story-grid {
