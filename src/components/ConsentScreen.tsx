@@ -551,7 +551,7 @@ export function ConsentScreen({
             <button ref={closeButtonRef} className="modal-close" type="button" aria-label="关闭确认弹窗" disabled={busy} onClick={closeConsent}>关闭</button>
             <p className="section-label">进入前确认</p>
             <h2 id="consent-title">请先了解这次体验</h2>
-            <p id="consent-description">梦蝶记面向成年用户，是文化叙事体验而非诊疗。故事库可能涉及死亡、身体伤害等敏感材料；请不要填写姓名、联系方式、单位等可识别信息。</p>
+            <p id="consent-description">梦蝶记面向成年用户，是文化叙事体验而非诊疗。请不要填写姓名、联系方式、单位等可识别信息。</p>
             <p id="consent-processing" className="consent-processing">启用模型服务时，对话与映照文字会交由深度求索处理；获批支线的分幕画面会交由阿里云处理。旁白目前由你的设备朗读。本应用仅在服务内存中暂存会话，最迟二十四小时自动清除；这不代表第三方服务的留存期限。结束页可立即删除本应用中的会话。</p>
             <label className="consent-row consent-bundle">
               <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} />

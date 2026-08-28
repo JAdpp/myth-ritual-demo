@@ -359,7 +359,8 @@ describe("landing and conversational encounter", () => {
     expect(container.textContent).toContain("阿里云处理");
     expect(container.textContent).toContain("旁白目前由你的设备朗读");
     expect(container.textContent).toContain("这不代表第三方服务的留存期限");
-    expect(container.textContent).toContain("敏感材料");
+    expect(container.textContent).not.toContain("死亡、身体伤害");
+    expect(container.textContent).not.toContain("敏感材料");
     expect(container.textContent).toContain("最迟二十四小时自动清除");
     expect(container.textContent).toContain("结束页可立即删除");
     act(() => checkboxes[0].click());
