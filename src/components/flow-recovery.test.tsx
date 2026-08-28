@@ -234,19 +234,29 @@ describe("landing and conversational encounter", () => {
     }
   });
 
-  it("shows a real five-act lianhuanhua example instead of an empty theatre", () => {
+  it("shows the user's modern co-created branch instead of replaying the classical plot", () => {
     render(<ConsentScreen busy={false} error={null} health={null} onBegin={noop} />);
 
     const image = container.querySelector<HTMLImageElement>(".theatre-spread-image");
-    expect(image?.getAttribute("src")).toBe("/assets/landing/theatre-dayu-five-act-v1.webp");
-    expect(image?.getAttribute("alt")).toContain("五幕连环画示例");
-    const assetPath = "public/assets/landing/theatre-dayu-five-act-v1.webp";
+    expect(image?.getAttribute("src")).toBe("/assets/landing/theatre-new-team-modern-myth-v1.webp");
+    expect(image?.getAttribute("alt")).toContain("现代共创神话六幕示例");
+    const assetPath = "public/assets/landing/theatre-new-team-modern-myth-v1.webp";
     expect(existsSync(assetPath)).toBe(true);
     expect(statSync(assetPath).size).toBeGreaterThan(100_000);
-    expect(container.querySelectorAll(".theatre-act-strip li")).toHaveLength(5);
-    expect(container.querySelector('.theatre-act-strip [aria-current="step"]')?.textContent).toContain("沿山寻水");
-    expect(container.textContent).toContain("示例连环画 · AI 生成");
+    expect(container.querySelectorAll(".theatre-act-strip li")).toHaveLength(6);
+    expect(container.querySelector(".theatre-act-strip")?.getAttribute("aria-label")).toBe("六幕画面顺序");
+    expect(container.querySelector('.theatre-act-strip [aria-current="step"]')?.textContent).toContain("把结摊开");
+    expect(container.textContent).toContain("现代支线示例 · AI 生成");
+    expect(container.textContent).toContain("你确认的支线，长成一则现代神话");
+    expect(container.textContent).toContain("把缠成结的任务放回共同的桌面");
+    expect(container.textContent).toContain("本组画面不复现原典情节，也不是古籍插图");
     expect(container.textContent).toContain("实际体验会根据你确认的支线生成 4–7 幕画面与旁白");
+    expect(container.textContent).not.toContain("被推上临时负责人");
+    expect(container.textContent).not.toContain("第一个方案没做成");
+    expect(container.textContent).not.toContain("连着两周没有休息");
+    expect(container.textContent).not.toContain("独自筑堤");
+    expect(container.textContent).not.toContain("沿山寻水");
+    expect(container.textContent).not.toContain("一起开渠");
     expect(container.querySelector(".theatre-curtain")).toBeNull();
   });
 

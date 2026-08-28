@@ -112,14 +112,14 @@ const SHOWCASE_CARDS = [
 /* One node per mapping slot, canon on the left and the modern branch on the
    right — the same two-column relation the real canvas uses. */
 const MAPPING_NODES = [
-  { label: "召唤", canon: "受命治水", branch: "被推上临时负责人" },
-  { label: "试炼", canon: "九年堵而不成", branch: "第一个方案没做成" },
-  { label: "转折", canon: "改堵为疏", branch: "换成先问清责任边界" },
-  { label: "代价", canon: "三过家门不入", branch: "连着两周没有休息" },
-  { label: "归返", canon: "百川归海", branch: "承担，但不独自扛下所有" },
+  { label: "召唤", canon: "受命治水", branch: "主动接下合作任务" },
+  { label: "试炼", canon: "九年堵而不成", branch: "回去后不安，责任还没说清" },
+  { label: "转折", canon: "改堵为疏", branch: "把任务带回团队，问清共同责任" },
+  { label: "代价", canon: "三过家门不入", branch: "不把承担等同于独自扛下" },
+  { label: "归返", canon: "百川归海", branch: "只接住自己确认的一段，共同推进" },
 ] as const;
 
-const THEATRE_ACTS = ["独自筑堤", "停下看图", "沿山寻水", "一起开渠", "水归开处"] as const;
+const THEATRE_ACTS = ["接住火种", "光线成结", "把结摊开", "众人分线", "织成共图", "各执一端"] as const;
 
 export function ConsentScreen({
   busy,
@@ -437,27 +437,27 @@ export function ConsentScreen({
 
           <figure className="showcase-theatre">
             <figcaption>
-              <span className="section-label">再演 · 剧场</span>
-              <h3>五幕连环画，沿选择展开</h3>
+              <span className="section-label">再演 · 共创剧场</span>
+              <h3>你确认的支线，长成一则现代神话</h3>
             </figcaption>
-            <div className="theatre-frame" aria-label="再演剧场示意">
+            <div className="theatre-frame" aria-label="再演共创剧场六幕示意">
               <div className="theatre-artwork">
                 <img
                   className="theatre-spread-image"
-                  src="/assets/landing/theatre-dayu-five-act-v1.webp"
-                  alt="五幕连环画示例：一人从独自加高堤坝，到停下看图、沿山寻水、与人开渠，最后让水流向开阔河谷。"
-                  width="1672"
-                  height="941"
+                  src="/assets/landing/theatre-new-team-modern-myth-v1.webp"
+                  alt="现代共创神话六幕示例：主角主动接下合作任务，独处时被发光丝线缠住；随后把线结放回共同桌面，与伙伴分清各自愿意接住的一段、织成协作图，最终众人携线向前，光线汇成飞蝶。"
+                  width="1536"
+                  height="864"
                   loading="lazy"
                   decoding="async"
                 />
-                <span className="theatre-generation-note">示例连环画 · AI 生成</span>
+                <span className="theatre-generation-note">现代支线示例 · AI 生成</span>
               </div>
               <div className="theatre-stage">
-                <span className="theatre-act">第 3 幕 · 重新选择方法</span>
-                <p>他没有继续加高堤坝，而是走遍山川，寻找水本来要去的地方。</p>
+                <span className="theatre-act">第 3 幕 · 把结摊开</span>
+                <p>下一次例会，主角把缠成结的任务放回共同的桌面：先问清哪些责任属于大家、有哪些方法可用，再决定自己愿意接住哪一段。</p>
               </div>
-              <ol className="theatre-act-strip" aria-label="五幕画面顺序">
+              <ol className="theatre-act-strip" aria-label="六幕画面顺序">
                 {THEATRE_ACTS.map((act, index) => (
                   <li key={act} className={index === 2 ? "is-current" : ""} aria-current={index === 2 ? "step" : undefined}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
@@ -466,7 +466,8 @@ export function ConsentScreen({
                 ))}
               </ol>
             </div>
-            <small>这里展示一组固定示例；实际体验会根据你确认的支线生成 4–7 幕画面与旁白，也可以随时关掉声音。</small>
+            <p className="theatre-source-boundary"><strong>来源边界</strong> 大禹治水只提供“接下重担、遭遇阻力、改换方法”的比较线索；主动接下任务、问清共同责任与共同分工属于用户确认的现代支线。本组画面不复现原典情节，也不是古籍插图。</p>
+            <small>首页展示“接下新任务”案例的共创结果；实际体验会根据你确认的支线生成 4–7 幕画面与旁白，也可以随时关掉声音。</small>
           </figure>
         </div>
       </section>

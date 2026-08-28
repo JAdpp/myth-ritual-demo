@@ -2158,8 +2158,8 @@
   text-align: right;
 }
 
-/* A real five-act lianhuanhua spread: the image carries the theatre promise,
-   while the dark caption rail remains only as a quiet piece of stage UI. */
+/* The multi-act spread performs the user's contemporary branch. The original
+   story remains comparison material; it is not what the theatre illustrates. */
 .theatre-frame {
   position: relative;
   overflow: hidden;
@@ -2179,9 +2179,9 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1672 / 941;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
-  filter: saturate(0.82) contrast(1.025);
+  filter: none;
 }
 
 .theatre-generation-note {
@@ -2229,7 +2229,7 @@
 
 .theatre-act-strip {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 1px;
   padding: 1px 0 0;
   margin: 0;
@@ -2272,6 +2272,22 @@
 
 .theatre-act-strip .is-current strong {
   color: #1d5047;
+}
+
+.theatre-source-boundary {
+  margin: 0.82rem 0 0;
+  color: #536761;
+  font-family: var(--md-display);
+  font-size: 0.72rem;
+  line-height: 1.75;
+}
+
+.theatre-source-boundary strong {
+  margin-right: 0.45rem;
+  color: #2f5f56;
+  font-family: var(--md-utility);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
 }
 
 @media (max-width: 860px) {
