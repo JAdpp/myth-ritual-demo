@@ -39,6 +39,11 @@ export interface CorpusOverview {
   deepAnnotatedStories?: number;
   /** C1 source candidates plus all C3 prepared candidates. */
   totalRecommendationCandidates?: number;
+  /** all_canonical_records when the C1 index loaded; otherwise c3_only. */
+  recommendationPoolMode?: "all_canonical_records" | "c3_only";
+  /** available when catalog.sqlite3 loaded; unavailable if missing or unreadable. */
+  recommendationIndexStatus?: "available" | "unavailable" | "not_configured";
+  recommendationIndexAvailable?: boolean;
   /** Total candidate records with sensitive C3 stories kept off by default. */
   defaultTotalRecommendationCandidates?: number;
   /** Product-facing count: one adopted main text per experience story. */

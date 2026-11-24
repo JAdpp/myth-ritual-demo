@@ -204,6 +204,7 @@ export function ConsentScreen({
     ?? overview?.catalogUniqueStories
     ?? overview?.catalogEntries
     ?? 12_383;
+  const indexUnavailable = overview?.recommendationIndexStatus === "unavailable";
   const sourceWorkCount = overview?.catalogSourceWorks
     || overview?.catalogWorks?.length
     || undefined;
@@ -567,6 +568,9 @@ export function ConsentScreen({
           <h2 id="corpus-title"><strong>{recommendationCount.toLocaleString("zh-CN")}</strong> 条候选，<br />从出处开始</h2>
           <p className="corpus-status">
             这里的数字指机器切分后的开发候选，不等同于同等数量的独立故事。技术演示版尚未逐条完成人工复核，但候选都会保留题名与出处；每次体验只采用一份主文本{sourceWorkCount ? `。目前汇集 ${sourceWorkCount} 部古籍` : ""}。
+            {indexUnavailable
+              ? "当前未加载全文检索索引，首页数字只反映已整理的深标故事，而不是完整来源库。重建方法见 data/README.md 中的 ingest_wikisource_c1.py。"
+              : ""}
           </p>
           {featuredWorks.length ? (
             <ul className="corpus-group-list" aria-label="部分来源古籍">

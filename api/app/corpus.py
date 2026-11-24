@@ -473,6 +473,7 @@ class CorpusRepository:
             if str(item["familyId"]) not in self.rejected_duplicate_family_ids
         }
         self._catalog = self._load_catalog_summary()
+        self._recommendation_index_status = "not_configured"
         self._single_story_catalog = self._load_single_story_summary()
         self._single_story_candidate_ids = self._load_single_story_candidate_ids()
         self._single_story_candidate_id_set = frozenset(self._single_story_candidate_ids)
@@ -626,12 +627,19 @@ class CorpusRepository:
     def _load_single_story_candidate_ids(self) -> tuple[str, ...]:
         """Load the small stable-ID index, never the 12k story bodies."""
 
+        if self.single_story_db_path is None:
+            self._recommendation_index_status = "not_configured"
+            return ()
+        if not self.single_story_db_path.is_file():
+            self._recommendation_index_status = "unavailable"
+            return ()
         try:
             with closing(self._open_single_story_db()) as connection:
                 columns = {
                     str(row[1]) for row in connection.execute("PRAGMA table_info(entries)")
                 }
                 if not _C1_REQUIRED_COLUMNS.issubset(columns):
+                    self._recommendation_index_status = "unavailable"
                     return ()
                 rows = connection.execute(
                     """
@@ -641,9 +649,14 @@ class CorpusRepository:
                     """
                 ).fetchall()
         except (OSError, sqlite3.Error):
+            self._recommendation_index_status = "unavailable"
             return ()
         ids = tuple(str(row[0]) for row in rows)
-        return ids if len(ids) == len(set(ids)) else ()
+        if len(ids) != len(set(ids)):
+            self._recommendation_index_status = "unavailable"
+            return ()
+        self._recommendation_index_status = "available"
+        return ids
 
     @staticmethod
     def _normalize_c1_row(row: Mapping[str, Any]) -> dict[str, Any]:
@@ -1143,6 +1156,8 @@ class CorpusRepository:
             "recommendationPoolMode": (
                 "all_canonical_records" if self._single_story_candidate_count else "c3_only"
             ),
+            "recommendationIndexStatus": self._recommendation_index_status,
+            "recommendationIndexAvailable": self._recommendation_index_status == "available",
             # Audit-facing count: source witnesses remain evidence, never user choices.
             "sourceWitnesses": source_witnesses,
             # Legacy fields stay available while API consumers migrate terminology.

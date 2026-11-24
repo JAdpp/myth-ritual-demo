@@ -148,4 +148,12 @@ python data\validate_story_catalog.py
 python data\validate_c1_story_corpus.py
 ```
 
+若干净检出缺少 `corpus/c1_single_story/catalog.sqlite3`，可用现有摄取命令从已保存的维基文库 EPUB 重建全文检索索引：
+
+```powershell
+python data\ingest_wikisource_c1.py
+```
+
+缺少该索引时，API 不会假装完整来源库可用：`recommendationPoolMode` 会降为 `c3_only`，`recommendationIndexStatus` 为 `unavailable`，推荐与首页数字只使用已加载的深标故事。本仓库本地开发环境若已有该索引，不必重新构建。
+
 运行集校验必须输出：30 个故事家族、30 条产品主文本、30 条后台第二见证、60 条固定来源，60/60 哈希与来源对齐，成人来源总数 4、成人产品主文本 3。目录校验必须输出 180 条早期策展候选、30 条详标、150 条 metadata-only。C1 来源层校验必须输出 6 部作品、15 个分片、原始 12,374、拒绝 20、接受/SQLite 12,354、精确重复 1、canonical/full-text/FTS/推荐池 12,353、生产资格 0。离线检查证明数据和运行契约一致，不代表逐条内容审计已经完成。

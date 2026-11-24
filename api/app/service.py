@@ -357,6 +357,30 @@ def _clean_chinese_copy(value: object) -> str:
     return text
 
 
+_MAPPING_ANALYSIS_LABELS = ("现实线索：", "原典线索：", "映照差异：")
+
+
+def _mapping_analysis_parts(value: object) -> tuple[str, str, str] | None:
+    text = _clean_chinese_copy(value)
+    if not all(label in text for label in _MAPPING_ANALYSIS_LABELS):
+        return None
+    reality = text.split("现实线索：", 1)[1].split("原典线索：", 1)[0]
+    canon = text.split("原典线索：", 1)[1].split("映照差异：", 1)[0]
+    difference = text.split("映照差异：", 1)[1]
+    return reality, canon, difference
+
+
+def _speakable_theatre_narration(value: object) -> str:
+    """Turn canvas analysis labels into speakable narrative sentences."""
+
+    text = _clean_chinese_copy(value)
+    parts = _mapping_analysis_parts(text)
+    if parts is None:
+        return text
+    reality, canon, difference = (part.strip("；，。 ") for part in parts)
+    return _clean_chinese_copy(f"{reality}。{canon}。与此刻不同的是，{difference}。")
+
+
 def _short_clause(value: str, *, limit: int = 64) -> str:
     text = _clean_chinese_copy(value).strip("。！？；，、 ")
     if len(text) <= limit:
@@ -1191,7 +1215,13 @@ class SessionService:
             reply = f"{acknowledgement}\n\n{follow_up_question}"
             source = "deterministic_fallback"
             model_version: str | None = None
-            if session.consent.get("cloudProcessingAccepted") is True:
+            # Closing (and later) turns discard any conversation reply in favor of
+            # a summary, so skip the model call the user would never see.
+            guidance_complete = user_turns >= _MAX_GUIDANCE_TURNS
+            if (
+                session.consent.get("cloudProcessingAccepted") is True
+                and not guidance_complete
+            ):
                 try:
                     history = [
                         item.model_dump(mode="json", by_alias=True)
@@ -1286,7 +1316,6 @@ class SessionService:
             # Guidance is bounded: past this many user turns the assistant stops
             # asking and hands over to the summary step, so the conversation
             # cannot wander indefinitely.
-            guidance_complete = user_turns >= _MAX_GUIDANCE_TURNS
             summary_source = "deterministic_fallback"
             summary_text: str | None = None
             if guidance_complete:
@@ -2263,7 +2292,8 @@ class SessionService:
         source: dict[str, Any],
     ) -> bool:
         text = _clean_chinese_copy(value)
-        if not all(label in text for label in ("现实线索：", "原典线索：", "映照差异：")):
+        parts = _mapping_analysis_parts(text)
+        if parts is None:
             return False
         if any(
             filler in text
@@ -2275,9 +2305,7 @@ class SessionService:
             )
         ):
             return False
-        reality = text.split("现实线索：", 1)[1].split("原典线索：", 1)[0]
-        canon = text.split("原典线索：", 1)[1].split("映照差异：", 1)[0]
-        difference = text.split("映照差异：", 1)[1]
+        reality, canon, difference = parts
         if min(len(reality.strip("；，。 ")), len(canon.strip("；，。 ")), len(difference.strip("；，。 "))) < 4:
             return False
 
@@ -2934,7 +2962,7 @@ class SessionService:
                     node_number = _NODE_NUMBER.get(str(node.get("id") or ""), len(acts))
                     append_act(
                         title=str(node.get("title") or f"映照节点 {node_number}"),
-                        narration=str(node.get("value") or "").strip(),
+                        narration=_speakable_theatre_narration(node.get("value") or ""),
                         mood=moods[min(max(node_number, 1), len(moods) - 1)],
                         source_node_ids=[str(node.get("id"))],
                         stage_direction="保留当前节点的用户措辞，以画面与字幕呈现，不补写用户未确认的事实。",

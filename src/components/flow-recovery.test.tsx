@@ -394,6 +394,42 @@ describe("landing and conversational encounter", () => {
     });
   });
 
+  it("explains when the full-text recommendation index is unavailable", () => {
+    const health: HealthStatus = {
+      status: "ok",
+      service: "myth-ritual-demo",
+      corpusVersion: "corpus-v-test",
+      eligibleC3Records: 30,
+      corpusOverview: {
+        recommendationPoolStories: 0,
+        curatedExperienceStories: 30,
+        deepAnnotatedStories: 30,
+        totalRecommendationCandidates: 30,
+        recommendationPoolMode: "c3_only",
+        recommendationIndexStatus: "unavailable",
+        recommendationIndexAvailable: false,
+        productStories: 30,
+        sourceWitnesses: 60,
+        storyFamilies: 30,
+        storyVersions: 30,
+        catalogUniqueStories: 12_353,
+        catalogSourceWorks: 6,
+        familyIds: ["gun_yu_flood_control"],
+        genres: [{ name: "神话", count: 30 }],
+        eraLabels: ["先秦"],
+        reviewStatus: "development_dual_review_pending",
+        productionEligibleVersions: 0,
+      },
+      liveModelEnabled: false,
+    };
+    render(<ConsentScreen busy={false} error={null} health={health} onBegin={async () => undefined} />);
+    expect(container.textContent).toContain("30 条可推荐候选");
+    expect(container.textContent).toContain("当前未加载全文检索索引");
+    expect(container.textContent).toContain("只反映已整理的深标故事");
+    expect(container.textContent).not.toContain("12,353 条可推荐候选");
+    expect(container.textContent).not.toContain("12,383");
+  });
+
   it("bundles the required disclosures into one explicit consent", async () => {
     const onBegin = vi.fn(async () => undefined);
     render(<ConsentScreen busy={false} error={null} health={null} onBegin={onBegin} />);

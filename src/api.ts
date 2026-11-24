@@ -26,9 +26,16 @@ import type {
 const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 export const API_BASE_URL = configuredBaseUrl || "";
 
-const DEFAULT_REQUEST_TIMEOUT_MS = 45_000;
-const MODEL_REQUEST_TIMEOUT_MS = 90_000;
-const MEDIA_REQUEST_TIMEOUT_MS = 120_000;
+export const DEFAULT_REQUEST_TIMEOUT_MS = 45_000;
+export const MODEL_REQUEST_TIMEOUT_MS = 90_000;
+export const MEDIA_REQUEST_TIMEOUT_MS = 120_000;
+// Default DeepSeek per-call budget is 60s (DEEPSEEK_TIMEOUT_SECONDS).
+// Story offers run planning and rerank sequentially; keep other model
+// endpoints at 90s and only extend this request by a short safety margin.
+const RECOMMENDATION_STEP_TIMEOUT_MS = 60_000;
+const STORY_OFFER_TIMEOUT_SAFETY_MARGIN_MS = 15_000;
+export const STORY_OFFER_REQUEST_TIMEOUT_MS =
+  RECOMMENDATION_STEP_TIMEOUT_MS * 2 + STORY_OFFER_TIMEOUT_SAFETY_MARGIN_MS;
 const pendingIdempotencyKeys = new Map<string, string>();
 
 type RequestOptions = {
@@ -253,7 +260,7 @@ export function getStoryOffers(
       method: "POST",
       body: JSON.stringify({ excludedStoryVersionIds, refresh }),
     },
-    { timeoutMs: MODEL_REQUEST_TIMEOUT_MS },
+    { timeoutMs: STORY_OFFER_REQUEST_TIMEOUT_MS },
   );
 }
 

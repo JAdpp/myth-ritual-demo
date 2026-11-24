@@ -44,6 +44,7 @@ npm.cmd run dev
 - **不填密钥也能跑完整流程**：此时走确定性回退。
 - 要启用真实模型：在 `.env` 设置 `DEEPSEEK_API_KEY` 和 `ENABLE_LIVE_MODEL_GENERATION=true`；逐幕图片另需 `DASHSCOPE_API_KEY`、`ALIYUN_IMAGE_API_HOST` 和 `ENABLE_IMAGE_GENERATION=true`。
 - 密钥只放服务端 `.env`，不要放进 `VITE_*` 变量，否则会被打进浏览器包。
+- 完整推荐池依赖 `data/corpus/c1_single_story/catalog.sqlite3`。若该索引不存在，服务会降级为只使用已整理的深标故事，并在健康检查与首页说明中标明；重建命令见 [data/README.md](data/README.md) 的 `python data\ingest_wikisource_c1.py`。
 
 测试：`npm.cmd run test`（类型检查 + 前端 + API）。通过只说明代码与不变量检查没问题，不等于文化复核、部署验收或用户测试。
 
